@@ -1,0 +1,2437 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+
+    },
+    "· %@" : {
+
+    },
+    "%lld" : {
+
+    },
+    "%lld FPS" : {
+
+    },
+    "10AEAG2YZS0020P" : {
+
+    },
+    "127.0.0.1:7897" : {
+
+    },
+    "192.168.1.100" : {
+
+    },
+    "720p" : {
+
+    },
+    "1080p" : {
+
+    },
+    "1920p" : {
+
+    },
+    "5555" : {
+
+    },
+    "addDeviceAddAddress" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add address"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加地址"
+          }
+        }
+      }
+    },
+    "addDeviceAddAnotherAddress" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add another address"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加另一个地址"
+          }
+        }
+      }
+    },
+    "addDeviceAudioControlSection" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Audio & Control"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音频与控制"
+          }
+        }
+      }
+    },
+    "addDeviceAudioControlSectionHint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Default behavior after connecting"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接设备后的默认行为"
+          }
+        }
+      }
+    },
+    "addDeviceBackupSection" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup connections"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "备用连接"
+          }
+        }
+      }
+    },
+    "addDeviceBackupSectionHint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional backups; when the preferred connection is unavailable, they are tried in order."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可选连接；当首选连接不可用时，按顺序尝试。"
+          }
+        }
+      }
+    },
+    "addDeviceChooseLabelColor" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose label color"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择标记颜色"
+          }
+        }
+      }
+    },
+    "addDeviceConnectionSection" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Device & Connection"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设备与连接"
+          }
+        }
+      }
+    },
+    "addDeviceConnectionSectionHint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name the device and choose its preferred connection"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "填写设备名称，并选择首选的连接方式"
+          }
+        }
+      }
+    },
+    "addDeviceConnectionType" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection type"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接方式"
+          }
+        }
+      }
+    },
+    "addDeviceDefaultModel" : {
+      "comment" : "Default model for a newly added device",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Android device"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Android 设备"
+          }
+        }
+      }
+    },
+    "addDeviceForwardAudio" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forward device audio"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "转发设备音频"
+          }
+        }
+      }
+    },
+    "addDeviceFullscreen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start in full screen"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全屏启动"
+          }
+        }
+      }
+    },
+    "addDeviceGroup" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Device group"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设备分组"
+          }
+        }
+      }
+    },
+    "addDeviceIPAddress" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IP address"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IP 地址"
+          }
+        }
+      }
+    },
+    "addDeviceKeepAwake" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep device awake"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保持设备唤醒"
+          }
+        }
+      }
+    },
+    "addDeviceLabelColor" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Label color"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "标记颜色"
+          }
+        }
+      }
+    },
+    "addDeviceMaxFrameRate" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximum frame rate"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最大帧率"
+          }
+        }
+      }
+    },
+    "addDeviceMaxResolution" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximum resolution"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最大分辨率"
+          }
+        }
+      }
+    },
+    "addDeviceMDNSServiceOrSerial" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mDNS service or device serial"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mDNS 服务或设备序列号"
+          }
+        }
+      }
+    },
+    "addDeviceNoBackupAddress" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No backup address added"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未添加备用地址"
+          }
+        }
+      }
+    },
+    "addDeviceOriginalSize" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Original size"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原始尺寸"
+          }
+        }
+      }
+    },
+    "addDevicePort" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Port"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "端口"
+          }
+        }
+      }
+    },
+    "addDeviceRemoveAddress" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove this address"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移除此地址"
+          }
+        }
+      }
+    },
+    "addDeviceSaveHint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saving creates a device record without connecting immediately. You can adjust these options later in device settings."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存只会创建设备记录，不会立即连接。之后可随时在设备设置中调整这些选项。"
+          }
+        }
+      }
+    },
+    "addDeviceSessionName" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Session name"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会话名称"
+          }
+        }
+      }
+    },
+    "addDeviceSessionNamePlaceholder" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For example, Pixel 9 Pro"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "例如 Pixel 9 Pro"
+          }
+        }
+      }
+    },
+    "addDeviceSubtitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save connection details and session preferences for quick access from the sidebar"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存连接信息与会话偏好，稍后可从侧边栏快速连接"
+          }
+        }
+      }
+    },
+    "addDeviceSyncClipboard" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sync clipboard"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同步剪贴板"
+          }
+        }
+      }
+    },
+    "addDeviceTitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Device"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加设备"
+          }
+        }
+      }
+    },
+    "addDeviceTurnScreenOff" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn device screen off after connecting"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接后关闭设备屏幕"
+          }
+        }
+      }
+    },
+    "addDeviceUngrouped" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ungrouped"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未分组"
+          }
+        }
+      }
+    },
+    "addDeviceUSBSerial" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "USB serial number"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "USB 序列号"
+          }
+        }
+      }
+    },
+    "addDeviceVideoBitrate" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video bitrate"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "视频码率"
+          }
+        }
+      }
+    },
+    "addDeviceVideoSection" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "视频"
+          }
+        }
+      }
+    },
+    "addDeviceVideoSectionHint" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Picture quality and launch behavior"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画面质量与启动方式"
+          }
+        }
+      }
+    },
+    "addDeviceWaitingToConnect" : {
+      "comment" : "Initial connection status",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting to connect"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "等待连接"
+          }
+        }
+      }
+    },
+    "Android CLI 会根据硬件配置自动选择名称和合适的系统镜像。" : {
+
+    },
+    "appsAllSection" : {
+
+    },
+    "appsBatteryLevel" : {
+
+    },
+    "appsInstalledCount" : {
+
+    },
+    "appsOpenAction" : {
+
+    },
+    "appsRecentCount" : {
+
+    },
+    "appsRecentSection" : {
+
+    },
+    "appsSearchPrompt" : {
+
+    },
+    "appsSearchResultsSection" : {
+
+    },
+    "appsSubtitle" : {
+
+    },
+    "appsTitle" : {
+
+    },
+    "appsViewAll" : {
+
+    },
+    "commonAdd" : {
+
+    },
+    "commonCancel" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消"
+          }
+        }
+      }
+    },
+    "commonChooseEllipsis" : {
+
+    },
+    "commonClose" : {
+
+    },
+    "commonDone" : {
+
+    },
+    "commonDownloadEllipsis" : {
+
+    },
+    "commonRefresh" : {
+
+    },
+    "commonSave" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存"
+          }
+        }
+      }
+    },
+    "deviceDiscoveryEmptyDetail" : {
+
+    },
+    "deviceDiscoveryEmptyTitle" : {
+
+    },
+    "deviceDiscoveryPortScanAction" : {
+
+    },
+    "deviceDiscoveryPortScanDetail" : {
+
+    },
+    "deviceDiscoveryPortScanTitle" : {
+
+    },
+    "deviceDiscoveryRefreshing" : {
+
+    },
+    "deviceDiscoverySubtitle" : {
+
+    },
+    "deviceDiscoveryTitle" : {
+
+    },
+    "diagnosticsClear" : {
+
+    },
+    "diagnosticsCodecTest" : {
+
+    },
+    "diagnosticsCodecTestDetail" : {
+
+    },
+    "diagnosticsCodecTestSubtitle" : {
+
+    },
+    "diagnosticsAndroidAudioEncoder" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Android Audio Encoder"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "安卓音频编码器"
+          }
+        }
+      }
+    },
+    "diagnosticsAndroidVideoEncoder" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Android Video Encoder"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "安卓视频编码器"
+          }
+        }
+      }
+    },
+    "diagnosticsAudioDecoding" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Audio decoding"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音频解码"
+          }
+        }
+      }
+    },
+    "diagnosticsDeviceCount" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d Devices"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d 台设备"
+          }
+        }
+      }
+    },
+    "diagnosticsRemoteEncoding" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remote Encoding"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "远程编码"
+          }
+        }
+      }
+    },
+    "diagnosticsStatusNeedsDevice" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Needs a device"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要设备"
+          }
+        }
+      }
+    },
+    "diagnosticsStatusSoftwareOnly" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Software only"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仅软件解码"
+          }
+        }
+      }
+    },
+    "diagnosticsStatusWaiting" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "等待中"
+          }
+        }
+      }
+    },
+    "diagnosticsVideoDecoding" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video decoding"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "视频解码"
+          }
+        }
+      }
+    },
+    "diagnosticsDeviceGroups" : {
+
+    },
+    "diagnosticsDeviceGroupsSubtitle" : {
+
+    },
+    "diagnosticsFilterLogs" : {
+
+    },
+    "diagnosticsNewGroupName" : {
+
+    },
+    "diagnosticsNoSDLLogs" : {
+
+    },
+    "diagnosticsNoSDLLogsDetail" : {
+
+    },
+    "diagnosticsRunLocalTest" : {
+
+    },
+    "diagnosticsSDLLogs" : {
+
+    },
+    "diagnosticsSDLLogsSubtitle" : {
+
+    },
+    "HTTP" : {
+
+    },
+    "messagesContactName" : {
+
+    },
+    "messagesIncomingFirst" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Screen Remote."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "欢迎使用 Screen Remote。"
+          }
+        }
+      }
+    },
+    "messagesIncomingLast" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No problem. I’ll finish it tonight."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没问题，我今晚完成。"
+          }
+        }
+      }
+    },
+    "messagesOutgoing" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can you send me the latest build when it’s ready?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你准备好后能发我最新版本吗？"
+          }
+        }
+      }
+    },
+    "messagesSearchPrompt" : {
+
+    },
+    "messagesSendPrompt" : {
+
+    },
+    "messagesSMS" : {
+
+    },
+    "messagesTitle" : {
+
+    },
+    "messagesTodayTime" : {
+
+    },
+    "notificationsClearAll" : {
+
+    },
+    "notificationsNewCount" : {
+
+    },
+    "notificationsQuickReply" : {
+
+    },
+    "notificationsSearchPrompt" : {
+
+    },
+    "notificationsSubtitle" : {
+
+    },
+    "notificationsTitle" : {
+
+    },
+    "photosCamera" : {
+
+    },
+    "photosRecent" : {
+
+    },
+    "photosScreenshots" : {
+
+    },
+    "photosSearchPrompt" : {
+
+    },
+    "photosSubtitle" : {
+
+    },
+    "photosTitle" : {
+
+    },
+    "photosToday" : {
+
+    },
+    "photosTodayCount" : {
+
+    },
+    "photosYesterday" : {
+
+    },
+    "R5CW730QLKB" : {
+
+    },
+    "scrcpy 将使用 GitHub 官方下载地址。" : {
+
+    },
+    "settingsAutoDetect" : {
+
+    },
+    "settingsBasicControl" : {
+
+    },
+    "settingsBasicControlDetail" : {
+
+    },
+    "settingsBasicPreferences" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Basic settings"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "基础设置"
+          }
+        }
+      }
+    },
+    "settingsBasicPreferencesDetail" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language and appearance preferences."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "语言与主题偏好设置。"
+          }
+        }
+      }
+    },
+    "settingsExecutablePath" : {
+
+    },
+    "settingsLanguage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "语言"
+          }
+        }
+      }
+    },
+    "settingsLanguageChinese" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simplified Chinese"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "简体中文"
+          }
+        }
+      }
+    },
+    "settingsLanguageEnglish" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "English"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "English"
+          }
+        }
+      }
+    },
+    "settingsLanguageSystem" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Follow System"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跟随系统"
+          }
+        }
+      }
+    },
+    "settingsLegacy" : {
+
+    },
+    "settingsLegacyToolsCompatibility" : {
+
+    },
+    "settingsNew" : {
+
+    },
+    "settingsNewCLIExplanation" : {
+
+    },
+    "settingsOpenFolder" : {
+
+    },
+    "settingsRecommendedAndroidCLI" : {
+
+    },
+    "settingsShared" : {
+
+    },
+    "settingsSharedByNewAndLegacy" : {
+
+    },
+    "settingsStorageLocation" : {
+
+    },
+    "settingsSubtitle" : {
+
+    },
+    "settingsTheme" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Theme"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主题"
+          }
+        }
+      }
+    },
+    "settingsThemeDark" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dark"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "深色"
+          }
+        }
+      }
+    },
+    "settingsThemeLight" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Light"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "浅色"
+          }
+        }
+      }
+    },
+    "settingsThemeSystem" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "系统"
+          }
+        }
+      }
+    },
+    "settingsTitle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置"
+          }
+        }
+      }
+    },
+    "settingsToolInstallLocations" : {
+
+    },
+    "settingsVirtualDeviceCapability" : {
+
+    },
+    "settingsVirtualDeviceCapabilityDetail" : {
+
+    },
+    "sidebarAllDevices" : {
+
+    },
+    "sidebarCollapseDeviceList" : {
+
+    },
+    "sidebarDevices" : {
+
+    },
+    "sidebarDiagnostics" : {
+
+    },
+    "sidebarExpandDeviceList" : {
+
+    },
+    "sidebarManageGroups" : {
+
+    },
+    "sidebarOpenPhoneScreen" : {
+
+    },
+    "sidebarQuickActions" : {
+
+    },
+    "sidebarRefreshDevices" : {
+
+    },
+    "sidebarUngrouped" : {
+
+    },
+    "sidebarVirtualDevices" : {
+
+    },
+    "appSectionApps" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "应用"
+          }
+        }
+      }
+    },
+    "appSectionNotifications" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知"
+          }
+        }
+      }
+    },
+    "appSectionMessages" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Messages"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "消息"
+          }
+        }
+      }
+    },
+    "appSectionPhotos" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Photos"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相册"
+          }
+        }
+      }
+    },
+    "deviceConnectionAddressNotConfigured" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Address not configured"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未配置地址"
+          }
+        }
+      }
+    },
+    "deviceConnectionSerialNotConfigured" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serial not configured"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未配置序列号"
+          }
+        }
+      }
+    },
+    "deviceConnectionServiceNotConfigured" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Service not configured"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未配置服务"
+          }
+        }
+      }
+    },
+    "deviceGroupPersonal" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personal"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "个人设备"
+          }
+        }
+      }
+    },
+    "deviceGroupWork" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Work"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工作设备"
+          }
+        }
+      }
+    },
+    "sidebarAddressNotConfigured" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No address"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未配置地址"
+          }
+        }
+      }
+    },
+    "sidebarDeviceConnected" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connected · %@%%"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已连接 · %@%%"
+          }
+        }
+      }
+    },
+    "topBarSettings" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置"
+          }
+        }
+      }
+    },
+    "settingsChooseExecutable" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose executable"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择可执行文件"
+          }
+        }
+      }
+    },
+    "settingsChooseDirectory" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose directory"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择目录"
+          }
+        }
+      }
+    },
+    "settingsSDKRoot" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Android SDK Path"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Android SDK 路径"
+          }
+        }
+      }
+    },
+    "settingsAVDHome" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AVD Home"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AVD 主目录"
+          }
+        }
+      }
+    },
+    "settingsAVDHomePlaceholder" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Path to AVD home"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AVD 主目录路径"
+          }
+        }
+      }
+    },
+    "settingsADBDetail" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Android Debug Bridge executable path"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Android 调试桥可执行文件路径"
+          }
+        }
+      }
+    },
+    "settingsScrcpyDetail" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "scrcpy executable path"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "scrcpy 可执行文件路径"
+          }
+        }
+      }
+    },
+    "settingsStatusUnchecked" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not checked"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未检测"
+          }
+        }
+      }
+    },
+    "settingsStatusReady" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ready"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "就绪"
+          }
+        }
+      }
+    },
+    "settingsStatusMissing" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Missing"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "缺失"
+          }
+        }
+      }
+    },
+    "deviceDiscoveryWaiting" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "等待中"
+          }
+        }
+      }
+    },
+    "deviceDiscoveryReadingDevices" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading ADB devices"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "读取 adb 设备"
+          }
+        }
+      }
+    },
+    "deviceDiscoveryReadingMDNS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scanning mDNS"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "扫描 mDNS"
+          }
+        }
+      }
+    },
+    "deviceDiscoveryComplete" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Discovery complete"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "发现完成"
+          }
+        }
+      }
+    },
+    "deviceDiscoveryAlreadyAdded" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Device has already been added"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "该设备已添加"
+          }
+        }
+      }
+    },
+    "deviceDiscoveryAndroidDevice" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Android device"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Android 设备"
+          }
+        }
+      }
+    },
+    "deviceDiscoveryWaitingToConnect" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting to connect"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "等待连接"
+          }
+        }
+      }
+    },
+    "deviceDiscoveryADBNotFound %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ADB not found at %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未找到 adb: %@"
+          }
+        }
+      }
+    },
+    "deviceDiscoveryPairable" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pairable"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可配对"
+          }
+        }
+      }
+    },
+    "deviceDiscoveryConnectable" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connectable"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可连接"
+          }
+        }
+      }
+    },
+    "deviceDiscoveryDeviceCount" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ devices"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 台设备"
+          }
+        }
+      }
+    },
+    "toolDownloadTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Download %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "下载 %@" } }
+      }
+    },
+    "toolDownloadSubtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tool downloader" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "工具下载" } }
+      }
+    },
+    "toolDownloadClose" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Close" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "关闭" } }
+      }
+    },
+    "toolDownloadUseProxy" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use proxy" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "使用代理" } }
+      }
+    },
+    "toolDownloadProxyType" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proxy type" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "代理类型" } }
+      }
+    },
+    "toolDownloadProxyDefaultAddress" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Default proxy" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "默认代理" } }
+      }
+    },
+    "toolDownloadProxyHelp" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Proxy acceleration is optional and supports HTTP / SOCKS5." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "支持不带认证的 HTTP 和 SOCKS5 代理。" } }
+      }
+    },
+    "toolDownloadDirectConnect" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Direct connection" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "直接连接" } }
+      }
+    },
+    "toolDownloadUseAccelerator" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use accelerator" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "使用加速源" } }
+      }
+    },
+    "toolDownloadAcceleratorPlaceholder" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Accelerator URL" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "加速 URL" } }
+      }
+    },
+    "toolDownloadAcceleratorHelp" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "If accelerator URL is empty, official source will be used." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "不设置则直接从官方源下载。" } }
+      }
+    },
+    "toolDownloadScrcpyOfficialSource" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Using official scrcpy source." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "使用官方 scrcpy 源" } }
+      }
+    },
+    "toolDownloadInstallLocation" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Install location: %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "安装位置：%@" } }
+      }
+    },
+    "toolDownloadDone" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Done" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "完成" } }
+      }
+    },
+    "toolDownloadDownloadAndInstall" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Download and install" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "下载并安装" } }
+      }
+    },
+    "toolDownloadStatusPreparing" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preparing download" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "准备下载" } }
+      }
+    },
+    "toolDownloadDownloadedBytes" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Downloaded %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已下载 %@" } }
+      }
+    },
+    "toolDownloadConnecting" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Connecting..." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在连接…" } }
+      }
+    },
+    "toolDownloadStatusCheckingLatest" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Checking latest version..." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在获取最新版本…" } }
+      }
+    },
+    "toolDownloadStatusUsingExistingCLI" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Using existing Android CLI in SDK" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已使用 SDK 中现有的 Android CLI" } }
+      }
+    },
+    "toolDownloadInvalidProxyAddress" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Invalid proxy address. Please use host:port." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "代理地址无效，请使用 host:port 格式。" } }
+      }
+    },
+    "toolDownloadCancelled" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancelled" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已取消" } }
+      }
+    },
+    "toolDownloadDownloading" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Downloading %@..." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在下载 %@…" } }
+      }
+    },
+    "toolDownloadErrorFetchScrcpyLatestFailed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to fetch latest scrcpy release" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法获取 scrcpy 最新版本" } }
+      }
+    },
+    "toolDownloadErrorNoCompatibleScrcpyArchive" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No compatible macOS archive for this architecture" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "最新版本没有适用于本机架构的 macOS 安装包" } }
+      }
+    },
+    "toolDownloadErrorReadSdkRepository" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to read Android SDK package repository" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法读取 Google Android SDK 软件包目录" } }
+      }
+    },
+    "toolDownloadErrorNoCommandLineToolsLatest" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No Command-line Tools (latest) package in repository" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "Google 软件包目录中没有 Command-line Tools (latest)" } }
+      }
+    },
+    "toolDownloadErrorNoCompatibleCommandLineToolsArchive" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No compatible Command-line Tools archive for this architecture" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "没有适用于本机架构的 Command-line Tools 安装包" } }
+      }
+    },
+    "toolDownloadErrorInvalidCommandLineToolsDownloadURL" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Invalid Command-line Tools download URL" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "Command-line Tools 下载地址无效" } }
+      }
+    },
+    "toolDownloadParallelDownloading" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Downloading with %d parts: %@..." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在使用 %d 路分片下载 %@…" } }
+      }
+    },
+    "toolDownloadErrorCannotCreateArchive" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to create download archive" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法创建下载文件" } }
+      }
+    },
+    "toolDownloadErrorInvalidAccelerator" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Invalid accelerator URL" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "下载加速源地址无效" } }
+      }
+    },
+    "toolDownloadSaveFileFailed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to save file: %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "保存下载文件失败：%@" } }
+      }
+    },
+    "toolDownloadInstalling" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Extracting and installing..." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在解压并安装…" } }
+      }
+    },
+    "toolDownloadStatusCompleted" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Completed" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "安装完成" } }
+      }
+    },
+    "toolDownloadSwitchToOfficialSource" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Accelerator failed, switching to official source..." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "加速源连接失败，正在改用官方源…" } }
+      }
+    },
+    "toolDownloadErrorDownloadFailed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Download failed: %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "下载失败：%@" } }
+      }
+    },
+    "toolDownloadErrorMissingAndroidCLI" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Android CLI executable not found in archive" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "安装包中没有找到 Android CLI" } }
+      }
+    },
+    "toolDownloadErrorMissingScrcpyExecutable" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "scrcpy executable not found in archive" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "安装包中没有找到 scrcpy 可执行文件" } }
+      }
+    },
+    "toolDownloadErrorArchiveExtractionFailed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to extract archive" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "解压安装包失败" } }
+      }
+    },
+    "toolDownloadNotCompleted" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Not completed" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "未完成" } }
+      }
+    },
+    "toolDownloadErrorSdkManagerMissing" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "sdkmanager not found. Install Android SDK Command-line Tools first." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "未找到 sdkmanager。请先在 Android Studio 的 SDK Tools 中安装 Android SDK Command-line Tools。" } }
+      }
+    },
+    "toolDownloadInstallingWithSdkManager" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Installing %@ with sdkmanager..." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在通过 sdkmanager 安装 %@…" } }
+      }
+    },
+    "toolDownloadErrorInstallWithSdkManagerFailed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "sdkmanager failed to install %@, exit code: %d" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "sdkmanager 安装 %@ 失败，退出代码：%d" } }
+      }
+    },
+    "toolDownloadErrorStartSdkManager" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to start sdkmanager: %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法启动 sdkmanager：%@" } }
+      }
+    },
+    "toolDownloadParallelDownloadRangeUnsupported" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Server does not support segmented download" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "下载服务器不支持分片" } }
+      }
+    },
+    "toolDownloadParallelDownloadInvalidPart" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Download segment size validation failed, please retry" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "下载分片大小校验失败，请重试" } }
+      }
+    },
+    "virtualDeviceTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Virtual Devices" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "虚拟设备" } }
+      }
+    },
+    "virtualDeviceSubtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Manage Android system images and emulators" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "管理 Android 系统镜像和模拟器" } }
+      }
+    },
+    "virtualDeviceCreateAction" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Create" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "创建设备" } }
+      }
+    },
+    "virtualDeviceMyDevices" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "My Devices" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "我的设备" } }
+      }
+    },
+    "virtualDeviceSystemImages" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "System Images" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "系统镜像" } }
+      }
+    },
+    "virtualDeviceActionStop" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Stop" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "停止" } }
+      }
+    },
+    "virtualDeviceActionStart" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Start" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "启动" } }
+      }
+    },
+    "virtualDeviceInstalled" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Installed" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已安装" } }
+      }
+    },
+    "virtualDeviceDownload" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Download" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "下载" } }
+      }
+    },
+    "virtualDeviceCreateTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Create virtual device" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "创建虚拟设备" } }
+      }
+    },
+    "virtualDeviceUseAndroidCLI" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use Android CLI" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "使用新版 Android CLI" } }
+      }
+    },
+    "virtualDeviceAndroidCLIDescription" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use SDK command-line tools for image and emulator operations." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "使用 Android SDK Command-line Tools 管理镜像和模拟器。" } }
+      }
+    },
+    "virtualDeviceUseLegacyCLI" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use legacy Command-line Tools mode" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "使用旧版 Command-line Tools 兼容模式" } }
+      }
+    },
+    "virtualDeviceDeviceName" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Device name" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "设备名称" } }
+      }
+    },
+    "virtualDeviceSystemImage" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "System image" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "系统镜像" } }
+      }
+    },
+    "virtualDevicePleaseSelect" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Please select" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "请选择" } }
+      }
+    },
+    "virtualDeviceHardwareProfile" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hardware profile" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "硬件配置" } }
+      }
+    },
+    "virtualDeviceDefault" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Default" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "默认" } }
+      }
+    },
+    "virtualDeviceReadSystemImagesFailed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to read system images" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "读取系统镜像失败" } }
+      }
+    },
+    "virtualDeviceReadHardwareProfilesFailed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to read hardware profiles" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "读取硬件配置失败" } }
+      }
+    },
+    "virtualDeviceInstallSystemImageFailed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to install system image" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "安装系统镜像失败" } }
+      }
+    },
+    "virtualDeviceUninstallSystemImageFailed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to uninstall system image" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "卸载系统镜像失败" } }
+      }
+    },
+    "virtualDeviceCreateFailed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to create virtual device" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "创建虚拟设备失败" } }
+      }
+    },
+    "virtualDeviceDeleteFailed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to delete virtual device" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除虚拟设备失败" } }
+      }
+    },
+    "virtualDeviceStopFailed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to stop virtual device" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "停止虚拟设备失败" } }
+      }
+    },
+    "virtualDeviceNoEmulatorFound" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No Android Emulator found" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "未找到 Android Emulator" } }
+      }
+    },
+    "virtualDeviceNoSDKToolsConfigured" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No Android SDK Command-line Tools configured" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "未找到 Android SDK Command-line Tools" } }
+      }
+    },
+    "virtualDeviceCommandErrorWithCode" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%@: exit code %d" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%@，退出代码：%d" } }
+      }
+    },
+    "virtualDeviceCommandErrorWithDetails" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%@: %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%@，详情：%@" } }
+      }
+    },
+    "virtualDeviceStatusReadingSDK" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reading SDK" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "读取 SDK" } }
+      }
+    },
+    "virtualDeviceStatusInstalling" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Installing %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在安装 %@" } }
+      }
+    },
+    "virtualDeviceStatusUninstalling" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Uninstalling %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在卸载 %@" } }
+      }
+    },
+    "virtualDeviceStatusCreating" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Creating %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在创建 %@" } }
+      }
+    },
+    "virtualDeviceStatusDeleting" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Deleting %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在删除 %@" } }
+      }
+    },
+    "virtualDeviceStatusStopping" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Stopping %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在停止 %@" } }
+      }
+    },
+    "virtualDeviceStatusStarting" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Starting %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在启动 %@" } }
+      }
+    },
+    "SOCKS5" : {
+
+    },
+    "下载" : {
+
+    },
+    "下载 %@" : {
+
+    },
+    "下载并安装" : {
+
+    },
+    "代理类型" : {
+
+    },
+    "使用代理" : {
+
+    },
+    "使用加速源" : {
+
+    },
+    "使用新版 Android CLI" : {
+
+    },
+    "使用旧版 Command-line Tools 兼容模式" : {
+
+    },
+    "例如 https://v4.gh-proxy.org/" : {
+
+    },
+    "停止" : {
+
+    },
+    "关闭" : {
+
+    },
+    "创建" : {
+
+    },
+    "创建虚拟设备" : {
+
+    },
+    "创建设备" : {
+
+    },
+    "加速地址会直接拼接在 GitHub 原始下载 URL 前。" : {
+
+    },
+    "取消" : {
+
+    },
+    "启动" : {
+
+    },
+    "安装位置：%@" : {
+
+    },
+    "完成" : {
+
+    },
+    "将直接连接下载服务器。" : {
+
+    },
+    "已安装" : {
+
+    },
+    "我的设备" : {
+
+    },
+    "支持不带认证的 HTTP 和 SOCKS5 代理。" : {
+
+    },
+    "硬件配置" : {
+
+    },
+    "管理 Android 系统镜像和 AVD" : {
+
+    },
+    "系统镜像" : {
+
+    },
+    "自动获取适用于这台 Mac 的最新版本" : {
+
+    },
+    "虚拟设备" : {
+
+    },
+    "设备名称" : {
+
+    },
+    "设置" : {
+
+    },
+    "请选择" : {
+
+    },
+    "默认" : {
+
+    }
+  },
+  "version" : "1.0"
+}

@@ -1,0 +1,24 @@
+# Local development files
+
+# macOS
+.DS_Store
+._*
+
+# Xcode
+/build/
+/DerivedData/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+
+# Swift Package Manager
+/.build/
+/.swiftpm/
+
+# Build products
+*.app
+*.dSYM
+*.dSYM.zip
+*.xcarchive
