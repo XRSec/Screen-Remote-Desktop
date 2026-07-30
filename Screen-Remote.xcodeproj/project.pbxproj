@@ -1,0 +1,398 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000000000000000000001 /* ScreenRemoteApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000001 /* ScreenRemoteApp.swift */; };
+		A10000000000000000000002 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000002 /* Models.swift */; };
+		A10000000000000000000003 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000003 /* DesignSystem.swift */; };
+		A10000000000000000000004 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000004 /* RootView.swift */; };
+		A10000000000000000000005 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000005 /* SidebarView.swift */; };
+		A10000000000000000000006 /* AppsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000006 /* AppsView.swift */; };
+		A10000000000000000000007 /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000007 /* NotificationsView.swift */; };
+		A10000000000000000000008 /* MessagesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000008 /* MessagesView.swift */; };
+		A10000000000000000000009 /* PhotosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000009 /* PhotosView.swift */; };
+		A1000000000000000000000A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000A /* SettingsView.swift */; };
+		A1000000000000000000000C /* AddDeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000C /* AddDeviceView.swift */; };
+		A1000000000000000000000D /* DeviceDiscoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000D /* DeviceDiscoveryView.swift */; };
+		A1000000000000000000000E /* DiagnosticsViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000E /* DiagnosticsViews.swift */; };
+		A1000000000000000000000F /* ToolDownloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000F /* ToolDownloadView.swift */; };
+		A10000000000000000000010 /* AppPersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000010 /* AppPersistence.swift */; };
+		A10000000000000000000011 /* AndroidSDK.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000011 /* AndroidSDK.swift */; };
+		A10000000000000000000012 /* VirtualDevices.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000012 /* VirtualDevices.swift */; };
+		A10000000000000000000013 /* MacOSCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000013 /* MacOSCompatibility.swift */; };
+		A10000000000000000000014 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000014 /* Localizable.xcstrings */; };
+		A10000000000000000000015 /* ScreensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000015 /* ScreensView.swift */; };
+		A10000000000000000000016 /* ScreenSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000016 /* ScreenSessionManager.swift */; };
+		A10000000000000000000017 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000017 /* Assets.xcassets */; };
+		A10000000000000000000018 /* DeviceAppsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000018 /* DeviceAppsManager.swift */; };
+		A10000000000000000000019 /* DeviceManagementViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000019 /* DeviceManagementViews.swift */; };
+		A1000000000000000000001A /* NativeScrcpySession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001A /* NativeScrcpySession.swift */; };
+		A1000000000000000000001B /* DADBHelperRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001B /* DADBHelperRuntime.swift */; };
+		A1000000000000000000001C /* DeviceInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001C /* DeviceInformationView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		B10000000000000000000001 /* ScreenRemoteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenRemoteApp.swift; sourceTree = "<group>"; };
+		B10000000000000000000002 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		B10000000000000000000003 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		B10000000000000000000004 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		B10000000000000000000005 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		B10000000000000000000006 /* AppsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsView.swift; sourceTree = "<group>"; };
+		B10000000000000000000007 /* NotificationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
+		B10000000000000000000008 /* MessagesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesView.swift; sourceTree = "<group>"; };
+		B10000000000000000000009 /* PhotosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosView.swift; sourceTree = "<group>"; };
+		B1000000000000000000000A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		B1000000000000000000000B /* Screen Remote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Screen Remote.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B1000000000000000000000C /* AddDeviceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddDeviceView.swift; sourceTree = "<group>"; };
+		B1000000000000000000000D /* DeviceDiscoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDiscoveryView.swift; sourceTree = "<group>"; };
+		B1000000000000000000000E /* DiagnosticsViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsViews.swift; sourceTree = "<group>"; };
+		B1000000000000000000000F /* ToolDownloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolDownloadView.swift; sourceTree = "<group>"; };
+		B10000000000000000000010 /* AppPersistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPersistence.swift; sourceTree = "<group>"; };
+		B10000000000000000000011 /* AndroidSDK.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AndroidSDK.swift; sourceTree = "<group>"; };
+		B10000000000000000000012 /* VirtualDevices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualDevices.swift; sourceTree = "<group>"; };
+		B10000000000000000000013 /* MacOSCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacOSCompatibility.swift; sourceTree = "<group>"; };
+		B10000000000000000000014 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		B10000000000000000000015 /* ScreensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreensView.swift; sourceTree = "<group>"; };
+		B10000000000000000000016 /* ScreenSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenSessionManager.swift; sourceTree = "<group>"; };
+		B10000000000000000000017 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B10000000000000000000018 /* DeviceAppsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceAppsManager.swift; sourceTree = "<group>"; };
+		B10000000000000000000019 /* DeviceManagementViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceManagementViews.swift; sourceTree = "<group>"; };
+		B1000000000000000000001A /* NativeScrcpySession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeScrcpySession.swift; sourceTree = "<group>"; };
+		B1000000000000000000001B /* DADBHelperRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DADBHelperRuntime.swift; sourceTree = "<group>"; };
+		B1000000000000000000001C /* DeviceInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceInformationView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C10000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		D10000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000002 /* Screen-Remote */,
+				D10000000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D10000000000000000000002 /* Screen-Remote */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000001 /* ScreenRemoteApp.swift */,
+				B10000000000000000000002 /* Models.swift */,
+				B10000000000000000000003 /* DesignSystem.swift */,
+				B10000000000000000000004 /* RootView.swift */,
+				B10000000000000000000005 /* SidebarView.swift */,
+				B10000000000000000000006 /* AppsView.swift */,
+				B10000000000000000000018 /* DeviceAppsManager.swift */,
+				B1000000000000000000001B /* DADBHelperRuntime.swift */,
+				B10000000000000000000019 /* DeviceManagementViews.swift */,
+				B1000000000000000000001C /* DeviceInformationView.swift */,
+				B10000000000000000000015 /* ScreensView.swift */,
+				B10000000000000000000016 /* ScreenSessionManager.swift */,
+				B1000000000000000000001A /* NativeScrcpySession.swift */,
+				B10000000000000000000007 /* NotificationsView.swift */,
+				B10000000000000000000008 /* MessagesView.swift */,
+				B10000000000000000000009 /* PhotosView.swift */,
+				B1000000000000000000000A /* SettingsView.swift */,
+				B1000000000000000000000C /* AddDeviceView.swift */,
+				B1000000000000000000000F /* ToolDownloadView.swift */,
+				B1000000000000000000000D /* DeviceDiscoveryView.swift */,
+				B1000000000000000000000E /* DiagnosticsViews.swift */,
+				B10000000000000000000010 /* AppPersistence.swift */,
+				B10000000000000000000011 /* AndroidSDK.swift */,
+				B10000000000000000000012 /* VirtualDevices.swift */,
+				B10000000000000000000013 /* MacOSCompatibility.swift */,
+				B10000000000000000000014 /* Localizable.xcstrings */,
+				B10000000000000000000017 /* Assets.xcassets */,
+			);
+			path = "Screen-Remote";
+			sourceTree = "<group>";
+		};
+		D10000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B1000000000000000000000B /* Screen Remote.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E10000000000000000000001 /* Screen-Remote */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F10000000000000000000002 /* Build configuration list for PBXNativeTarget "Screen-Remote" */;
+			buildPhases = (
+				C10000000000000000000005 /* Prepare scrcpy-server */,
+				C10000000000000000000004 /* Bundle DADB Helper */,
+				C10000000000000000000003 /* Sources */,
+				C10000000000000000000001 /* Frameworks */,
+				C10000000000000000000002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Screen-Remote";
+			productName = "Screen Remote";
+			productReference = B1000000000000000000000B /* Screen Remote.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E10000000000000000000002 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
+				TargetAttributes = {
+					E10000000000000000000001 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+				};
+			};
+			buildConfigurationList = F10000000000000000000001 /* Build configuration list for PBXProject "Screen-Remote" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				"zh-Hans",
+			);
+			mainGroup = D10000000000000000000001;
+			productRefGroup = D10000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E10000000000000000000001 /* Screen-Remote */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C10000000000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000014 /* Localizable.xcstrings in Resources */,
+				A10000000000000000000017 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		C10000000000000000000005 /* Prepare scrcpy-server */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/scripts/prepare-scrcpy-server.sh",
+			);
+			name = "Prepare scrcpy-server";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/scrcpy-server.jar",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/scrcpy-LICENSE.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -eu\n\"$SRCROOT/scripts/prepare-scrcpy-server.sh\" --copy-to \"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH\"\n";
+		};
+		C10000000000000000000004 /* Bundle DADB Helper */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/../external/dadb/LICENSE.txt",
+				"$(SRCROOT)/../external/dadb/dadb-helper/build.gradle.kts",
+				"$(SRCROOT)/../external/dadb/dadb-helper/src/main/java/dadb/helper/AppIconExportMain.java",
+				"$(SRCROOT)/../external/dadb/dadb-helper/src/main/java/dadb/helper/HelperVersionMain.java",
+				"$(SRCROOT)/../external/dadb/dadb-helper/src/main/java/dadb/helper/ManagementSnapshotMain.java",
+				"$(SRCROOT)/../external/dadb/dadb-helper/src/main/java/dadb/helper/ScreenshotStreamMain.java",
+				"$(SRCROOT)/../external/dadb/dadb-helper/src/main/java/dadb/helper/TcpRelayMain.java",
+				"$(SRCROOT)/../external/dadb/dadb-helper/src/main/java/dadb/helper/TouchStreamMain.java",
+			);
+			name = "Bundle DADB Helper";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/dadb-helper.jar",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/dadb-LICENSE.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -eu\nDADB_ROOT=\"$SRCROOT/../external/dadb\"\nRESOURCE_DIR=\"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH\"\n\"$DADB_ROOT/gradlew\" -p \"$DADB_ROOT\" :dadb-helper:dexJar\nmkdir -p \"$RESOURCE_DIR\"\ncp \"$DADB_ROOT/dadb-helper/build/libs/dadb-helper.jar\" \"$RESOURCE_DIR/dadb-helper.jar\"\ncp \"$DADB_ROOT/LICENSE.txt\" \"$RESOURCE_DIR/dadb-LICENSE.txt\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C10000000000000000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000001 /* ScreenRemoteApp.swift in Sources */,
+				A10000000000000000000002 /* Models.swift in Sources */,
+				A10000000000000000000003 /* DesignSystem.swift in Sources */,
+				A10000000000000000000004 /* RootView.swift in Sources */,
+				A10000000000000000000005 /* SidebarView.swift in Sources */,
+				A10000000000000000000006 /* AppsView.swift in Sources */,
+				A10000000000000000000018 /* DeviceAppsManager.swift in Sources */,
+				A10000000000000000000019 /* DeviceManagementViews.swift in Sources */,
+				A10000000000000000000007 /* NotificationsView.swift in Sources */,
+				A10000000000000000000008 /* MessagesView.swift in Sources */,
+				A10000000000000000000009 /* PhotosView.swift in Sources */,
+				A1000000000000000000000A /* SettingsView.swift in Sources */,
+				A1000000000000000000000C /* AddDeviceView.swift in Sources */,
+				A1000000000000000000000F /* ToolDownloadView.swift in Sources */,
+				A1000000000000000000000D /* DeviceDiscoveryView.swift in Sources */,
+				A1000000000000000000000E /* DiagnosticsViews.swift in Sources */,
+				A10000000000000000000010 /* AppPersistence.swift in Sources */,
+				A10000000000000000000011 /* AndroidSDK.swift in Sources */,
+				A10000000000000000000012 /* VirtualDevices.swift in Sources */,
+				A10000000000000000000013 /* MacOSCompatibility.swift in Sources */,
+				A10000000000000000000015 /* ScreensView.swift in Sources */,
+				A10000000000000000000016 /* ScreenSessionManager.swift in Sources */,
+				A1000000000000000000001A /* NativeScrcpySession.swift in Sources */,
+				A1000000000000000000001B /* DADBHelperRuntime.swift in Sources */,
+				A1000000000000000000001C /* DeviceInformationView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		F10000000000000000000010 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		F10000000000000000000011 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		F10000000000000000000012 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = DU54PNHPJC;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Screen Remote";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.screen.remote.macos;
+				PRODUCT_MODULE_NAME = ScreenRemote;
+				PRODUCT_NAME = "Screen Remote";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		F10000000000000000000013 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = DU54PNHPJC;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Screen Remote";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.screen.remote.macos;
+				PRODUCT_MODULE_NAME = ScreenRemote;
+				PRODUCT_NAME = "Screen Remote";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F10000000000000000000001 /* Build configuration list for PBXProject "Screen-Remote" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F10000000000000000000010 /* Debug */,
+				F10000000000000000000011 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F10000000000000000000002 /* Build configuration list for PBXNativeTarget "Screen-Remote" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F10000000000000000000012 /* Debug */,
+				F10000000000000000000013 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E10000000000000000000002 /* Project object */;
+}

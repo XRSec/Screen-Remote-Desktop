@@ -18,6 +18,7 @@
 /.swiftpm/
 
 # Build products
+/dist/
 *.app
 *.dSYM
 *.dSYM.zip
