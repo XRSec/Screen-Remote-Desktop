@@ -1,0 +1,20 @@
+name: Architecture guard
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verify-structure:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Swift file responsibilities
+        run: scripts/check-swift-file-size.sh
+      - name: Check physical folders and Xcode groups
+        run: scripts/check-project-structure.sh
+      - name: Compile and verify String Catalog
+        run: scripts/verify-localization.sh
+      - name: Inspect Xcode project
+        run: xcodebuild -project Screen-Remote.xcodeproj -scheme Screen-Remote -list

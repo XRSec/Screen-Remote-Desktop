@@ -1,0 +1,2 @@
+# Relative path<TAB>temporary reason
+Screen-Remote/Features/Screens/Models/RemoteUiLayoutParser.swift	Faithful Android parser parity keeps tightly coupled classification, labeling, and deduplication heuristics together pending shared fixtures.

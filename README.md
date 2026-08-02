@@ -29,6 +29,17 @@ provides English and Simplified Chinese interfaces with live language and appear
 Notifications, messages, and photos currently provide the product UI and empty states only. They
 still require a companion-side or protocol-backed data channel before they can become functional.
 
+## Product Terminology
+
+- **Small Window (`小窗`)**: a screen session displayed inside the **Screens** workspace.
+- **Large Window (`大窗`)**: the same screen session after it is expanded from **Screens**.
+- **Auxiliary Menu (`辅助菜单`)**: the transient controls and session actions shown around a Small
+  Window or Large Window.
+
+Product and user-facing documentation should use these terms consistently. Internal names such as
+embedded, detached, window chrome, toolbar, or control bar may still be used when describing a
+specific implementation detail.
+
 ## Architecture Today
 
 Primary screen sessions now use the app-owned scrcpy 4.1 pipeline. The macOS project bundles its own
@@ -39,8 +50,9 @@ and does not modify scrcpy protocol behavior.
 
 Audio sockets are currently consumed without playback, and control-message routing is the next
 native-session step. App-specific virtual-display launches still use the configured scrcpy
-executable temporarily. The multi-screen workspace can render native primary-session frames and
-already supports selection, scaling, borderless windows, and drag-out/drag-in interactions.
+executable temporarily. The **Screens** workspace can render native primary-session frames in Small
+Windows, expand the same sessions into Large Windows, and expose transient actions through the
+Auxiliary Menu.
 
 The macOS server asset is prepared by `scripts/prepare-scrcpy-server.sh`. Existing assets are checked
 against the pinned SHA-256; a missing asset is downloaded from the official scrcpy GitHub v4.1
@@ -117,8 +129,8 @@ may be reimplemented natively where direct source reuse is inappropriate.
      through one session model.
    - Coordinate connection reuse, decoding load, audio focus, active input, recovery, and cleanup
      across simultaneous sessions.
-   - Allow screens to be dragged out into independent windows and dragged back into the shared
-     workspace without restarting the underlying session.
+   - Allow Small Windows in **Screens** to become Large Windows and return to the shared workspace
+     without restarting the underlying session.
 
 4. **Add an About page and reorganize Settings**
 

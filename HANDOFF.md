@@ -244,7 +244,7 @@ macOS 自有资产：
 12. 将 H.264 Annex-B NAL 单元转换为 VideoToolbox 使用的 length-prefixed 格式。
 13. 从 SPS/PPS 建立 `CMVideoFormatDescription` 和 `VTDecompressionSession`。
 14. 把解码后的 `CVPixelBuffer` 转换为 app-owned `CGImage`，发布到 `ScrcpyVideoSurface`。
-15. 主工作区与独立窗口的 `ScreensView` 都可以显示同一会话的原生画面。
+15. **Screens** 工作区中的小窗与放大后的大窗都可以显示同一会话的原生画面。
 16. stop/异常/应用退出时关闭 socket、终止 server shell process、移除残留 forward、销毁 decoder 并清空画面。
 
 当前 native video 固定请求 H.264，以先建立 macOS 11 可用的 VideoToolbox 闭环；未修改 server 对 H.264 的产生逻辑。媒体包解析参考官方 scrcpy 4.1 `app/src/demuxer.c`，客户端组织方式参考 scrcpy-mask，但没有复制其 FFmpeg/Rust 解码实现。

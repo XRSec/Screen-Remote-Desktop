@@ -1,0 +1,4 @@
+interface:
+  display_name: "Screen Remote macOS Engineering"
+  short_description: "Screen Remote macOS 工程与原生会话工作流"
+  default_prompt: "Use $screen-remote-macos-engineering to make a scoped, verified macOS app change."
