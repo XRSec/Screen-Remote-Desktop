@@ -1,0 +1,364 @@
+#!/bin/bash
+
+set -u
+
+RED="\033[0;31m"
+GREEN="\033[0;32m"
+YELLOW="\033[0;33m"
+CYAN="\033[0;36m"
+NC="\033[0m"
+
+SCREEN_REMOTE_TOOL_LANG="${SCREEN_REMOTE_TOOL_LANG:-}"
+SELECTED_INDEX=0
+CURSOR_HIDDEN=0
+PASSWORD_INPUT=""
+
+cleanup() {
+  PASSWORD_INPUT=""
+  restore_cursor
+}
+
+on_signal() {
+  cleanup
+  exit 130
+}
+
+trap cleanup EXIT
+trap on_signal HUP INT TERM
+
+t() {
+  local key="$1"
+  local use_zh=0
+  [ "$SCREEN_REMOTE_TOOL_LANG" = "1" ] && use_zh=1
+  if [ "$use_zh" = "1" ]; then
+    case "$key" in
+      TITLE) printf '%s' "应用辅助工具" ;;
+      LANGUAGE_PROMPT) printf '%s' "请选择语言 / Choose Language" ;;
+      SELECT_PROMPT) printf '%s' "输入序号 / Enter Number" ;;
+      INVALID_OPTION) printf '%s' "无效输入，请重试 / Invalid, Try Again" ;;
+      APP_NOT_FOUND) printf '%s' "未找到应用程序" ;;
+      APP_NOT_INSTALLED) printf '%s' "%s 尚未安装，请先拖入 /Applications" ;;
+      EXIT) printf '%s' "退出" ;;
+      PASSWORD_PROMPT) printf '%s' "请输入当前用户密码（会显示 * 作为占位）：" ;;
+      PASSWORD_EMPTY) printf '%s' "密码不能为空且不能包含空格" ;;
+      ACTION_DENIED) printf '%s' "操作被取消" ;;
+      REPAIRING) printf '%s' "正在修复应用..." ;;
+      REPAIR_OK) printf '%s' "修复完成，准备打开 %s…" ;;
+      REPAIR_FAILED) printf '%s' "修复失败，未修改应用" ;;
+      OPENING) printf '%s' "正在打开 %s…" ;;
+      PRESS_RETURN) printf '%s' "按回车键关闭…" ;;
+      ERROR) printf '%s' "错误：%s" ;;
+      INVALID_PASSWORD) printf '%s' "密码不正确或未授权" ;;
+      *) printf '%s' "$key" ;;
+    esac
+    return 0
+  fi
+  case "$key" in
+    TITLE) printf '%s' "App Helper Tools" ;;
+    LANGUAGE_PROMPT) printf '%s' "Choose Language" ;;
+    SELECT_PROMPT) printf '%s' "Enter Number" ;;
+    INVALID_OPTION) printf '%s' "Invalid, Try Again" ;;
+    APP_NOT_FOUND) printf '%s' "Target app was not found." ;;
+    APP_NOT_INSTALLED) printf '%s' "%s is not installed yet. Drag it to /Applications first." ;;
+    EXIT) printf '%s' "Exit" ;;
+    PASSWORD_PROMPT) printf '%s' "Current user password (masked): " ;;
+    PASSWORD_EMPTY) printf '%s' "No empty or spaced passwords" ;;
+    ACTION_DENIED) printf '%s' "Action canceled" ;;
+    REPAIRING) printf '%s' "Repairing app..." ;;
+    REPAIR_OK) printf '%s' "Repair complete. Opening %s…" ;;
+    REPAIR_FAILED) printf '%s' "Repair failed. No changes were made to the application." ;;
+    OPENING) printf '%s' "Opening %s…" ;;
+    PRESS_RETURN) printf '%s' "Press Return to close." ;;
+    ERROR) printf '%s' "Error: %s" ;;
+    INVALID_PASSWORD) printf '%s' "Wrong password or permission denied" ;;
+    *) printf '%s' "$key" ;;
+  esac
+}
+
+hide_cursor() {
+  [ -t 2 ] || return 0
+  printf '\033[?25l' >&2
+  CURSOR_HIDDEN=1
+}
+
+restore_cursor() {
+  [ "$CURSOR_HIDDEN" = "1" ] || return 0
+  printf '\033[?25h' >&2
+  CURSOR_HIDDEN=0
+}
+
+cursor_up_one() {
+  printf '\033[1A' >&2
+}
+
+erase_current_line() {
+  printf '\033[2K\r' >&2
+}
+
+read_password_with_feedback() {
+  local prompt="$1"
+  local value=""
+  local character=""
+
+  PASSWORD_INPUT=""
+  printf '%s' "$prompt" >&2
+  if [ ! -t 0 ]; then
+    IFS= read -r value || return 1
+    PASSWORD_INPUT="$value"
+    value=""
+    printf '\n' >&2
+    return 0
+  fi
+
+  while IFS= read -r -s -n 1 character; do
+    if [ -z "$character" ]; then
+      break
+    fi
+    case "$character" in
+      $'\177'|$'\b')
+        if [ -n "$value" ]; then
+          value=${value%?}
+          printf '\b \b' >&2
+        fi
+        ;;
+      *)
+        value="${value}${character}"
+        printf '*' >&2
+        ;;
+    esac
+  done
+  printf '\n' >&2
+  PASSWORD_INPUT="$value"
+  value=""
+  return 0
+}
+
+password_input_is_valid() {
+  case "$1" in
+    ''|*[[:space:]]*) return 1 ;;
+    *) return 0 ;;
+  esac
+}
+
+choose_number_fallback() {
+  local prompt="$1"
+  shift
+  local count=$#
+  local item=""
+  local answer=""
+  local index=1
+
+  [ "$count" -gt 0 ] || return 1
+  printf '\n%s\n' "$prompt" >&2
+  for item in "$@"; do
+    printf '  %s) %s\n' "$index" "$item" >&2
+    index=$((index + 1))
+  done
+  while :; do
+    printf '%s [1-%s]: ' "$(t SELECT_PROMPT)" "$count" >&2
+    IFS= read -r answer || return 1
+    case "$answer" in
+      ''|*[!0-9]*) printf '%s\n' "$(t INVALID_OPTION)" >&2 ;;
+      *)
+        if [ "$answer" -ge 1 ] 2>/dev/null && [ "$answer" -le "$count" ] 2>/dev/null; then
+          SELECTED_INDEX=$((answer - 1))
+          return 0
+        fi
+        printf '%s\n' "$(t INVALID_OPTION)" >&2
+        ;;
+    esac
+  done
+}
+
+choose_number() {
+  local prompt="$1"
+  shift
+  local options=("$@")
+  local count=${#options[@]}
+  local selected=0
+  local index=0
+  local key=""
+  local sequence=""
+
+  if [ "$count" -eq 0 ]; then
+    return 1
+  fi
+  if [ ! -t 0 ] || [ ! -t 2 ]; then
+    choose_number_fallback "$prompt" "${options[@]}"
+    return $?
+  fi
+
+  printf '\n%s\n' "$prompt" >&2
+  printf '  ↑/↓ 选择 / Select    Enter 确认 / Confirm\n\n' >&2
+  while [ "$index" -lt "$count" ]; do
+    if [ "$index" -eq "$selected" ]; then
+      printf "  ${GREEN}▸ %s ◂${NC}\n" "${options[$index]}" >&2
+    else
+      printf '    %s\n' "${options[$index]}" >&2
+    fi
+    index=$((index + 1))
+  done
+  hide_cursor
+
+  while :; do
+    key=""
+    if ! IFS= read -r -s -n 1 key; then
+      restore_cursor
+      return 1
+    fi
+    if [ -z "$key" ]; then
+      restore_cursor
+      SELECTED_INDEX="$selected"
+      return 0
+    fi
+    if [ "$key" = $'\033' ]; then
+      sequence=""
+      IFS= read -r -s -n 2 sequence || continue
+      case "$sequence" in
+        '[A')
+          selected=$((selected - 1))
+          [ "$selected" -lt 0 ] && selected=$((count - 1))
+          ;;
+        '[B')
+          selected=$((selected + 1))
+          [ "$selected" -ge "$count" ] && selected=0
+          ;;
+        *) continue ;;
+      esac
+
+      index=0
+      while [ "$index" -lt "$count" ]; do
+        cursor_up_one
+        index=$((index + 1))
+      done
+      index=0
+      while [ "$index" -lt "$count" ]; do
+        erase_current_line
+        if [ "$index" -eq "$selected" ]; then
+          printf "  ${GREEN}▸ %s ◂${NC}\n" "${options[$index]}" >&2
+        else
+          printf '    %s\n' "${options[$index]}" >&2
+        fi
+        index=$((index + 1))
+      done
+    fi
+  done
+}
+
+select_language() {
+  case "$SCREEN_REMOTE_TOOL_LANG" in
+    0|1) return 0 ;;
+  esac
+  choose_number "$(t LANGUAGE_PROMPT)" "English" "简体中文" || exit 1
+  if [ "$SELECTED_INDEX" -eq 1 ]; then
+    SCREEN_REMOTE_TOOL_LANG=1
+  else
+    SCREEN_REMOTE_TOOL_LANG=0
+  fi
+}
+
+pause_and_exit() {
+  printf '%s' "$(t PRESS_RETURN) "
+  IFS= read -r _ || true
+  exit "$1"
+}
+
+find_local_app_by_path() {
+  local start_dir="$1"
+  local dir="$start_dir"
+  local base=""
+
+  while :; do
+    base="$(basename "$dir")"
+    case "$base" in
+      *.app) printf '%s\n' "$dir"; return 0 ;;
+    esac
+
+    [ "$dir" = "/" ] && return 1
+    dir="$(dirname "$dir")"
+  done
+}
+
+read_tool_password() {
+  local password=""
+  local reason="${1:-}"
+
+  read_password_with_feedback "$reason" || PASSWORD_INPUT=""
+  password="$PASSWORD_INPUT"
+  PASSWORD_INPUT=""
+  if ! password_input_is_valid "$password"; then
+    password=""
+    printf '%s\n' "$(t PASSWORD_EMPTY)" >&2
+    return 1
+  fi
+  PASSWORD_INPUT="$password"
+  password=""
+  return 0
+}
+
+apply_repair() {
+  local app="$1"
+  local output=""
+
+  if [ -z "${PASSWORD_INPUT+x}" ] || [ -z "$PASSWORD_INPUT" ]; then
+    if ! read_tool_password "$(t PASSWORD_PROMPT)"; then
+      return 1
+    fi
+  fi
+
+  printf '%s\n' "$(t REPAIRING)" >&2
+  output=$(printf '%s\n' "$PASSWORD_INPUT" | sudo -S -k /usr/bin/xattr -rd com.apple.quarantine "$app" 2>&1) || {
+    if printf '%s\n' "$output" | grep -qi "incorrect\\|Permission denied\\|Sorry"; then
+      msg_error="$(t INVALID_PASSWORD)"
+      printf '%s\n' "$msg_error" >&2
+    else
+      printf '%b%s%b\n' "${RED}[✗]${NC}" "$output" >&2
+    fi
+    PASSWORD_INPUT=""
+    return 1
+  }
+  PASSWORD_INPUT=""
+  return 0
+}
+
+clear
+printf '\n%b%s%b\n\n' "$CYAN" "$(t TITLE)" "$NC"
+
+select_language
+
+asset_directory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+app_path="$(find_local_app_by_path "$asset_directory")"
+if [ -z "$app_path" ]; then
+  app_path="$(find /Applications -maxdepth 1 -type d -name '*.app' -print | head -n 1)"
+fi
+
+if [ -z "$app_path" ]; then
+  printf '%b%s%b\n' "$RED" "$(t APP_NOT_FOUND)" "$NC" >&2
+  pause_and_exit 1
+fi
+
+app_name="$(basename "$app_path")"
+if [ "$app_path" = "/Applications/$app_name" ]; then
+  installed_app="$app_path"
+else
+  installed_app="/Applications/$app_name"
+fi
+
+if [ ! -d "$installed_app" ]; then
+  printf '%b%s%b\n' "$RED" "$(printf "$(t APP_NOT_INSTALLED)" "$app_name")" "$NC" >&2
+  pause_and_exit 1
+fi
+
+if ! apply_repair "$installed_app"; then
+  printf '%b%s%b\n' "$RED" "$(t REPAIR_FAILED)" "$NC" >&2
+  pause_and_exit 1
+fi
+printf '%b%s%b\n' "$GREEN" "$(printf "$(t REPAIR_OK)" "$app_name")" "$NC" >&2
+
+printf '%b%s%b\n' "$YELLOW" "$(printf "$(t OPENING)" "$app_name")" "$NC" >&2
+if open "$installed_app"; then
+  printf '%b%s%b\n' "$GREEN" "Done" "$NC" >&2
+  pause_and_exit 0
+fi
+printf '%b%s%b\n' "$RED" "Error: open application failed" "$NC" >&2
+pause_and_exit 1
