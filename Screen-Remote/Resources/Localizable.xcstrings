@@ -4204,6 +4204,23 @@
         }
       }
     },
+    "managementDeviceInfoDensity" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Density"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "密度"
+          }
+        }
+      }
+    },
     "managementDeviceInfoDisplay" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4302,6 +4319,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "无法加载设备信息。"
+          }
+        }
+      }
+    },
+    "managementDeviceInfoManufacturer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manufacturer"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "制造商"
           }
         }
       }
@@ -6326,6 +6360,7 @@
       }
     },
     "screensADB" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -6342,6 +6377,7 @@
       }
     },
     "screensADBShell" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -6385,6 +6421,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "所有屏幕均已独立显示"
+          }
+        }
+      }
+    },
+    "screensAlwaysOnTop" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Always on top"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "窗口置顶"
           }
         }
       }
@@ -6437,23 +6489,8 @@
         }
       }
     },
-    "screensAlwaysOnTop" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Always on top"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "窗口置顶"
-          }
-        }
-      }
-    },
     "screensCastSettings" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -6465,6 +6502,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "投屏设置"
+          }
+        }
+      }
+    },
+    "screensConnectionDebugInfo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection Debug Info"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接调试信息"
           }
         }
       }
@@ -6565,6 +6619,227 @@
         }
       }
     },
+    "screensDebugADBSerial" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ADB serial"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ADB 序列号"
+          }
+        }
+      }
+    },
+    "screensDebugAudio" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Audio channel"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音频通道"
+          }
+        }
+      }
+    },
+    "screensDebugConnected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connected"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已连接"
+          }
+        }
+      }
+    },
+    "screensDebugControlChannel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Control channel"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "控制通道"
+          }
+        }
+      }
+    },
+    "screensDebugDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active scrcpy and ADB session details."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当前 scrcpy 与 ADB 会话调试信息。"
+          }
+        }
+      }
+    },
+    "screensDebugDeviceName" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Device name"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设备名称"
+          }
+        }
+      }
+    },
+    "screensDebugDisplay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remote display"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "远端显示"
+          }
+        }
+      }
+    },
+    "screensDebugPhase" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Session phase"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会话阶段"
+          }
+        }
+      }
+    },
+    "screensDebugProcess" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Process ID"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "进程 ID"
+          }
+        }
+      }
+    },
+    "screensDebugStartApp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start app"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "启动 App"
+          }
+        }
+      }
+    },
+    "screensDebugTransport" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection transport"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接通道"
+          }
+        }
+      }
+    },
+    "screensDebugUnavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unavailable"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不可用"
+          }
+        }
+      }
+    },
+    "screensDebugVirtualDisplay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Virtual display"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "虚拟显示"
+          }
+        }
+      }
+    },
     "screensDetach" : {
       "localizations" : {
         "en" : {
@@ -6577,6 +6852,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在独立窗口中打开"
+          }
+        }
+      }
+    },
+    "screensDeviceInformation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Device Information"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设备信息"
           }
         }
       }
@@ -7102,6 +7394,7 @@
       }
     },
     "screensQuickActions" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -7118,6 +7411,7 @@
       }
     },
     "screensReservedActionHelp" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -8744,6 +9038,23 @@
         }
       }
     },
+    "sessionHelpShellPassword" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Password used by the remote shell connection when required."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "远端 Shell 连接需要时使用的密码。"
+          }
+        }
+      }
+    },
     "sessionHelpStartApp" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9407,6 +9718,40 @@
         }
       }
     },
+    "sessionShellPassword" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shell password"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shell 密码"
+          }
+        }
+      }
+    },
+    "sessionShellPasswordPlaceholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可选"
+          }
+        }
+      }
+    },
     "sessionSoftwareEncoder" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9522,206 +9867,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "停止"
-          }
-        }
-      }
-    },
-    "screensConnectionDebugInfo" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Connection Debug Info" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "连接调试信息" } }
-      }
-    },
-    "screensDebugDescription" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Active scrcpy and ADB session details." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "当前 scrcpy 与 ADB 会话调试信息。" } }
-      }
-    },
-    "screensDebugTransport" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Connection transport" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "连接通道" } }
-      }
-    },
-    "screensDebugADBSerial" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "ADB serial" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "ADB 序列号" } }
-      }
-    },
-    "screensDebugPhase" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Session phase" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "会话阶段" } }
-      }
-    },
-    "screensDebugDeviceName" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Device name" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "设备名称" } }
-      }
-    },
-    "screensDebugProcess" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Process ID" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "进程 ID" } }
-      }
-    },
-    "screensDebugControlChannel" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Control channel" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "控制通道" } }
-      }
-    },
-    "screensDebugDisplay" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remote display" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "远端显示" } }
-      }
-    },
-    "screensDebugAudio" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Audio channel" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "音频通道" } }
-      }
-    },
-    "screensDebugVirtualDisplay" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Virtual display" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "虚拟显示" } }
-      }
-    },
-    "screensDebugStartApp" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Start app" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "启动 App" } }
-      }
-    },
-    "screensDebugConnected" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Connected" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已连接" } }
-      }
-    },
-    "screensDebugUnavailable" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unavailable" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "不可用" } }
-      }
-    },
-    "screensDeviceInformation" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Device Information"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "设备信息"
-          }
-        }
-      }
-    },
-    "managementDeviceInfoManufacturer" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Manufacturer"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "制造商"
-          }
-        }
-      }
-    },
-    "managementDeviceInfoDensity" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Density"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "密度"
-          }
-        }
-      }
-    },
-    "sessionShellPassword" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shell password"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shell 密码"
-          }
-        }
-      }
-    },
-    "sessionShellPasswordPlaceholder" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Optional"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "可选"
-          }
-        }
-      }
-    },
-    "sessionHelpShellPassword" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Password used by the remote shell connection when required."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "远端 Shell 连接需要时使用的密码。"
           }
         }
       }

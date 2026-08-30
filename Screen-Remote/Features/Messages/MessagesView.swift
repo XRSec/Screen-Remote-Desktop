@@ -8,21 +8,31 @@ struct MessagesView: View {
     @State private var searchText = ""
 
     var body: some View {
-        Group {
-            if isCompact {
-                if isShowingConversation {
-                    conversationDetail(showsBackButton: true)
+        if appState.conversations.isEmpty {
+            ContentUnavailableViewCompat(
+                icon: "message",
+                title: "messagesEmptyTitle",
+                detail: "messagesEmptyDetail"
+            )
+            .padding(isCompact ? 20 : 28)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            Group {
+                if isCompact {
+                    if isShowingConversation {
+                        conversationDetail(showsBackButton: true)
+                    } else {
+                        conversationList
+                    }
                 } else {
-                    conversationList
-                }
-            } else {
-                HStack(spacing: 0) {
-                    conversationList
-                        .frame(width: 290)
+                    HStack(spacing: 0) {
+                        conversationList
+                            .frame(width: 290)
 
-                    Divider()
+                        Divider()
 
-                    conversationDetail(showsBackButton: false)
+                        conversationDetail(showsBackButton: false)
+                    }
                 }
             }
         }
@@ -30,11 +40,16 @@ struct MessagesView: View {
 
     private var conversationList: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 10) {
+            HStack(spacing: AppSpacing.sm) {
                 PageSearchField(searchText: $searchText, searchPrompt: "messagesSearchPrompt", expands: true)
-                Button(action: {}) { Image(systemName: "square.and.pencil") }.buttonStyle(.plain)
+                Button {
+                    // Start new conversation placeholder action
+                } label: {
+                    Image(systemName: "square.and.pencil")
+                }
+                .buttonStyle(.plain)
             }
-            .padding(14)
+            .padding(AppSpacing.md)
 
             Divider()
 
@@ -58,7 +73,7 @@ struct MessagesView: View {
                         }
                     }
                 }
-                .padding(8)
+                .padding(AppSpacing.sm)
             }
         }
         .background(AppTheme.surface.opacity(0.65))
@@ -82,13 +97,12 @@ struct MessagesView: View {
 
                     Avatar(initials: conversation.initials, color: conversation.color, size: 36)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(conversation.name).font(.headline)
-                        Text("messagesSMS").font(.caption).foregroundColor(.secondary)
+                        Text(conversation.name).font(AppTypography.headline)
+                        Text("messagesSMS").font(AppTypography.caption).foregroundColor(.secondary)
                     }
                     Spacer()
-                    Button(action: {}) { Image(systemName: "info.circle") }.buttonStyle(.plain)
                 }
-                .padding(.horizontal, isCompact ? 16 : 20)
+                .padding(.horizontal, isCompact ? AppSpacing.lg : AppSpacing.xl)
                 .frame(height: 64)
                 .background(AppTheme.surface.opacity(0.96))
 
@@ -123,16 +137,16 @@ private struct ConversationRow: View {
                 Avatar(initials: conversation.initials, color: conversation.color, size: 40)
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
-                        Text(conversation.name).font(.system(size: 13, weight: conversation.unread ? .bold : .semibold))
+                        Text(conversation.name).font(AppTypography.headline.weight(conversation.unread ? .bold : .semibold))
                         Spacer()
-                        Text(conversation.time).font(.caption2).foregroundColor(Color.secondary.opacity(0.65))
+                        Text(conversation.time).font(AppTypography.caption2).foregroundColor(Color.secondary.opacity(0.65))
                     }
-                    Text(conversation.preview).font(.caption).foregroundColor(.secondary).lineLimit(1)
+                    Text(conversation.preview).font(AppTypography.caption).foregroundColor(.secondary).lineLimit(1)
                 }
                 if conversation.unread { Circle().fill(AppTheme.accent).frame(width: 7, height: 7) }
             }
-            .padding(10)
-            .appBackground(isSelected ? AppTheme.accent.opacity(0.12) : .clear, in: RoundedRectangle(cornerRadius: 10))
+            .padding(AppSpacing.sm)
+            .appBackground(isSelected ? AppTheme.accent.opacity(0.12) : .clear, in: RoundedRectangle(cornerRadius: AppRadius.small))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -146,7 +160,7 @@ private struct Avatar: View {
 
     var body: some View {
         Text(initials)
-            .font(.system(size: size * 0.29, weight: .bold))
+            .font(AppTypography.headline.weight(.bold))
             .foregroundColor(.white)
             .frame(width: size, height: size)
             .appBackground(LinearGradient(colors: [color.opacity(0.7), color], startPoint: .topLeading, endPoint: .bottomTrailing), in: Circle())

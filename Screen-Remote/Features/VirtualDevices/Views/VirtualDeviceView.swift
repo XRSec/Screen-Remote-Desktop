@@ -160,36 +160,36 @@ struct VirtualDeviceView: View {
     private var virtualDevicesContent: some View {
         Group {
             if viewModel.devices.isEmpty && !viewModel.isWorking {
-                VStack(spacing: 13) {
+                VStack(spacing: AppSpacing.md) {
                     Image(systemName: "iphone.gen3.slash")
-                        .font(.system(size: 40, weight: .light))
+                        .font(AppTypography.largeTitle)
                         .foregroundColor(.secondary)
-                    Text("virtualDeviceNoDevicesTitle").font(.headline)
+                    Text("virtualDeviceNoDevicesTitle").font(AppTypography.headline)
                     Text("virtualDeviceNoDevicesDetail")
-                        .font(.subheadline).foregroundColor(.secondary)
+                        .font(AppTypography.subheadline).foregroundColor(.secondary)
                     Button("virtualDeviceCreateAction") { activeSheet = .create }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
-                    LazyVStack(spacing: 10) {
+                    LazyVStack(spacing: AppSpacing.sm) {
                         ForEach(viewModel.devices) { device in
-                            HStack(spacing: 14) {
+                            HStack(spacing: AppSpacing.md) {
                                 Image(systemName: device.isRunning ? "play.circle.fill" : "iphone.gen3")
-                                    .font(.system(size: 25))
+                                    .font(AppTypography.largeTitle)
                                     .foregroundColor(device.isRunning ? .green : AppTheme.accent)
                                     .frame(width: 34)
                                 VStack(alignment: .leading, spacing: 4) {
                                     HStack(spacing: 7) {
-                                        Text(device.name).font(.headline)
+                                        Text(device.name).font(AppTypography.headline)
                                         if device.isRunning {
                                             Text("virtualDeviceRunning")
-                                                .font(.caption2.weight(.semibold))
+                                                .font(AppTypography.caption2.weight(.semibold))
                                                 .foregroundColor(.green)
                                         }
                                     }
                                     Text(device.target.isEmpty ? device.path : device.target)
-                                        .font(.caption).foregroundColor(.secondary).lineLimit(2)
+                                        .font(AppTypography.caption).foregroundColor(.secondary).lineLimit(2)
                                 }
                                 Spacer()
                                 Button {
@@ -218,9 +218,9 @@ struct VirtualDeviceView: View {
                                 }
                                 .disabled(device.isRunning || viewModel.isWorking)
                             }
-                            .padding(14)
-                            .background(RoundedRectangle(cornerRadius: 12).fill(AppTheme.surface))
-                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.line, lineWidth: 1))
+                            .padding(AppSpacing.cardPadding)
+                            .background(RoundedRectangle(cornerRadius: AppRadius.card).fill(AppTheme.surface))
+                            .overlay(RoundedRectangle(cornerRadius: AppRadius.card).stroke(AppTheme.line, lineWidth: 1))
                         }
                     }
                     .padding(.horizontal, 22)

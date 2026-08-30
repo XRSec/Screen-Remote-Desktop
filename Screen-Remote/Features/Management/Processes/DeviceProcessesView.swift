@@ -1,8 +1,7 @@
 import AppKit
 import SwiftUI
 
-private let managementCardColumns = [GridItem(.adaptive(minimum: 300, maximum: 450), spacing: 14)]
-private let managementCardGridMaxWidth: CGFloat = 914
+private let processListMaxWidth: CGFloat = 914
 
 private struct ManagedProcess: Identifiable {
     let pid: Int
@@ -30,23 +29,44 @@ struct DeviceProcessesView: View {
             if managementTarget(from: appState) == nil { ManagementUnavailableView() }
             else {
                 VStack(spacing: 14) {
-                    LazyVGrid(columns: managementCardColumns, alignment: .center, spacing: 14) {
-                        ProcessStat(value: "\(processes.count)", label: "managementRunningApps", icon: "waveform.path.ecg")
-                        ProcessStat(value: memorySummary, label: "managementAvailableMemory", icon: "memorychip")
+                    HStack(spacing: 18) {
+                        ProcessSummaryMetric(
+                            value: "\(processes.count)",
+                            label: "managementRunningApps",
+                            icon: "waveform.path.ecg"
+                        )
+                        Divider().frame(height: 28)
+                        ProcessSummaryMetric(
+                            value: memorySummary,
+                            label: "managementAvailableMemory",
+                            icon: "memorychip"
+                        )
+                        Spacer(minLength: 0)
                     }
-                    .frame(maxWidth: managementCardGridMaxWidth)
-                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.horizontal, 2)
+
                     PageSearchField(searchText: $searchText, searchPrompt: "managementSearchProcesses", expands: true)
                     if isLoading { ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity) }
                     else if let errorMessage { ManagementErrorBanner(message: errorMessage); Spacer() }
                     else {
                         ScrollView {
-                            LazyVGrid(columns: managementCardColumns, alignment: .center, spacing: 14) {
-                                ForEach(filtered) { process in
+                            LazyVStack(spacing: 0) {
+                                ForEach(Array(filtered.enumerated()), id: \.element.id) { index, process in
                                     ProcessRow(process: process, stop: { stop(process) })
+                                    if index != filtered.count - 1 {
+                                        Divider().padding(.leading, 44)
+                                    }
                                 }
                             }
-                            .frame(maxWidth: managementCardGridMaxWidth)
+                            .background(
+                                RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
+                                    .fill(Color.primary.opacity(0.02))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
+                                    .stroke(AppTheme.line, lineWidth: 1)
+                            )
+                            .frame(maxWidth: processListMaxWidth)
                             .frame(maxWidth: .infinity, alignment: .center)
                         }
                     }
@@ -102,27 +122,75 @@ private func parseAvailableMemory(_ output: String) -> String {
     return ByteCountFormatter.string(fromByteCount: Int64(value) * 1024, countStyle: .memory)
 }
 
-private struct ProcessStat: View {
-    let value: String; let label: LocalizedStringKey; let icon: String
+private struct ProcessSummaryMetric: View {
+    let value: String
+    let label: LocalizedStringKey
+    let icon: String
+
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon).foregroundColor(AppTheme.accent)
-            VStack(alignment: .leading) { Text(value).font(.headline); Text(label).font(.caption).foregroundColor(.secondary) }
-            Spacer()
-        }.padding(14).frame(maxWidth: .infinity).appCard()
+        HStack(spacing: AppSpacing.sm) {
+            Image(systemName: icon)
+                .font(AppTypography.subheadline)
+                .foregroundColor(AppTheme.accent)
+                .frame(width: 20)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(value)
+                    .font(AppTypography.subheadline.weight(.semibold))
+                Text(label)
+                    .font(AppTypography.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
     }
 }
 
 private struct ProcessRow: View {
-    let process: ManagedProcess; let stop: () -> Void
+    let process: ManagedProcess
+    let stop: () -> Void
+    @State private var isHovered = false
+
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "app.fill").foregroundColor(AppTheme.accent).frame(width: 24)
-            VStack(alignment: .leading, spacing: 2) { Text(process.name).font(.subheadline.weight(.medium)); Text("PID \(process.pid)").font(.caption).foregroundColor(.secondary) }
-            Spacer()
-            Text(ByteCountFormatter.string(fromByteCount: Int64(process.rssKilobytes) * 1024, countStyle: .memory)).font(.caption).foregroundColor(.secondary)
-            Button(action: stop) { Image(systemName: "stop.circle") }.buttonStyle(.plain).help("managementForceStop")
-        }.padding(.horizontal, 14).padding(.vertical, 10).appCard()
+        HStack(spacing: AppSpacing.sm) {
+            Image(systemName: "app.fill")
+                .font(AppTypography.caption)
+                .foregroundColor(AppTheme.accent)
+                .frame(width: 20)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(process.name)
+                    .font(AppTypography.body.weight(.medium))
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                Text("PID \(process.pid)")
+                    .font(AppTypography.monospacedCaption)
+                    .foregroundColor(.secondary)
+            }
+
+            Spacer(minLength: 12)
+
+            Text(ByteCountFormatter.string(
+                fromByteCount: Int64(process.rssKilobytes) * 1024,
+                countStyle: .memory
+            ))
+            .font(AppTypography.monospacedCaption)
+            .foregroundColor(.secondary)
+            .frame(minWidth: 70, alignment: .trailing)
+
+            Button(action: stop) {
+                Image(systemName: "stop.circle")
+                    .font(AppTypography.caption)
+                    .foregroundColor(isHovered ? .red : .secondary)
+                    .frame(width: 24, height: 24)
+            }
+            .buttonStyle(.plain)
+            .help("managementForceStop")
+            .accessibilityLabel(Text("managementForceStop"))
+        }
+        .padding(.horizontal, AppSpacing.md)
+        .padding(.vertical, AppSpacing.sm)
+        .background(isHovered ? Color.primary.opacity(0.035) : Color.clear)
+        .contentShape(Rectangle())
+        .onHover { isHovered = $0 }
     }
 }
 

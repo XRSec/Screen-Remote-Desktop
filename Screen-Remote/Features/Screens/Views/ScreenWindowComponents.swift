@@ -8,11 +8,7 @@ struct ScrcpySurfacePlaceholder: View {
 
     var body: some View {
         ZStack {
-            LinearGradient(
-                colors: [device.accent.opacity(0.34), Color.black, device.accent.opacity(0.12)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            Color.black
 
             if let image = surface.image {
                 Image(decorative: image, scale: 1)
@@ -26,24 +22,24 @@ struct ScrcpySurfacePlaceholder: View {
             if surface.image == nil || !session.isConnected {
                 Color.black.opacity(surface.image == nil ? 0.08 : 0.52)
 
-                VStack(spacing: AppSpacing.md) {
+                VStack(spacing: AppSpacing.sm) {
                     Group {
                         if session.phase.isWorking {
                             ProgressView()
                                 .progressViewStyle(.circular)
-                                .scaleEffect(0.85)
+                                .scaleEffect(0.72)
                         } else {
                             Image(
                                 systemName: session.isRunning
                                     ? "iphone.radiowaves.left.and.right"
                                     : "iphone.slash"
                             )
-                            .font(.system(size: 25, weight: .medium))
+                            .font(AppTypography.title)
                         }
                     }
-                    .frame(width: 42, height: 42)
+                    .frame(width: 34, height: 34)
 
-                    VStack(spacing: AppSpacing.xs) {
+                    VStack(spacing: 3) {
                         Text(LocalizedStringKey(session.phase.localizationKey))
                             .font(.caption.weight(.semibold))
                         Text(device.name)
@@ -52,17 +48,7 @@ struct ScrcpySurfacePlaceholder: View {
                             .lineLimit(1)
                     }
                 }
-                .foregroundColor(.white.opacity(0.9))
-                .padding(.horizontal, AppSpacing.lg)
-                .padding(.vertical, AppSpacing.md)
-                .appBackground(
-                    Color.black.opacity(0.36),
-                    in: RoundedRectangle(cornerRadius: AppRadius.medium, style: .continuous)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: AppRadius.medium, style: .continuous)
-                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
-                )
+                .foregroundColor(.white.opacity(0.86))
                 .padding(AppSpacing.lg)
             }
         }
@@ -606,11 +592,11 @@ struct ScrcpyConnectionDebugWindow: View {
                                 .foregroundColor(.secondary)
                                 .frame(width: 132, alignment: .leading)
                             Text(item.value)
-                                .font(.system(size: 11.5, design: .monospaced))
+                                .font(AppTypography.monospacedCaption)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .multilineTextAlignment(.leading)
                         }
-                        .font(.system(size: 12))
+                        .font(AppTypography.caption)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 11)
                         if index < lines.count - 1 {

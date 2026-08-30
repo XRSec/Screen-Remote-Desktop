@@ -93,23 +93,23 @@ struct AppsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: AppSpacing.xl) {
-                LazyVGrid(
-                    columns: statColumns,
-                    spacing: 14
-                ) {
-                    StatCard(
+                HStack(spacing: 18) {
+                    summaryMetric(
                         icon: "person.crop.square",
                         value: "\(userInstalledAppCount)",
                         label: "appsUserInstalledCount",
                         color: .green
                     )
-                    StatCard(
+                    Divider().frame(height: 28)
+                    summaryMetric(
                         icon: "apps.iphone",
                         value: "\(connectedDevice == nil ? 0 : appManager.apps.count)",
                         label: "appsInstalledCount",
                         color: .blue
                     )
+                    Spacer(minLength: 0)
                 }
+                .padding(.horizontal, 2)
 
                 appsContent
             }
@@ -177,8 +177,6 @@ struct AppsView: View {
                         .foregroundColor(.secondary)
                 }
                 .padding(AppSpacing.xl)
-                .frame(maxWidth: 360)
-                .appCard()
                 .frame(maxWidth: .infinity, minHeight: 220)
             } else if filteredManagedApps.isEmpty {
                 ContentUnavailableViewCompat(
@@ -225,24 +223,28 @@ struct AppsView: View {
             }
         } else if currentDevice == nil {
             VStack(spacing: AppSpacing.md) {
-                AppIconTile(symbol: "iphone.slash", color: AppTheme.accent, size: 48)
+                Image(systemName: "iphone.slash")
+                    .font(AppTypography.largeTitle)
+                    .foregroundColor(.secondary)
                 Text("appsManageNoDevice")
                     .font(AppTypography.section)
                     .multilineTextAlignment(.center)
             }
             .padding(AppSpacing.xl)
-            .frame(maxWidth: 420)
-            .appCard(radius: AppRadius.large)
             .frame(maxWidth: .infinity, minHeight: 260)
         } else {
             ContentUnavailableViewCompat(
                 icon: "cable.connector",
                 title: "appsSessionRequiredTitle",
-                detail: "appsSessionRequiredDetail"
+                detail: "appsSessionRequiredDetail",
+                actionTitle: "sessionStartAction",
+                action: {
+                    if let currentDevice {
+                        appState.connectScreenSession(deviceID: currentDevice.id)
+                    }
+                }
             )
             .padding(AppSpacing.lg)
-            .frame(maxWidth: 420)
-            .appCard(radius: AppRadius.large)
             .frame(maxWidth: .infinity, minHeight: 260)
         }
     }
@@ -257,7 +259,7 @@ struct AppsView: View {
 
     private var appListTitle: some View {
         Text(searchText.isEmpty ? "appsManageInstalledSection" : "appsSearchResultsSection")
-            .font(.headline)
+            .font(AppTypography.headline)
     }
 
     private var userInstalledAppCount: Int {
@@ -265,14 +267,25 @@ struct AppsView: View {
         return appManager.apps.lazy.filter { !$0.isSystem }.count
     }
 
-    private var statColumns: [GridItem] {
-        if isCompact {
-            return [GridItem(.adaptive(minimum: 150, maximum: 240), spacing: 14)]
+    private func summaryMetric(
+        icon: String,
+        value: String,
+        label: LocalizedStringKey,
+        color: Color
+    ) -> some View {
+        HStack(spacing: AppSpacing.sm) {
+            Image(systemName: icon)
+                .font(AppTypography.subheadline)
+                .foregroundColor(color)
+                .frame(width: 20)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(value)
+                    .font(AppTypography.subheadline.weight(.semibold))
+                Text(label)
+                    .font(AppTypography.caption)
+                    .foregroundColor(.secondary)
+            }
         }
-        return Array(
-            repeating: GridItem(.flexible(minimum: 200, maximum: 320), spacing: 14),
-            count: 2
-        )
     }
 
     private var appListControls: some View {

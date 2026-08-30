@@ -43,10 +43,14 @@ private struct ScreensWorkspace: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            toolbar
-            Divider().opacity(0.55)
+        ZStack(alignment: .topTrailing) {
             workspace
+
+            if !connectedDevices.isEmpty {
+                workspaceControls
+                    .padding(.top, 8)
+                    .padding(.trailing, 12)
+            }
         }
         .background(AppTheme.background)
         .onChange(of: connectedDevices.map(\.id)) { ids in
@@ -61,34 +65,37 @@ private struct ScreensWorkspace: View {
         }
     }
 
-    private var toolbar: some View {
-        HStack(spacing: 10) {
-            SkeletonToolbarButton(title: "screensCastSettings", icon: "slider.horizontal.3")
-            SkeletonToolbarButton(title: "screensQuickActions", icon: "bolt.fill")
-            SkeletonToolbarButton(title: "screensADBShell", icon: "terminal")
-            SkeletonToolbarButton(title: "screensADB", icon: "chevron.left.forwardslash.chevron.right")
-
-            Divider().frame(height: 24)
-
-            Toggle("screensSelectAll", isOn: Binding(
-                get: { allVisibleSelected },
-                set: { selectAll($0) }
-            ))
-            .toggleStyle(.checkbox)
-
-            Spacer(minLength: 8)
+    private var workspaceControls: some View {
+        HStack(spacing: AppSpacing.sm) {
+            if connectedDevices.count > 1 {
+                Toggle("screensSelectAll", isOn: Binding(
+                    get: { allVisibleSelected },
+                    set: { selectAll($0) }
+                ))
+                .toggleStyle(.checkbox)
+            }
 
             Button {
                 arrangeTiles(for: connectedDevices)
             } label: {
-                Label("screensAutoArrange", systemImage: "rectangle.3.group")
+                Image(systemName: "rectangle.3.group")
+                    .font(AppTypography.caption.weight(.medium))
+                    .frame(width: 28, height: 28)
             }
+            .buttonStyle(.plain)
             .help("screensAutoArrangeHelp")
-
+            .accessibilityLabel(Text("screensAutoArrange"))
         }
-        .font(.system(size: 12.5))
-        .padding(.horizontal, 14)
-        .frame(height: 48)
+        .font(AppTypography.caption)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 4)
+        .appMaterialBackground(
+            in: RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
+                .stroke(AppTheme.line, lineWidth: 1)
+        )
     }
 
     private var workspace: some View {
@@ -158,7 +165,7 @@ private struct ScreensWorkspace: View {
             .frame(width: proxy.size.width, height: proxy.size.height, alignment: .topLeading)
             .background(
                 GeometryReader { workspaceProxy in
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: AppRadius.small)
                         .stroke(
                             Color.clear,
                             style: StrokeStyle(lineWidth: 2, dash: [7, 5])
@@ -201,22 +208,20 @@ private struct ScreensWorkspace: View {
         title: LocalizedStringKey,
         detail: LocalizedStringKey
     ) -> some View {
-        VStack(spacing: AppSpacing.lg) {
-            AppIconTile(symbol: icon, color: AppTheme.accent, size: 52)
+        VStack(spacing: AppSpacing.md) {
+            Image(systemName: icon)
+                .font(AppTypography.largeTitle)
+                .foregroundColor(.secondary)
 
-            VStack(spacing: AppSpacing.sm) {
+            VStack(spacing: AppSpacing.xs) {
                 Text(title)
-                    .font(AppTypography.title)
+                    .font(AppTypography.section)
                 Text(detail)
                     .font(AppTypography.body)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .padding(AppSpacing.xl)
-        .frame(maxWidth: 420)
-        .appCard(radius: AppRadius.large)
         .padding(AppSpacing.xl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -248,9 +253,10 @@ private extension ScreensWorkspace {
         guard workspaceSize.width > 32, workspaceSize.height > 32 else { return }
 
         let availableWidth = workspaceSize.width - 32
+        let topReservedHeight = ScreenWindowMetrics.headerHeight + 20
         let availableHeight = workspaceSize.height
             - 32
-            - ScreenWindowMetrics.headerHeight
+            - topReservedHeight
             - ScreenWindowMetrics.embeddedBottomControlsHeight
         let horizontalSpacing: CGFloat = 16
         let rowSpacing = horizontalSpacing
@@ -300,7 +306,7 @@ private extension ScreensWorkspace {
             bestScore = score
             bestFrames.removeAll(keepingCapacity: true)
 
-            var verticalOffset = 16 + ScreenWindowMetrics.headerHeight
+            var verticalOffset = 16 + topReservedHeight
             for (rowIndex, row) in rows.enumerated() {
                 let videoHeight = videoHeights[rowIndex]
                 let height = ScreenTile.chromeHeight + videoHeight

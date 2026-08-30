@@ -10,33 +10,6 @@ struct ScreenTileResizeEdges: OptionSet {
     static let trailing = ScreenTileResizeEdges(rawValue: 1 << 3)
 }
 
-struct SkeletonToolbarButton: View {
-    let title: LocalizedStringKey
-    let icon: String
-    @State private var isHovered = false
-
-    var body: some View {
-        Button(action: {}) {
-            Label(title, systemImage: icon)
-                .padding(.horizontal, AppSpacing.sm)
-                .frame(height: 28)
-                .foregroundColor(isHovered ? AppTheme.accent : .primary)
-                .appMaterialBackground(
-                    in: RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous),
-                    isActive: isHovered
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
-                        .stroke(Color.primary.opacity(isHovered ? 0.12 : 0), lineWidth: 1)
-                )
-        }
-        .buttonStyle(.plain)
-        .animation(.easeOut(duration: 0.16), value: isHovered)
-        .onHover { isHovered = $0 }
-        .help("screensReservedActionHelp")
-    }
-}
-
 struct ScreenTile: View {
     static let chromeHeight = ScreenWindowMetrics.embeddedVerticalChrome
     static let horizontalChrome = ScreenWindowMetrics.containerHorizontalChrome
@@ -228,6 +201,15 @@ struct ScrcpyParentContainer: View {
         }
     }
 
+    private var screenMetricsText: String? {
+        guard surface.pixelSize.width > 0, surface.pixelSize.height > 0 else { return nil }
+        let width = Int(surface.pixelSize.width.rounded())
+        let height = Int(surface.pixelSize.height.rounded())
+        let resolution = "\(width) × \(height)"
+        let maxFPS = device.scrcpyOptions.maxFPS
+        return maxFPS > 0 ? "\(resolution) · ≤\(maxFPS) FPS" : resolution
+    }
+
     private var header: some View {
         GeometryReader { proxy in
             let isCompact = proxy.size.width < 260
@@ -238,9 +220,27 @@ struct ScrcpyParentContainer: View {
                 HStack(spacing: contentSpacing) {
                     leadingControls(isCompact: isCompact)
 
-                    Text(device.name)
-                        .font(.system(size: isCompact ? 11.5 : 12.5, weight: .semibold))
-                        .lineLimit(1)
+                    HStack(spacing: 6) {
+                        Text(device.name)
+                            .font(isCompact ? AppTypography.caption.weight(.semibold) : AppTypography.subheadline.weight(.semibold))
+                            .lineLimit(1)
+                        if session.isConnected {
+                            Circle()
+                                .fill(Color.green)
+                                .frame(width: 6, height: 6)
+                            Text(session.batteryLevel.map { "\($0)%" } ?? String.localizedKey("sidebarDeviceConnected"))
+                                .font(AppTypography.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        if !isCompact, let metrics = screenMetricsText {
+                            Divider()
+                                .frame(height: 12)
+                            Text(metrics)
+                                .font(AppTypography.monospacedCaption)
+                                .foregroundColor(.secondary)
+                                .lineLimit(1)
+                        }
+                    }
                         .truncationMode(.tail)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                         .contentShape(Rectangle())
@@ -278,12 +278,11 @@ private extension ScrcpyParentContainer {
     @ViewBuilder
     private func leadingControls(isCompact: Bool) -> some View {
         let controlSize: CGFloat = isCompact ? 22 : 28
-        let iconSize: CGFloat = isCompact ? 11 : 14
         if mode == .embedded {
             HStack(spacing: isCompact ? 1 : 2) {
                 Button(action: onSelect) {
                     Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                        .font(.system(size: iconSize, weight: .semibold))
+                        .font(isCompact ? AppTypography.caption2.weight(.semibold) : AppTypography.caption.weight(.semibold))
                         .foregroundColor(isSelected ? AppTheme.accent : .secondary)
                         .frame(width: controlSize, height: controlSize)
                         .contentShape(Rectangle())
@@ -415,8 +414,8 @@ private extension ScrcpyParentContainer {
     @ViewBuilder
     private var containerBorder: some View {
         if mode == .embedded {
-            if showsChrome || isSelected {
-                GeometryReader { proxy in
+            GeometryReader { proxy in
+                if showsChrome || isSelected {
                     RoundedRectangle(
                         cornerRadius: ScreenWindowMetrics.containerCornerRadius,
                         style: .continuous
@@ -437,6 +436,12 @@ private extension ScrcpyParentContainer {
                             : 0,
                         y: -ScreenWindowMetrics.headerHeight
                     )
+                } else {
+                    RoundedRectangle(
+                        cornerRadius: ScreenWindowMetrics.containerCornerRadius,
+                        style: .continuous
+                    )
+                    .stroke(Color.primary.opacity(0.14), lineWidth: 1)
                 }
             }
         } else {

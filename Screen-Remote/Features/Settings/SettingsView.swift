@@ -3,7 +3,6 @@ import AppKit
 
 struct SettingsView: View {
     @EnvironmentObject private var appState: AppState
-    @Environment(\.presentationMode) private var presentationMode
     @State private var adbStatus: ToolStatus = .unchecked
     @State private var scrcpyStatus: ToolStatus = .unchecked
     @State private var androidCLIStatus: ToolStatus = .unchecked
@@ -14,27 +13,8 @@ struct SettingsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: AppSpacing.md) {
-                AppIconTile(symbol: "gearshape.fill", color: AppTheme.accent, size: 42)
-                VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                    Text("settingsTitle")
-                        .font(AppTypography.title)
-                    Text("settingsSubtitle")
-                        .font(AppTypography.body)
-                        .foregroundColor(.secondary)
-                }
-                Spacer()
-                Button("commonDone") { presentationMode.wrappedValue.dismiss() }
-                    .keyboardShortcut(.defaultAction)
-            }
-            .padding(.horizontal, AppSpacing.xl)
-            .frame(minHeight: 72)
-            .background(AppTheme.surface.opacity(0.72))
-
-            Divider().opacity(0.6)
-
             ScrollView {
-                VStack(alignment: .leading, spacing: AppSpacing.lg) {
+                VStack(alignment: .leading, spacing: 14) {
                     BasicPreferencesCard(
                         language: $appState.appLanguage,
                         theme: $appState.appTheme
@@ -76,8 +56,8 @@ struct SettingsView: View {
                         .padding(.horizontal, 4)
 
                 }
-                .frame(maxWidth: 760)
-                .padding(AppSpacing.xl)
+                .frame(maxWidth: 700)
+                .padding(20)
                 .frame(maxWidth: .infinity)
             }
         }
@@ -202,16 +182,11 @@ private struct BasicPreferencesCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.lg) {
-            HStack(spacing: AppSpacing.md) {
-                AppIconTile(symbol: "switch.2", color: .appIndigo, size: 36)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("settingsBasicPreferences")
-                        .font(AppTypography.section)
-                    Text("settingsBasicPreferencesDetail")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
+            SettingsSectionHeader(
+                symbol: "switch.2",
+                title: "settingsBasicPreferences",
+                detail: "settingsBasicPreferencesDetail"
+            )
             VStack(alignment: .leading, spacing: 8) {
                 Text("settingsLanguage").font(.caption.weight(.medium))
                 Picker("settingsLanguage", selection: $language) {
@@ -233,8 +208,7 @@ private struct BasicPreferencesCard: View {
                 .labelsHidden()
             }
         }
-        .padding(AppSpacing.lg)
-        .appCard()
+        .settingsPanel()
     }
 }
 
@@ -258,16 +232,11 @@ private struct SDKConfigurationCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 13) {
-            HStack(spacing: AppSpacing.md) {
-                AppIconTile(symbol: "iphone.gen3", color: .appTeal, size: 36)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("settingsVirtualDeviceCapability")
-                        .font(AppTypography.section)
-                    Text("settingsVirtualDeviceCapabilityDetail")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
+            SettingsSectionHeader(
+                symbol: "iphone.gen3",
+                title: "settingsVirtualDeviceCapability",
+                detail: "settingsVirtualDeviceCapabilityDetail"
+            )
             HStack(spacing: AppSpacing.sm) {
                 Spacer()
                 Button {
@@ -346,8 +315,7 @@ private struct SDKConfigurationCard: View {
                 browse: { browseDirectory($toolsPath) }
             )
         }
-        .padding(16)
-        .appCard()
+        .settingsPanel()
     }
 
     private func openSDKFolder() {
@@ -371,17 +339,15 @@ private struct BasicControlToolsCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: AppSpacing.md) {
-                AppIconTile(symbol: "cursorarrow.motionlines", color: .appCyan, size: 36)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("settingsBasicControl")
-                        .font(AppTypography.section)
-                    Text("settingsBasicControlDetail")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
+            HStack(spacing: 10) {
+                SettingsSectionHeader(
+                    symbol: "cursorarrow.motionlines",
+                    title: "settingsBasicControl",
+                    detail: "settingsBasicControlDetail"
+                )
                 Spacer()
                 Button("settingsAutoDetect", action: detect)
+                    .controlSize(.small)
             }
             InlineToolRow(
                 title: String.localizedKey("settingsAndroidDebugBridge"),
@@ -398,8 +364,7 @@ private struct BasicControlToolsCard: View {
             Text("settingsToolInstallLocations")
                 .font(.caption2).foregroundColor(.secondary)
         }
-        .padding(16)
-        .appCard()
+        .settingsPanel()
     }
 }
 
@@ -413,29 +378,29 @@ private struct InlineToolRow: View {
     let download: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 9) {
-            HStack(spacing: 10) {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            HStack(spacing: AppSpacing.sm) {
                 Image(systemName: icon)
-                    .foregroundColor(AppTheme.accent)
-                    .frame(width: 30, height: 30)
-                    .background(RoundedRectangle(cornerRadius: 8).fill(AppTheme.accent.opacity(0.1)))
+                    .font(AppTypography.subheadline)
+                    .foregroundColor(.secondary)
+                    .frame(width: 22, height: 22)
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(title).font(.system(size: 13, weight: .semibold))
-                    Text(detail).font(.caption2).foregroundColor(.secondary)
+                    Text(title).font(AppTypography.subheadline.weight(.semibold))
+                    Text(detail).font(AppTypography.caption2).foregroundColor(.secondary)
                 }
                 Spacer()
                 Label(status.title, systemImage: status.icon)
-                    .font(.caption.weight(.medium))
+                    .font(AppTypography.caption)
                     .foregroundColor(status.color)
-                    .padding(.horizontal, AppSpacing.sm)
-                    .padding(.vertical, AppSpacing.xs)
-                    .appBackground(status.color.opacity(0.1), in: Capsule())
             }
-            HStack(spacing: 8) {
+            HStack(spacing: AppSpacing.sm) {
                 TextField("settingsExecutablePath", text: $path).textFieldStyle(.roundedBorder)
                 Button("commonChooseEllipsis", action: browse)
-                Button("commonDownloadEllipsis", action: download)
+                if status != .ready {
+                    Button("commonDownloadEllipsis", action: download)
+                }
             }
+            .controlSize(.small)
         }
     }
 }
@@ -461,8 +426,11 @@ private struct DirectorySettingRow: View {
                         .help(status.title)
                 }
                 Button("commonChooseEllipsis", action: browse)
-                if let download { Button("commonDownloadEllipsis", action: download) }
+                if let download, status != .ready {
+                    Button("commonDownloadEllipsis", action: download)
+                }
             }
+            .controlSize(.small)
         }
     }
 }
@@ -485,9 +453,48 @@ private struct ExecutableSettingRow: View {
                     .foregroundColor(status.color)
                     .help(status.title)
                 Button("commonChooseEllipsis", action: browse)
-                if let download { Button("commonDownloadEllipsis", action: download) }
+                if let download, status != .ready {
+                    Button("commonDownloadEllipsis", action: download)
+                }
+            }
+            .controlSize(.small)
+        }
+    }
+}
+
+private struct SettingsSectionHeader: View {
+    let symbol: String
+    let title: LocalizedStringKey
+    let detail: LocalizedStringKey
+
+    var body: some View {
+        HStack(spacing: AppSpacing.sm) {
+            Image(systemName: symbol)
+                .font(AppTypography.subheadline.weight(.semibold))
+                .foregroundColor(.secondary)
+                .frame(width: 22, height: 22)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title)
+                    .font(AppTypography.subheadline.weight(.semibold))
+                Text(detail)
+                    .font(AppTypography.caption)
+                    .foregroundColor(.secondary)
             }
         }
+    }
+}
+
+private extension View {
+    func settingsPanel() -> some View {
+        padding(AppSpacing.md)
+            .background(
+                RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
+                    .fill(AppTheme.surface.opacity(0.62))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
+                    .stroke(AppTheme.line, lineWidth: 1)
+            )
     }
 }
 

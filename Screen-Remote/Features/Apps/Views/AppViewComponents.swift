@@ -8,9 +8,9 @@ struct PageSearchField: View {
     var body: some View {
         TextField(searchPrompt, text: $searchText)
             .textFieldStyle(.plain)
-            .padding(.horizontal, 12)
+            .padding(.horizontal, AppSpacing.md)
             .frame(minWidth: 120, maxWidth: expands ? .infinity : 230, minHeight: 34, maxHeight: 34)
-            .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(Color.primary.opacity(0.055)))
+            .background(RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous).fill(Color.primary.opacity(0.055)))
             .overlay(
                 Image(systemName: "magnifyingglass").foregroundColor(.secondary).padding(.trailing, 10),
                 alignment: .trailing
@@ -25,9 +25,9 @@ struct SectionTitle: View {
 
     var body: some View {
         HStack {
-            Text(title).font(.headline)
+            Text(title).font(AppTypography.headline)
             Spacer()
-            Button(actionTitle, action: action).buttonStyle(.plain).font(.caption).foregroundColor(AppTheme.accent)
+            Button(actionTitle, action: action).buttonStyle(.plain).font(AppTypography.caption).foregroundColor(AppTheme.accent)
         }
     }
 }
@@ -48,7 +48,7 @@ struct ManagedAppGridItem: View {
     @State private var isHovered = false
 
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: AppSpacing.sm) {
             ZStack {
                 if let icon {
                     Image(nsImage: icon)
@@ -60,49 +60,44 @@ struct ManagedAppGridItem: View {
                     AppIconTile(symbol: "app.fill", color: .appIndigo, size: 48)
                 }
                 if isBusy || isLaunchingApp {
-                    RoundedRectangle(cornerRadius: 11)
+                    RoundedRectangle(cornerRadius: AppRadius.small)
                         .fill(Color.black.opacity(0.42))
                         .frame(width: 48, height: 48)
                     ProgressView().scaleEffect(0.65)
                 }
             }
             Text(app.name)
-                .font(.system(size: 12, weight: .medium))
+                .font(AppTypography.caption.weight(.medium))
                 .lineLimit(1)
             Text(app.packageName)
-                .font(.system(size: 9, design: .monospaced))
+                .font(AppTypography.monospacedCaption)
                 .foregroundColor(.secondary)
                 .lineLimit(1)
                 .truncationMode(.middle)
         }
         .frame(maxWidth: .infinity)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 16)
+        .padding(.horizontal, AppSpacing.sm)
+        .padding(.vertical, AppSpacing.md)
         .background(
             RoundedRectangle(cornerRadius: AppRadius.medium, style: .continuous)
-                .fill(Color.primary.opacity(isHovered ? 0.065 : 0.035))
+                .fill(isHovered ? Color.primary.opacity(0.055) : Color.clear)
         )
         .appOverlay(
             Group {
                 if !app.isEnabled {
                     Text("appsDisabledAppsFilter")
-                        .font(.caption2.weight(.medium))
+                        .font(AppTypography.caption2.weight(.medium))
                         .foregroundColor(.secondary)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 2)
                         .background(Capsule().fill(Color.primary.opacity(0.06)))
-                        .padding(8)
+                        .padding(AppSpacing.sm)
                 }
             },
             alignment: .topTrailing
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: AppRadius.medium, style: .continuous)
-                .stroke(isHovered ? AppTheme.accent.opacity(0.28) : AppTheme.line)
-        )
         .contentShape(Rectangle())
-        .scaleEffect(isHovered ? 1.015 : 1)
-        .animation(.easeOut(duration: 0.16), value: isHovered)
+        .animation(.easeOut(duration: 0.12), value: isHovered)
         .onHover { isHovered = $0 }
         .onTapGesture(count: 2, perform: openApp)
         .contextMenu {
@@ -133,80 +128,5 @@ struct ManagedAppGridItem: View {
             }
         }
         .disabled(isBusy)
-    }
-}
-
-struct StatCard: View {
-    let icon: String
-    let value: String
-    let label: LocalizedStringKey
-    let color: Color
-
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(color)
-                .frame(width: 38, height: 38)
-                .background(RoundedRectangle(cornerRadius: 10).fill(color.opacity(0.12)))
-            VStack(alignment: .leading, spacing: 1) {
-                Text(value).font(.headline)
-                Text(label).font(.caption).foregroundColor(.secondary)
-            }
-            Spacer()
-        }
-        .padding(14)
-        .frame(maxWidth: .infinity)
-        .appCard()
-    }
-}
-
-struct RecentAppCard: View {
-    let app: PhoneApp
-
-    var body: some View {
-        Button(action: {}) {
-            HStack(spacing: 11) {
-                AppIconTile(symbol: app.icon, color: app.color, size: 42)
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(app.name).font(.system(size: 13, weight: .semibold))
-                    Text("appsOpenAction").font(.caption).foregroundColor(.secondary)
-                }
-                Spacer()
-                Image(systemName: "arrow.up.right").font(.caption).foregroundColor(Color.secondary.opacity(0.65))
-            }
-            .padding(12)
-            .frame(maxWidth: .infinity)
-            .appCard()
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-struct AppGridItem: View {
-    let app: PhoneApp
-
-    var body: some View {
-        Button(action: {}) {
-            VStack(spacing: 10) {
-                ZStack(alignment: .topTrailing) {
-                    AppIconTile(symbol: app.icon, color: app.color, size: 48)
-                    if app.badge > 0 {
-                        Text(verbatim: "\(app.badge)")
-                            .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(.white)
-                            .frame(minWidth: 16, minHeight: 16)
-                            .background(Circle().fill(Color.red))
-                            .offset(x: 5, y: -5)
-                    }
-                }
-                Text(app.name).font(.system(size: 12, weight: .medium)).lineLimit(1)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.035)))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.line))
-        }
-        .buttonStyle(.plain)
     }
 }

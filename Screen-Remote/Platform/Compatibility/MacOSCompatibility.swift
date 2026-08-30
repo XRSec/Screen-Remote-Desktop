@@ -130,6 +130,12 @@ private final class WindowSizingNSView: NSView {
 
         DispatchQueue.main.async { [weak self, weak window] in
             guard let self, let window, self.window === window else { return }
+            window.titleVisibility = .hidden
+            window.titlebarAppearsTransparent = true
+            window.titlebarSeparatorStyle = .none
+            window.styleMask.insert(.fullSizeContentView)
+            window.isMovableByWindowBackground = true
+
             window.contentMinSize = NSSize(width: self.minimumWidth, height: self.minimumHeight)
             window.setContentSize(NSSize(
                 width: self.defaultWidth,

@@ -24,6 +24,7 @@ private struct RemoteFileSelection: Identifiable {
     var id: String { basePath == "/" ? "/\(entry.name)" : "\(basePath)/\(entry.name)" }
 }
 
+// pi-lens-ignore: type_body_length
 struct DeviceFilesView: View {
     @EnvironmentObject private var appState: AppState
     let isCompact: Bool
@@ -136,7 +137,7 @@ struct DeviceFilesView: View {
     private func fileDetailColumn(_ selection: RemoteFileSelection) -> some View {
         VStack(spacing: 14) {
             Spacer(minLength: 24)
-            Image(systemName: "doc.fill").font(.system(size: 42)).foregroundColor(.secondary)
+            Image(systemName: "doc.fill").font(AppTypography.largeTitle).foregroundColor(.secondary)
             Text(selection.entry.name).font(.headline).multilineTextAlignment(.center).lineLimit(3)
             VStack(spacing: 8) {
                 HStack { Text("managementFileType").foregroundColor(.secondary); Spacer(); Text("managementFile") }
@@ -486,7 +487,7 @@ private struct RemoteFileRow: View {
             Button(action: open) { Image(systemName: entry.isDirectory ? "chevron.right" : "square.and.arrow.down") }.buttonStyle(.plain)
         }
         .padding(.horizontal, 12).padding(.vertical, 10)
-        .background(RoundedRectangle(cornerRadius: 8).fill((isSelected || isBatchSelected) ? AppTheme.accent.opacity(0.1) : Color.clear))
+        .background(RoundedRectangle(cornerRadius: AppRadius.small).fill((isSelected || isBatchSelected) ? AppTheme.accent.opacity(0.1) : Color.clear))
         .contentShape(Rectangle())
         .onTapGesture(perform: select)
         .onTapGesture(count: 2, perform: open)

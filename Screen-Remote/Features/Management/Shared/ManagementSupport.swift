@@ -117,8 +117,6 @@ struct ManagementUnavailableView: View {
             title: "managementSessionRequiredTitle",
             detail: "managementSessionRequiredDetail"
         )
-        .padding(AppSpacing.lg)
-        .appCard(radius: AppRadius.large)
         .padding(AppSpacing.xl)
         .frame(maxWidth: .infinity, minHeight: 300)
     }

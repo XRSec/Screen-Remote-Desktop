@@ -1,19 +1,11 @@
 import SwiftUI
 
 enum AppTheme {
-    static let background = Color(NSColor(name: nil) { appearance in
-        appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            ? NSColor(calibratedWhite: 0.075, alpha: 1)
-            : NSColor(calibratedRed: 0.965, green: 0.969, blue: 0.978, alpha: 1)
-    })
-    static let sidebar = Color(NSColor(name: nil) { appearance in
-        appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            ? NSColor(calibratedWhite: 0.105, alpha: 1)
-            : NSColor(calibratedRed: 0.925, green: 0.937, blue: 0.957, alpha: 1)
-    })
+    static let background = Color(NSColor.windowBackgroundColor)
+    static let sidebar = Color(NSColor.controlBackgroundColor)
     static let surface = Color(NSColor.controlBackgroundColor)
-    static let line = Color.primary.opacity(0.09)
-    static let accent = Color(red: 0.18, green: 0.42, blue: 0.93)
+    static let line = Color(NSColor.separatorColor).opacity(0.72)
+    static let accent = Color.accentColor
 }
 
 extension Color {
@@ -32,20 +24,34 @@ enum AppSpacing {
     static let lg: CGFloat = 16
     static let xl: CGFloat = 24
     static let xxl: CGFloat = 32
+
+    // Token Aliases
+    static let extraSmall: CGFloat = 4
+    static let small: CGFloat = 8
+    static let medium: CGFloat = 12
+    static let cardPadding: CGFloat = 12
 }
 
 enum AppRadius {
+    static let micro: CGFloat = 4
+    static let xsmall: CGFloat = 4
     static let small: CGFloat = 8
+    static let card: CGFloat = 12
     static let medium: CGFloat = 14
     static let large: CGFloat = 20
+    static let pill: CGFloat = 999
 }
 
 enum AppTypography {
     static let largeTitle = Font.system(size: 28, weight: .bold)
     static let title = Font.system(size: 20, weight: .semibold)
+    static let headline = Font.system(size: 17, weight: .semibold)
     static let section = Font.system(size: 15, weight: .semibold)
+    static let subheadline = Font.system(size: 13, weight: .medium)
     static let body = Font.system(size: 13, weight: .regular)
     static let caption = Font.system(size: 11, weight: .regular)
+    static let caption2 = Font.system(size: 10, weight: .regular)
+    static let monospacedCaption = Font.system(size: 10, weight: .regular, design: .monospaced)
 }
 
 struct StatusBadge: View {
@@ -109,10 +115,15 @@ struct ContentUnavailableViewCompat: View {
     let icon: String
     let title: LocalizedStringKey
     let detail: LocalizedStringKey
+    var actionTitle: LocalizedStringKey?
+    var action: (() -> Void)?
 
     var body: some View {
         VStack(spacing: AppSpacing.md) {
-            AppIconTile(symbol: icon, color: AppTheme.accent, size: 48)
+            Image(systemName: icon)
+                .font(AppTypography.largeTitle)
+                .foregroundColor(.secondary.opacity(0.85))
+                .frame(width: 44, height: 44)
             VStack(spacing: AppSpacing.xs) {
                 Text(title)
                     .font(AppTypography.section)
@@ -121,6 +132,12 @@ struct ContentUnavailableViewCompat: View {
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
+            }
+            if let actionTitle, let action {
+                Button(actionTitle, action: action)
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .padding(.top, AppSpacing.xs)
             }
         }
         .padding(AppSpacing.lg)

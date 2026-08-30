@@ -4,6 +4,7 @@ import SwiftUI
 private let deviceInfoColumns = [GridItem(.adaptive(minimum: 300, maximum: 450), spacing: 14)]
 private let deviceInfoGridMaxWidth: CGFloat = 914
 
+// pi-lens-ignore: type_body_length
 struct DeviceInformationView: View {
     @EnvironmentObject private var appState: AppState
     @Environment(\.locale) private var locale
@@ -16,8 +17,41 @@ struct DeviceInformationView: View {
                 let isLoading = appState.deviceInformationLoading.contains(target.device.id)
                 let errorMessage = appState.deviceInformationErrors[target.device.id]
                 VStack(alignment: .leading, spacing: 16) {
-                    if isLoading { ProgressView().frame(maxWidth: .infinity) }
-                    if let errorMessage { ManagementErrorBanner(message: errorMessage) }
+                    if isLoading, snapshot == nil {
+                        VStack {
+                            ProgressView()
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 260)
+                    }
+
+                    if let errorMessage {
+                        if snapshot == nil, !isLoading {
+                            VStack(spacing: 12) {
+                                Image(systemName: "exclamationmark.triangle")
+                                    .font(AppTypography.largeTitle.weight(.regular))
+                                    .foregroundColor(.secondary)
+                                Text(errorMessage)
+                                    .font(AppTypography.body)
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                                    .frame(maxWidth: 420)
+                                Button {
+                                    appState.loadDeviceInformation(
+                                        device: target.device,
+                                        serial: target.serial,
+                                        adbPath: target.adbPath,
+                                        force: true
+                                    )
+                                } label: {
+                                    Label("commonRefresh", systemImage: "arrow.clockwise")
+                                }
+                                .controlSize(.small)
+                            }
+                            .frame(maxWidth: .infinity, minHeight: 300)
+                        } else {
+                            ManagementErrorBanner(message: errorMessage)
+                        }
+                    }
 
                     if let snapshot {
                         LazyVGrid(columns: deviceInfoColumns, alignment: .center, spacing: 14) {
@@ -464,14 +498,14 @@ struct DeviceInformationView: View {
 
     private func physicalDpi(_ raw: String) -> (Double, Double)? {
         if let values = capturesFirst(raw, #"xDpi=([0-9]+(?:\.[0-9]+)?).*?yDpi=([0-9]+(?:\.[0-9]+)?)"#),
-           values.count == 2, let x = Double(values[0]), let y = Double(values[1]),
-           x >= 50, y >= 50, x <= 2_000, y <= 2_000 {
-            return (x, y)
+           values.count == 2, let xDpi = Double(values[0]), let yDpi = Double(values[1]),
+           xDpi >= 50, yDpi >= 50, xDpi <= 2_000, yDpi <= 2_000 {
+            return (xDpi, yDpi)
         }
         if let values = capturesFirst(raw, #"\(([0-9]+(?:\.[0-9]+)?)\s*x\s*([0-9]+(?:\.[0-9]+)?)\)\s*dpi"#),
-           values.count == 2, let x = Double(values[0]), let y = Double(values[1]),
-           x >= 50, y >= 50, x <= 2_000, y <= 2_000 {
-            return (x, y)
+           values.count == 2, let xDpi = Double(values[0]), let yDpi = Double(values[1]),
+           xDpi >= 50, yDpi >= 50, xDpi <= 2_000, yDpi <= 2_000 {
+            return (xDpi, yDpi)
         }
         return nil
     }

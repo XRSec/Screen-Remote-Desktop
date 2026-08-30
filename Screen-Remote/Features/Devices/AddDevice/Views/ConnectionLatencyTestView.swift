@@ -29,23 +29,23 @@ struct ConnectionLatencyTestView: View {
                         ProgressView("sessionTesting").padding(30)
                     }
                     ForEach(results) { result in
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(result.label).font(.system(size: 13, weight: .semibold))
+                        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                            Text(result.label).font(AppTypography.subheadline.weight(.semibold))
                             Text(String(
                                 format: String.localizedKey("sessionLatencySummary"),
                                 result.average, result.samples.count, result.failures
                             ))
-                            .font(.caption)
+                            .font(AppTypography.caption)
                             .foregroundColor(result.samples.isEmpty ? .red : .secondary)
                             if !result.samples.isEmpty {
                                 Text(result.samples.map { String(format: "%.1f", $0) }.joined(separator: " · ") + " ms")
-                                    .font(.caption2.monospacedDigit())
+                                    .font(AppTypography.caption2.monospacedDigit())
                                     .foregroundColor(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
                         }
-                        .padding(13)
-                        .appCard(radius: 10)
+                        .padding(AppSpacing.md)
+                        .appCard(radius: AppRadius.small)
                     }
                 }
                 .padding(16)
@@ -83,7 +83,7 @@ struct FormPickerControl<Content: View, Selection: Hashable>: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            Text(title).font(.system(size: 13, weight: .medium))
+            Text(title).font(AppTypography.headline.weight(.medium))
             Picker(title, selection: $selection) { content }
                 .labelsHidden()
                 .frame(width: 150)

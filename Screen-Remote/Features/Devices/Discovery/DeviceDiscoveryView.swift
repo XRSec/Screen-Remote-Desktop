@@ -1,3 +1,4 @@
+import Network
 import SwiftUI
 
 struct DiscoveredADBDevice: Identifiable, Hashable {
@@ -14,13 +15,96 @@ struct DiscoveredADBDevice: Identifiable, Hashable {
     let transport: DeviceTransport
 }
 
+private final class ADBMDNSBrowser: ObservableObject {
+    @Published private(set) var devices: [DiscoveredADBDevice] = []
+    @Published private(set) var isReady = false
+
+    private let queue = DispatchQueue(label: "com.screenremote.mdns-discovery")
+    private var browsers: [NWBrowser] = []
+    private var devicesByServiceType: [String: [DiscoveredADBDevice]] = [:]
+    private var readyServiceTypes: Set<String> = []
+    private var isRunning = false
+
+    func start() {
+        guard browsers.isEmpty else { return }
+        isRunning = true
+        startBrowser(serviceType: "_adb-tls-connect._tcp", stateKey: "deviceDiscoveryConnectable")
+        startBrowser(serviceType: "_adb-tls-pairing._tcp", stateKey: "deviceDiscoveryPairable")
+    }
+
+    func stop() {
+        isRunning = false
+        browsers.forEach { $0.cancel() }
+        browsers.removeAll()
+        devicesByServiceType.removeAll()
+        readyServiceTypes.removeAll()
+        devices = []
+        isReady = false
+    }
+
+    private func startBrowser(serviceType: String, stateKey: String) {
+        let browser = NWBrowser(
+            for: .bonjour(type: serviceType, domain: nil),
+            using: .tcp
+        )
+        browser.browseResultsChangedHandler = { [weak self] results, _ in
+            let discovered = results.compactMap { result -> DiscoveredADBDevice? in
+                guard case let .service(name, _, _, _) = result.endpoint else { return nil }
+                let address = mdnsDeviceSerial(name)
+                return DiscoveredADBDevice(
+                    id: "mdns:\(DeviceTransport.mdns.rawValue):\(serviceType):\(name)",
+                    name: name,
+                    address: address,
+                    state: String.localizedKey(stateKey),
+                    source: .mdns,
+                    transport: .mdns
+                )
+            }
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+
+            DispatchQueue.main.async {
+                guard let self, self.isRunning else { return }
+                self.devicesByServiceType[serviceType] = discovered
+                self.devices = self.devicesByServiceType.values
+                    .flatMap { $0 }
+                    .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+            }
+        }
+        browser.stateUpdateHandler = { [weak self] state in
+            DispatchQueue.main.async {
+                guard let self, self.isRunning else { return }
+                switch state {
+                case .ready:
+                    self.readyServiceTypes.insert(serviceType)
+                case .failed, .cancelled:
+                    self.readyServiceTypes.remove(serviceType)
+                default:
+                    break
+                }
+                self.isReady = self.readyServiceTypes.count == 2
+            }
+        }
+        browsers.append(browser)
+        browser.start(queue: queue)
+    }
+}
+
 struct DeviceDiscoveryView: View {
     @EnvironmentObject private var appState: AppState
     @Environment(\.presentationMode) private var presentationMode
-    @State private var devices: [DiscoveredADBDevice] = []
+    @StateObject private var mdnsBrowser = ADBMDNSBrowser()
+    @State private var commandDevices: [DiscoveredADBDevice] = []
     @State private var isRefreshing = false
     @State private var statusText = String.localizedKey("deviceDiscoveryWaiting")
     @State private var errorText: String?
+
+    private var devices: [DiscoveredADBDevice] {
+        let commandResults = mdnsBrowser.isReady
+            ? commandDevices.filter { $0.source != .mdns || $0.transport == .tcp }
+            : commandDevices
+        return Array(Dictionary(grouping: commandResults + mdnsBrowser.devices, by: \.id).compactMap { $0.value.first })
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -69,11 +153,11 @@ struct DeviceDiscoveryView: View {
 
                 if let errorText {
                     Label(errorText, systemImage: "exclamationmark.triangle.fill")
-                        .font(.caption)
+                        .font(AppTypography.caption)
                         .foregroundColor(.orange)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(11)
-                        .appBackground(Color.orange.opacity(0.09), in: RoundedRectangle(cornerRadius: 9))
+                        .padding(AppSpacing.md)
+                        .appBackground(Color.orange.opacity(0.09), in: RoundedRectangle(cornerRadius: AppRadius.small))
                 }
 
                 HStack(spacing: 10) {
@@ -92,7 +176,11 @@ struct DeviceDiscoveryView: View {
             .padding(20)
         }
         .background(AppTheme.background)
-        .onAppear { refresh() }
+        .onAppear {
+            mdnsBrowser.start()
+            refresh()
+        }
+        .onDisappear { mdnsBrowser.stop() }
     }
 
     private func refresh() {
@@ -110,7 +198,7 @@ struct DeviceDiscoveryView: View {
             let unique = Array(Dictionary(grouping: parsed, by: \.id).compactMap { $0.value.first }).sorted { $0.name < $1.name }
 
             await MainActor.run {
-                devices = unique
+                commandDevices = unique
                 isRefreshing = false
                 statusText = String.localizedKey("deviceDiscoveryComplete")
                 let errors = [deviceResult, mdnsResult]

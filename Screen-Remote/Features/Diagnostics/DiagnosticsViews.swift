@@ -182,13 +182,13 @@ struct SDLLogView: View {
                 if visibleLogs.isEmpty {
                     VStack(spacing: 9) {
                         Image(systemName: "doc.text.magnifyingglass")
-                            .font(.system(size: 34))
+                            .font(AppTypography.largeTitle)
                             .foregroundColor(Color.white.opacity(0.55))
                         Text("diagnosticsNoSDLLogs")
-                            .font(.headline)
+                            .font(AppTypography.headline)
                             .foregroundColor(Color.white.opacity(0.9))
                         Text("diagnosticsNoSDLLogsDetail")
-                            .font(.caption)
+                            .font(AppTypography.caption)
                             .foregroundColor(Color.white.opacity(0.65))
                     }
                     .allowsHitTesting(false)

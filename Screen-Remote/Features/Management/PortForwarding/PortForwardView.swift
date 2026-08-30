@@ -1,9 +1,6 @@
 import AppKit
 import SwiftUI
 
-private let managementCardColumns = [GridItem(.adaptive(minimum: 300, maximum: 450), spacing: 14)]
-private let managementCardGridMaxWidth: CGFloat = 914
-
 private struct PortForwardEntry: Identifiable {
     let serial: String; let local: String; let remote: String
     var id: String { "\(serial)-\(local)-\(remote)" }
@@ -22,34 +19,67 @@ struct PortForwardView: View {
         Group {
             if managementTarget(from: appState) == nil { ManagementUnavailableView() }
             else {
-                VStack(alignment: .leading, spacing: 16) {
-                    HStack(spacing: 10) {
+                VStack(alignment: .leading, spacing: AppSpacing.lg) {
+                    HStack(spacing: AppSpacing.sm) {
                         LabeledPortField(title: "managementLocalPort", text: $localPort)
                         Image(systemName: "arrow.right")
+                            .font(AppTypography.caption.weight(.medium))
+                            .foregroundColor(.secondary)
                         LabeledPortField(title: "managementDevicePort", text: $remotePort)
-                        Button("managementAddForward", action: addForward).buttonStyle(.bordered)
-                    }.padding(16).appCard()
+                        Button("managementAddForward", action: addForward)
+                            .buttonStyle(.bordered)
+                            .controlSize(.small)
+                    }
+                    .controlSize(.small)
+                    .padding(.horizontal, 2)
                     if isLoading { ProgressView().frame(maxWidth: .infinity) }
                     if let errorMessage { ManagementErrorBanner(message: errorMessage) }
                     if entries.isEmpty && !isLoading {
                         ContentUnavailableViewCompat(icon: "arrow.left.arrow.right", title: "managementNoForwards", detail: "managementNoForwardsDetail").frame(minHeight: 220)
                     } else {
                         VStack(spacing: 0) {
-                            ForEach(entries) { entry in
+                            ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
                                 HStack {
-                                    Image(systemName: "arrow.left.arrow.right").foregroundColor(AppTheme.accent)
-                                    Text(entry.local).font(.system(.body, design: .monospaced))
-                                    Image(systemName: "arrow.right").foregroundColor(.secondary)
-                                    Text(entry.remote).font(.system(.body, design: .monospaced))
+                                    Image(systemName: "arrow.left.arrow.right")
+                                        .font(AppTypography.caption.weight(.medium))
+                                        .foregroundColor(AppTheme.accent)
+                                        .frame(width: 20)
+                                    Text(entry.local)
+                                        .font(AppTypography.monospacedCaption)
+                                    Image(systemName: "arrow.right")
+                                        .font(AppTypography.caption2)
+                                        .foregroundColor(.secondary)
+                                    Text(entry.remote)
+                                        .font(AppTypography.monospacedCaption)
                                     Spacer()
-                                    Button(action: { remove(entry) }) { Image(systemName: "trash") }.buttonStyle(.plain)
-                                }.padding(14)
-                                Divider().padding(.leading, 44)
+                                    Button(action: { remove(entry) }) {
+                                        Image(systemName: "trash")
+                                            .font(AppTypography.caption)
+                                            .foregroundColor(.secondary)
+                                            .frame(width: 24, height: 24)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .help("managementDelete")
+                                    .accessibilityLabel(Text("managementDelete"))
+                                }
+                                .padding(.horizontal, AppSpacing.md)
+                                .padding(.vertical, AppSpacing.sm)
+                                if index != entries.count - 1 {
+                                    Divider().padding(.leading, 42)
+                                }
                             }
-                        }.appCard()
+                        }
+                        .background(
+                            RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
+                                .fill(Color.primary.opacity(0.02))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
+                                .stroke(AppTheme.line, lineWidth: 1)
+                        )
                     }
                     Spacer()
-                }.padding(isCompact ? 20 : 28)
+                }.padding(isCompact ? AppSpacing.lg : AppSpacing.xxl)
             }
         }
         .onAppear(perform: refresh)
@@ -66,8 +96,12 @@ struct PortForwardView: View {
                 let output = try await ManagementADB.run(target: target, arguments: ["forward", "--list"])
                 guard output.succeeded else { throw ManagementError.message(output.failureDetail) }
                 entries = output.text.split(whereSeparator: \.isNewline).compactMap { line in
-                    let fields = line.split(whereSeparator: \.isWhitespace); guard fields.count >= 3, fields[0] == Substring(target.serial) else { return nil }
-                    return PortForwardEntry(serial: String(fields[0]), local: String(fields[1]), remote: String(fields[2]))
+                    let fields = line.split(whereSeparator: \.isWhitespace)
+                    guard fields.count >= 3, fields[0] == Substring(target.serial) else { return nil }
+                    let local = String(fields[1])
+                    let remote = String(fields[2])
+                    guard local.hasPrefix("tcp:"), remote.hasPrefix("tcp:") else { return nil }
+                    return PortForwardEntry(serial: String(fields[0]), local: local, remote: remote)
                 }
             } catch { errorMessage = error.localizedDescription }
             isLoading = false
@@ -104,7 +138,14 @@ struct PortForwardView: View {
 private struct LabeledPortField: View {
     let title: LocalizedStringKey; @Binding var text: String
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) { Text(title).font(.caption).foregroundColor(.secondary); TextField("8080", text: $text).frame(width: 90) }
+        VStack(alignment: .leading, spacing: AppSpacing.xs) {
+            Text(title)
+                .font(AppTypography.caption.weight(.medium))
+                .foregroundColor(.secondary)
+            TextField("8080", text: $text)
+                .textFieldStyle(.roundedBorder)
+                .frame(width: 92)
+        }
     }
 }
 

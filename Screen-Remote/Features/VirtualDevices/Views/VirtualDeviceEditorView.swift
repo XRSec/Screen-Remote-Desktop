@@ -60,24 +60,24 @@ struct VirtualDeviceEditorView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
                     editorSection(number: 1, title: "virtualDeviceTypeSection") {
-                        HStack(spacing: 10) {
+                        HStack(spacing: AppSpacing.sm) {
                             ForEach([VirtualDeviceFormFactor.phone, .tablet, .tv]) { factor in
                                 Button {
                                     applyFormFactor(factor)
                                 } label: {
                                     VStack(spacing: 7) {
-                                        Image(systemName: factor.icon).font(.system(size: 24))
-                                        Text(factor.localizationKey).font(.caption.weight(.medium))
+                                        Image(systemName: factor.icon).font(AppTypography.title)
+                                        Text(factor.localizationKey).font(AppTypography.caption.weight(.medium))
                                     }
                                     .foregroundColor(options.formFactor == factor ? AppTheme.accent : .secondary)
                                     .frame(maxWidth: .infinity)
                                     .frame(height: 72)
                                     .background(
-                                        RoundedRectangle(cornerRadius: 10)
+                                        RoundedRectangle(cornerRadius: AppRadius.small)
                                             .fill(options.formFactor == factor ? AppTheme.accent.opacity(0.11) : Color.primary.opacity(0.04))
                                     )
                                     .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
+                                        RoundedRectangle(cornerRadius: AppRadius.small)
                                             .stroke(options.formFactor == factor ? AppTheme.accent : AppTheme.line, lineWidth: 1)
                                     )
                                 }
@@ -109,10 +109,10 @@ struct VirtualDeviceEditorView: View {
                             HStack {
                                 Image(systemName: "shippingbox.fill").foregroundColor(AppTheme.accent)
                                 Text(options.systemImageID.isEmpty ? device?.target ?? "" : options.systemImageID)
-                                    .font(.system(size: 11, design: .monospaced)).lineLimit(2)
+                                    .font(AppTypography.monospacedCaption).lineLimit(2)
                             }
                             Text("virtualDeviceSystemImmutable")
-                                .font(.caption2).foregroundColor(.secondary)
+                                .font(AppTypography.caption2).foregroundColor(.secondary)
                         } else if installedImages.isEmpty {
                             Label("virtualDeviceNoCompatibleInstalledImages", systemImage: "exclamationmark.triangle")
                                 .foregroundColor(.orange)
@@ -232,8 +232,8 @@ struct VirtualDeviceEditorView: View {
             content()
         }
         .padding(15)
-        .background(RoundedRectangle(cornerRadius: 12).fill(AppTheme.surface))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.line, lineWidth: 1))
+        .background(RoundedRectangle(cornerRadius: AppRadius.small).fill(AppTheme.surface))
+        .overlay(RoundedRectangle(cornerRadius: AppRadius.small).stroke(AppTheme.line, lineWidth: 1))
     }
 
     private func applyFormFactor(_ factor: VirtualDeviceFormFactor) {
@@ -318,13 +318,13 @@ private struct SkinCard: View {
                 }
                 .frame(height: 72)
                 .foregroundColor(.secondary)
-                Text(skin.name).font(.caption.weight(.medium)).lineLimit(1)
-                Text(skin.detail).font(.system(size: 9)).foregroundColor(.secondary).lineLimit(1)
+                Text(skin.name).font(AppTypography.caption.weight(.medium)).lineLimit(1)
+                Text(skin.detail).font(AppTypography.caption2).foregroundColor(.secondary).lineLimit(1)
             }
-            .padding(8)
+            .padding(AppSpacing.sm)
             .frame(maxWidth: .infinity)
-            .background(RoundedRectangle(cornerRadius: 9).fill(isSelected ? AppTheme.accent.opacity(0.1) : Color.primary.opacity(0.035)))
-            .overlay(RoundedRectangle(cornerRadius: 9).stroke(isSelected ? AppTheme.accent : AppTheme.line, lineWidth: 1))
+            .background(RoundedRectangle(cornerRadius: AppRadius.small).fill(isSelected ? AppTheme.accent.opacity(0.1) : Color.primary.opacity(0.035)))
+            .overlay(RoundedRectangle(cornerRadius: AppRadius.small).stroke(isSelected ? AppTheme.accent : AppTheme.line, lineWidth: 1))
         }
         .buttonStyle(.plain)
     }

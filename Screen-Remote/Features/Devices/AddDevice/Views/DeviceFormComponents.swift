@@ -15,16 +15,16 @@ struct DeviceFormSection<Content: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 9) {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(String.localizedKey(title)).font(.system(size: 13, weight: .semibold))
+                Text(String.localizedKey(title)).font(AppTypography.subheadline.weight(.semibold))
                 if let subtitle = subtitle {
-                    Text(String.localizedKey(subtitle)).font(.caption2).foregroundColor(.secondary)
+                    Text(String.localizedKey(subtitle)).font(AppTypography.caption2).foregroundColor(.secondary)
                 }
             }
             .padding(.leading, 3)
             VStack(spacing: 0) { content }
-                .appCard(radius: 12)
+                .appCard(radius: AppRadius.small)
         }
     }
 }
@@ -281,7 +281,7 @@ struct FormLabel: View {
 
     var body: some View {
         HStack(spacing: 5) {
-            Text(title).font(.system(size: 13, weight: .medium))
+            Text(title).font(AppTypography.body.weight(.medium))
             if let help {
                 HelpPopoverButton(textKey: help)
             }
@@ -298,18 +298,18 @@ struct HelpPopoverButton: View {
             presented.toggle()
         } label: {
             Image(systemName: "questionmark.circle")
-                .font(.system(size: 11, weight: .medium))
+                .font(AppTypography.caption.weight(.medium))
                 .foregroundColor(.secondary)
         }
         .buttonStyle(.plain)
         .help("sessionHelpButton")
         .popover(isPresented: $presented, arrowEdge: .trailing) {
             Text(String.localizedKey(textKey))
-                .font(.system(size: 12))
+                .font(AppTypography.caption)
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(width: 280, alignment: .leading)
-                .padding(14)
+                .padding(AppSpacing.md)
         }
     }
 }

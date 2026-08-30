@@ -6,13 +6,13 @@ struct ScrcpyBottomControls: View {
     let deviceID: UUID
     let height: CGFloat
 
-    private var controlSize: CGFloat { height }
-    private var iconSize: CGFloat { height < 30 ? 14 : 16 }
+    private var controlSize: CGFloat { min(height, 24) }
+    private var iconSize: CGFloat { height < 30 ? 12.5 : 14 }
 
     var body: some View {
-        HStack(spacing: 2) {
+        HStack(spacing: 3) {
             ScrcpyContainerControlButton(
-                icon: "arrow.uturn.backward.circle",
+                icon: "arrow.uturn.backward",
                 help: "screensControlBack",
                 controlSize: controlSize,
                 iconSize: iconSize
@@ -20,7 +20,7 @@ struct ScrcpyBottomControls: View {
                 sendKeyEvent(keyCode: 4)
             }
             ScrcpyContainerControlButton(
-                icon: "house.circle",
+                icon: "house",
                 help: "screensControlHome",
                 controlSize: controlSize,
                 iconSize: iconSize,
@@ -37,7 +37,7 @@ struct ScrcpyBottomControls: View {
                 sendKeyEvent(keyCode: 187)
             }
             ScrcpyContainerControlButton(
-                icon: "speaker.wave.2.circle",
+                icon: "speaker.wave.2",
                 help: "screensControlVolumeUp",
                 controlSize: controlSize,
                 iconSize: iconSize
@@ -45,7 +45,7 @@ struct ScrcpyBottomControls: View {
                 sendKeyEvent(keyCode: 24)
             }
             ScrcpyContainerControlButton(
-                icon: "lock.fill",
+                icon: "power",
                 help: "screensControlPower",
                 controlSize: controlSize,
                 iconSize: iconSize
@@ -181,11 +181,11 @@ struct RotatedScrcpySurface: View {
 
             if inspectorState.isVisible && inspectorState.isTargetKeyboardVisible {
                 Text("screensTargetKeyboardOpen")
-                    .font(.system(size: 11, weight: .medium))
+                    .font(AppTypography.caption.weight(.medium))
                     .foregroundColor(.white)
-                    .padding(.horizontal, 10)
+                    .padding(.horizontal, AppSpacing.md)
                     .padding(.vertical, 7)
-                    .background(RoundedRectangle(cornerRadius: 9).fill(Color.black.opacity(0.78)))
+                    .background(RoundedRectangle(cornerRadius: AppRadius.small).fill(Color.black.opacity(0.78)))
                     .padding(.bottom, 38)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
             }
@@ -197,12 +197,12 @@ struct RotatedScrcpySurface: View {
                 : inspectorState.feedback
             if !feedback.isEmpty {
                 Text(feedback)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(AppTypography.caption.weight(.medium))
                     .foregroundColor(.white)
-                    .padding(.horizontal, 10)
+                    .padding(.horizontal, AppSpacing.md)
                     .padding(.vertical, 7)
                     .background(Capsule().fill(Color.black.opacity(0.78)))
-                    .padding(10)
+                    .padding(AppSpacing.md)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
                     .id(feedback)
                     .onAppear {
@@ -609,24 +609,26 @@ struct ScrcpyContainerControlButton: View {
                     ProgressView().controlSize(.small).scaleEffect(0.7)
                 } else {
                     Image(systemName: icon)
-                        .font(.system(size: iconSize, weight: .semibold))
+                        .font(AppTypography.caption.weight(.semibold))
                 }
             }
             .foregroundColor(isActive ? AppTheme.accent : .primary)
             .frame(width: controlSize, height: controlSize)
             .appMaterialBackground(
                 in: RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous),
-                isActive: isHovered
+                isActive: isHovered || isActive
             )
             .overlay(
                 RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
-                    .stroke(Color.primary.opacity(isHovered ? 0.12 : 0), lineWidth: 1)
+                    .stroke(
+                        Color.primary.opacity(isHovered || isActive ? 0.12 : 0),
+                        lineWidth: 1
+                    )
             )
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .scaleEffect(isHovered ? 1.08 : 1)
-        .animation(.easeOut(duration: 0.16), value: isHovered)
+        .animation(.easeOut(duration: 0.12), value: isHovered)
         .onHover { isHovered = $0 }
         .disabled(isLoading)
         .simultaneousGesture(
@@ -634,5 +636,6 @@ struct ScrcpyContainerControlButton: View {
                 .onEnded { _ in onLongPress?() }
         )
         .help(Text(help))
+        .accessibilityLabel(Text(help))
     }
 }

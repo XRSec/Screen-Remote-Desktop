@@ -45,7 +45,7 @@ struct SystemImagesView: View {
                 }
                 .padding(.horizontal, 11)
                 .frame(height: 36)
-                .background(RoundedRectangle(cornerRadius: 9).fill(Color.primary.opacity(0.055)))
+                .background(RoundedRectangle(cornerRadius: AppRadius.small).fill(Color.primary.opacity(0.055)))
 
                 HStack(spacing: 8) {
                     FilterPicker(title: "virtualDeviceFilterFormFactor", selection: $formFactor) {
@@ -74,12 +74,12 @@ struct SystemImagesView: View {
             .padding(.bottom, 12)
 
             if filteredImages.isEmpty && !viewModel.isWorking {
-                VStack(spacing: 12) {
+                VStack(spacing: AppSpacing.md) {
                     Image(systemName: "externaldrive.badge.questionmark")
-                        .font(.system(size: 38)).foregroundColor(.secondary)
-                    Text("virtualDeviceNoMatchingImages").font(.headline)
+                        .font(AppTypography.largeTitle).foregroundColor(.secondary)
+                    Text("virtualDeviceNoMatchingImages").font(AppTypography.headline)
                     Text("virtualDeviceNoMatchingImagesDetail")
-                        .font(.subheadline).foregroundColor(.secondary)
+                        .font(AppTypography.subheadline).foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
@@ -148,8 +148,8 @@ struct SystemImagesView: View {
                         if index < images.count - 1 { Divider().padding(.leading, 48) }
                     }
                 }
-                .background(RoundedRectangle(cornerRadius: 12).fill(AppTheme.surface))
-                .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.line, lineWidth: 1))
+                .background(RoundedRectangle(cornerRadius: AppRadius.card).fill(AppTheme.surface))
+                .overlay(RoundedRectangle(cornerRadius: AppRadius.card).stroke(AppTheme.line, lineWidth: 1))
             }
         }
     }
@@ -180,25 +180,25 @@ struct SystemImageRow: View {
     let action: () -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: AppSpacing.md) {
             Image(systemName: image.formFactor.icon)
-                .font(.system(size: 18))
+                .font(AppTypography.headline)
                 .foregroundColor(image.isInstalled ? .green : AppTheme.accent)
                 .frame(width: 30, height: 30)
                 .background(Circle().fill(Color.primary.opacity(0.055)))
             VStack(alignment: .leading, spacing: 3) {
-                Text(image.displayName).font(.system(size: 13, weight: .medium))
-                Text(image.description).font(.caption2).foregroundColor(.secondary).lineLimit(1)
-                Text(image.id).font(.system(size: 9, design: .monospaced)).foregroundColor(.secondary).lineLimit(1)
+                Text(image.displayName).font(AppTypography.body.weight(.medium))
+                Text(image.description).font(AppTypography.caption2).foregroundColor(.secondary).lineLimit(1)
+                Text(image.id).font(AppTypography.monospacedCaption).foregroundColor(.secondary).lineLimit(1)
             }
             Spacer()
             if image.isInstalled {
                 Label("virtualDeviceInstalled", systemImage: "checkmark.circle.fill")
-                    .font(.caption).foregroundColor(.green)
+                    .font(AppTypography.caption).foregroundColor(.green)
             }
             if let usageDescription {
                 Image(systemName: "lock.fill")
-                    .font(.caption)
+                    .font(AppTypography.caption)
                     .foregroundColor(.secondary)
                     .help(usageDescription)
             }

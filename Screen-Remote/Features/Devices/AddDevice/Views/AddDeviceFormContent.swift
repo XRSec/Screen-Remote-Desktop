@@ -174,14 +174,14 @@ extension AddDeviceView {
     var backupConnectionsSection: some View {
         DeviceFormSection(title: "addDeviceBackupSection", subtitle: "addDeviceBackupSectionHint") {
             if backupConnections.isEmpty {
-                HStack(spacing: 12) {
+                HStack(spacing: AppSpacing.md) {
                     Image(systemName: "arrow.triangle.branch")
-                        .font(.system(size: 16, weight: .medium))
+                        .font(AppTypography.subheadline.weight(.semibold))
                         .foregroundColor(.secondary)
                         .frame(width: 28, height: 28)
-                        .appBackground(Color.primary.opacity(0.055), in: RoundedRectangle(cornerRadius: 7))
+                        .appBackground(Color.primary.opacity(0.055), in: RoundedRectangle(cornerRadius: AppRadius.small))
                     Text("addDeviceNoBackupAddress")
-                        .font(.system(size: 13))
+                        .font(AppTypography.body)
                         .foregroundColor(.secondary)
                     Spacer()
                     Button {
@@ -190,7 +190,7 @@ extension AddDeviceView {
                         Label("addDeviceAddAddress", systemImage: "plus")
                     }
                 }
-                .padding(14)
+                .padding(AppSpacing.md)
             } else {
                 ForEach(backupConnections.indices, id: \.self) { index in
                     let endpoint = backupConnections[index]
@@ -371,15 +371,15 @@ extension AddDeviceView {
     }
 
     var saveHint: some View {
-        HStack(alignment: .top, spacing: 9) {
+        HStack(alignment: .top, spacing: AppSpacing.sm) {
             Image(systemName: "info.circle.fill").foregroundColor(AppTheme.accent)
             Text("addDeviceSaveHint")
-                .font(.caption)
+                .font(AppTypography.caption)
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(13)
-        .appBackground(AppTheme.accent.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+        .padding(AppSpacing.md)
+        .appBackground(AppTheme.accent.opacity(0.08), in: RoundedRectangle(cornerRadius: AppRadius.small))
     }
 
     @ViewBuilder
@@ -623,95 +623,107 @@ struct RemoteAppSelector: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            ZStack {
-                Text("sessionSelectRemoteApp")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                HStack {
-                    Spacer()
-                    Button("commonCancel") { presentationMode.wrappedValue.dismiss() }
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 13)
+            headerBar
             Divider()
-            HStack(spacing: 8) {
-                TextField("appsSearchPrompt", text: $query)
-                    .textFieldStyle(.roundedBorder)
-                Button("Q", action: search)
-                    .buttonStyle(.borderless)
-                    .padding(.horizontal, 9)
-                    .padding(.vertical, 5)
-                    .background(AppTheme.accent.opacity(0.16))
-                    .cornerRadius(6)
-                    .keyboardShortcut(.defaultAction)
-                    .disabled(isLoading)
-                    .accessibilityLabel("appsSearchPrompt")
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            searchBar
             Divider()
-            Group {
-                if isLoading {
-                    ProgressView("appsManageLoading")
-                        .frame(maxWidth: .infinity, minHeight: 180)
-                } else if let errorMessage {
-                    VStack(spacing: 8) {
-                        Image(systemName: "exclamationmark.triangle")
-                            .font(.system(size: 28))
-                            .foregroundColor(.orange)
-                        Text("appsManageLoadFailedTitle")
-                            .font(.headline)
-                        Text(errorMessage)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 18)
-                    }
-                    .frame(maxWidth: .infinity)
-                } else if !hasSearched {
-                    ContentUnavailableViewCompat(
-                        icon: "magnifyingglass",
-                        title: "sessionSelectRemoteApp",
-                        detail: "appsSearchPrompt"
-                    )
-                } else if filteredApps.isEmpty {
-                    ContentUnavailableViewCompat(
-                        icon: "magnifyingglass",
-                        title: "appsManageNoSearchResults",
-                        detail: "appsSearchPrompt"
-                    )
-                } else {
-                    List(filteredApps) { app in
-                        Button {
-                            selection = app.packageName
-                            presentationMode.wrappedValue.dismiss()
-                        } label: {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(app.name)
-                                    Text(app.packageName)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                                Spacer(minLength: 0)
-                            }
-                            .frame(maxWidth: .infinity, minHeight: 42, alignment: .leading)
-                            .contentShape(Rectangle())
-                            .padding(.horizontal, 10)
-                            .background(AppTheme.surface)
-                        }
-                        .buttonStyle(.plain)
-                        .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
-                        .listRowBackground(Color.clear)
-                    }
-                    .listStyle(.inset)
-                    .frame(maxHeight: 500)
-                }
-            }
-            .frame(minHeight: 220, maxHeight: 520)
+            contentGroup
         }
         .frame(minWidth: 480, idealHeight: 380, maxHeight: 620)
+    }
+
+    private var headerBar: some View {
+        ZStack {
+            Text("sessionSelectRemoteApp")
+                .font(.headline)
+                .frame(maxWidth: .infinity, alignment: .center)
+            HStack {
+                Spacer()
+                Button("commonCancel") { presentationMode.wrappedValue.dismiss() }
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 13)
+    }
+
+    private var searchBar: some View {
+        HStack(spacing: 8) {
+            TextField("appsSearchPrompt", text: $query)
+                .textFieldStyle(.roundedBorder)
+            Button("Q", action: search)
+                .buttonStyle(.borderless)
+                .padding(.horizontal, AppSpacing.sm)
+                .padding(.vertical, AppSpacing.xs)
+                .appBackground(AppTheme.accent.opacity(0.16), in: RoundedRectangle(cornerRadius: AppRadius.small))
+                .keyboardShortcut(.defaultAction)
+                .disabled(isLoading)
+                .accessibilityLabel("appsSearchPrompt")
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+    }
+
+    @ViewBuilder
+    private var contentGroup: some View {
+        Group {
+            if isLoading {
+                ProgressView("appsManageLoading")
+                    .frame(maxWidth: .infinity, minHeight: 180)
+            } else if let errorMessage {
+                VStack(spacing: AppSpacing.sm) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(AppTypography.largeTitle)
+                        .foregroundColor(.orange)
+                    Text("appsManageLoadFailedTitle")
+                        .font(AppTypography.headline)
+                    Text(errorMessage)
+                        .font(AppTypography.caption)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, AppSpacing.lg)
+                }
+                .frame(maxWidth: .infinity)
+            } else if !hasSearched {
+                ContentUnavailableViewCompat(
+                    icon: "magnifyingglass",
+                    title: "sessionSelectRemoteApp",
+                    detail: "appsSearchPrompt"
+                )
+            } else if filteredApps.isEmpty {
+                ContentUnavailableViewCompat(
+                    icon: "magnifyingglass",
+                    title: "appsManageNoSearchResults",
+                    detail: "appsSearchPrompt"
+                )
+            } else {
+                List(filteredApps) { app in
+                    Button {
+                        selection = app.packageName
+                        presentationMode.wrappedValue.dismiss()
+                    } label: {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(app.name)
+                                Text(app.packageName)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer(minLength: 0)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 42, alignment: .leading)
+                        .contentShape(Rectangle())
+                        .padding(.horizontal, 10)
+                        .background(AppTheme.surface)
+                    }
+                    .buttonStyle(.plain)
+                    .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
+                    .listRowBackground(Color.clear)
+                }
+                .listStyle(.inset)
+                .frame(maxHeight: 500)
+            }
+        }
+        .frame(minHeight: 220, maxHeight: 520)
     }
 
     private func search() {

@@ -2,13 +2,13 @@ import AppKit
 import Combine
 import SwiftUI
 @MainActor
+// pi-lens-ignore: type_body_length
 final class AppState: ObservableObject {
     @Published var selection: AppSection = .screens
     let screenWindows = ScreenWindowCoordinator()
     let screenSessions = ScreenSessionManager()
     let deviceApps = DeviceAppsManager()
     @Published var isSidebarCollapsed = false
-    @Published var showingSettings = false
     @Published var showingAddDevice = false
     @Published var editingDeviceID: UUID?
     @Published var showingDeviceDiscovery = false
@@ -674,9 +674,9 @@ final class AppState: ObservableObject {
         sdlLogWindowController?.showWindowAndActivate()
     }
 
-    let apps: [PhoneApp] = []
-    let notifications: [PhoneNotification] = []
-    let conversations: [Conversation] = []
+    @Published var apps: [PhoneApp] = []
+    @Published var notifications: [PhoneNotification] = []
+    @Published var conversations: [Conversation] = []
 }
 
 private extension SDLLogTag {

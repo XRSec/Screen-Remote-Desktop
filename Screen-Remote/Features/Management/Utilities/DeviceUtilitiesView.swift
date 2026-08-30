@@ -124,32 +124,59 @@ struct DeviceUtilitiesView: View {
         ScrollView {
             if managementTarget(from: appState) == nil { ManagementUnavailableView() }
             else {
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: AppSpacing.lg) {
                     if isBusy || isRefreshing { ProgressView().frame(maxWidth: .infinity) }
                     if let errorMessage { ManagementErrorBanner(message: errorMessage) }
                     if let resultMessage {
-                        Label(resultMessage, systemImage: "checkmark.circle.fill").foregroundColor(.green).padding(12)
-                            .frame(maxWidth: .infinity, alignment: .leading).appCard()
+                        Label(resultMessage, systemImage: "checkmark.circle.fill")
+                            .font(AppTypography.body)
+                            .foregroundColor(.green)
+                            .padding(.horizontal, AppSpacing.md)
+                            .padding(.vertical, AppSpacing.sm)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .appBackground(
+                                Color.green.opacity(0.07),
+                                in: RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
+                            )
                     }
-                    LazyVGrid(columns: managementCardColumns, alignment: .center, spacing: 14) {
+                    LazyVGrid(columns: managementCardColumns, alignment: .center, spacing: AppSpacing.md) {
                         ForEach(actions) { action in
                             Button { present(action.sheet) } label: {
-                                HStack(spacing: 13) {
-                                    Image(systemName: action.icon).font(.title3).foregroundColor(AppTheme.accent).frame(width: 38, height: 38)
-                                        .appBackground(AppTheme.accent.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
-                                    VStack(alignment: .leading, spacing: 3) {
-                                        Text(action.title).font(.headline)
-                                        Text(action.detail).font(.caption).foregroundColor(.secondary).multilineTextAlignment(.leading)
+                                HStack(spacing: AppSpacing.sm) {
+                                    Image(systemName: action.icon)
+                                        .font(AppTypography.section)
+                                        .foregroundColor(AppTheme.accent)
+                                        .frame(width: 24, height: 24)
+                                    VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                                        Text(action.title)
+                                            .font(AppTypography.subheadline.weight(.semibold))
+                                        Text(action.detail)
+                                            .font(AppTypography.caption)
+                                            .foregroundColor(.secondary)
+                                            .multilineTextAlignment(.leading)
+                                            .lineLimit(2)
                                     }
                                     Spacer()
-                                    Image(systemName: "chevron.right").font(.caption).foregroundColor(.secondary)
-                                }.padding(14).appCard(radius: 12)
+                                    Image(systemName: "chevron.right")
+                                        .font(AppTypography.caption2.weight(.semibold))
+                                        .foregroundColor(Color.secondary.opacity(0.7))
+                                }
+                                .padding(.horizontal, AppSpacing.md)
+                                .padding(.vertical, AppSpacing.md)
+                                .background(
+                                    RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
+                                        .fill(Color.primary.opacity(0.025))
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
+                                        .stroke(AppTheme.line, lineWidth: 1)
+                                )
                             }.buttonStyle(.plain).disabled(isBusy)
                         }
                     }
                     .frame(maxWidth: managementCardGridMaxWidth)
                     .frame(maxWidth: .infinity, alignment: .center)
-                }.padding(isCompact ? 20 : 28)
+                }.padding(isCompact ? AppSpacing.lg : AppSpacing.xxl)
             }
         }
         .onAppear(perform: refreshSnapshot)
@@ -283,7 +310,9 @@ struct DeviceUtilitiesView: View {
             ),
             primaryAction: {
                 guard let scales = validAnimationScales else { return }
-                let command = "settings put global window_animation_scale \(scales.0); settings put global transition_animation_scale \(scales.1); settings put global animator_duration_scale \(scales.2)"
+                let command = "settings put global window_animation_scale \(scales.0); " +
+                    "settings put global transition_animation_scale \(scales.1); " +
+                    "settings put global animator_duration_scale \(scales.2)"
                 runShellAction("animationScale", command: command, refreshAfter: true)
             }
         ) {
@@ -333,12 +362,12 @@ struct DeviceUtilitiesView: View {
     @ViewBuilder
     private var screenshotSheet: some View {
         if let screenshotURL, let image = NSImage(contentsOf: screenshotURL) {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: AppSpacing.lg) {
                 Image(nsImage: image)
                     .resizable()
                     .scaledToFit()
                     .frame(maxWidth: .infinity, maxHeight: 420)
-                    .appBackground(Color.black.opacity(0.92), in: RoundedRectangle(cornerRadius: 12))
+                    .appBackground(Color.black.opacity(0.92), in: RoundedRectangle(cornerRadius: AppRadius.small))
                 HStack {
                     Button("managementOpen") { NSWorkspace.shared.open(screenshotURL) }
                     Spacer()

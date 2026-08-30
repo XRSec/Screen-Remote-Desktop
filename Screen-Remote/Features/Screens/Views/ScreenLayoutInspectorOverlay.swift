@@ -39,7 +39,7 @@ struct ScreenLayoutInspectorToolbar: View {
         HStack(spacing: 0) {
             Button(action: onRefresh) {
                 AppRefreshSymbol(isAnimating: isLoading)
-                    .font(.system(size: 16))
+                    .font(AppTypography.headline)
                     .foregroundColor(.white)
                     .frame(width: 30, height: 30)
             }
@@ -49,16 +49,16 @@ struct ScreenLayoutInspectorToolbar: View {
 
             Button(action: onClose) {
                 Image(systemName: "xmark.circle")
-                    .font(.system(size: 16))
+                    .font(AppTypography.headline)
                     .foregroundColor(Color(red: 1, green: 59.0 / 255.0, blue: 48.0 / 255.0))
                     .frame(width: 30, height: 30)
             }
             .buttonStyle(.plain)
             .help("commonClose")
         }
-        .padding(4)
+        .padding(AppSpacing.xs)
         .background(
-            RoundedRectangle(cornerRadius: 14)
+            RoundedRectangle(cornerRadius: AppRadius.small)
                 .fill(
                     Color(
                         red: 44.0 / 255.0,
@@ -97,10 +97,10 @@ private struct ScreenLayoutInspectorNodeView: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 6)
+            RoundedRectangle(cornerRadius: AppRadius.small)
                 .fill(color.opacity(0.05))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 6)
+                    RoundedRectangle(cornerRadius: AppRadius.small)
                         .stroke(color, lineWidth: node.focused ? 2 : 1)
                 )
                 .overlay(indicator)
@@ -109,7 +109,7 @@ private struct ScreenLayoutInspectorNodeView: View {
             if !displayLabel.isEmpty,
                !shouldSuppressScreenLayoutNodeLabel(node, allNodes: allNodes) {
                 Text(displayLabel)
-                    .font(.system(size: frame.height <= 18 ? 7 : (frame.height <= 28 ? 8 : 9)))
+                    .font(AppTypography.caption)
                     .foregroundColor(.black)
                     .lineLimit(3)
                     .padding(.horizontal, 2)
@@ -118,7 +118,7 @@ private struct ScreenLayoutInspectorNodeView: View {
                         width: min(max(frame.width, 16), max(16, availableWidth - frame.minX - 2)),
                         alignment: .leading
                     )
-                    .background(RoundedRectangle(cornerRadius: 4).fill(color.opacity(0.88)))
+                    .background(RoundedRectangle(cornerRadius: AppRadius.xsmall).fill(color.opacity(0.88)))
                     .offset(x: 2, y: 2)
             }
         }
@@ -137,7 +137,7 @@ private struct ScreenLayoutInspectorNodeView: View {
                 )
         } else if shouldRenderScreenLayoutArrow(node) {
             Image(systemName: "chevron.down")
-                .font(.system(size: 10, weight: .bold))
+                .font(AppTypography.caption.weight(.bold))
                 .foregroundColor(color)
         }
     }
@@ -150,11 +150,11 @@ private struct ScreenLayoutToggleIndicator: View {
         switch style {
         case .checkbox:
             Image(systemName: node.isEffectivelyChecked ? "checkmark.square.fill" : "square")
-                .font(.system(size: 15, weight: .semibold))
+                .font(AppTypography.headline.weight(.semibold))
                 .foregroundColor(node.isEffectivelyChecked ? .green : .gray)
         case .radio:
             Image(systemName: node.isEffectivelyChecked ? "largecircle.fill.circle" : "circle")
-                .font(.system(size: 15, weight: .semibold))
+                .font(AppTypography.headline.weight(.semibold))
                 .foregroundColor(node.isEffectivelyChecked ? .green : .gray)
         case .toggle:
             ZStack(alignment: node.isEffectivelyChecked ? .trailing : .leading) {
@@ -301,25 +301,25 @@ private func likelySpecificStackedLabel(_ node: RemoteUiLayoutNode, _ text: Remo
     return abs(nodeCenter - textCenter) <= CGFloat(max(node.bounds.width, 1)) * 0.25
 }
 
-private func verticalOverlap(_ a: RemoteUiLayoutNode, _ b: RemoteUiLayoutNode) -> CGFloat {
-    let overlap = min(a.bounds.bottom, b.bounds.bottom) - max(a.bounds.top, b.bounds.top)
-    return overlap > 0 ? CGFloat(overlap) / CGFloat(max(min(a.bounds.height, b.bounds.height), 1)) : 0
+private func verticalOverlap(_ nodeA: RemoteUiLayoutNode, _ nodeB: RemoteUiLayoutNode) -> CGFloat {
+    let overlap = min(nodeA.bounds.bottom, nodeB.bounds.bottom) - max(nodeA.bounds.top, nodeB.bounds.top)
+    return overlap > 0 ? CGFloat(overlap) / CGFloat(max(min(nodeA.bounds.height, nodeB.bounds.height), 1)) : 0
 }
 
-private func horizontalOverlap(_ a: RemoteUiLayoutNode, _ b: RemoteUiLayoutNode) -> CGFloat {
-    let overlap = min(a.bounds.right, b.bounds.right) - max(a.bounds.left, b.bounds.left)
-    return overlap > 0 ? CGFloat(overlap) / CGFloat(max(min(a.bounds.width, b.bounds.width), 1)) : 0
+private func horizontalOverlap(_ nodeA: RemoteUiLayoutNode, _ nodeB: RemoteUiLayoutNode) -> CGFloat {
+    let overlap = min(nodeA.bounds.right, nodeB.bounds.right) - max(nodeA.bounds.left, nodeB.bounds.left)
+    return overlap > 0 ? CGFloat(overlap) / CGFloat(max(min(nodeA.bounds.width, nodeB.bounds.width), 1)) : 0
 }
 
-private func horizontalGap(_ a: RemoteUiLayoutNode, _ b: RemoteUiLayoutNode) -> Int {
-    if a.bounds.right < b.bounds.left { return b.bounds.left - a.bounds.right }
-    if b.bounds.right < a.bounds.left { return a.bounds.left - b.bounds.right }
+private func horizontalGap(_ nodeA: RemoteUiLayoutNode, _ nodeB: RemoteUiLayoutNode) -> Int {
+    if nodeA.bounds.right < nodeB.bounds.left { return nodeB.bounds.left - nodeA.bounds.right }
+    if nodeB.bounds.right < nodeA.bounds.left { return nodeA.bounds.left - nodeB.bounds.right }
     return 0
 }
 
-private func verticalGap(_ a: RemoteUiLayoutNode, _ b: RemoteUiLayoutNode) -> Int {
-    if a.bounds.bottom < b.bounds.top { return b.bounds.top - a.bounds.bottom }
-    if b.bounds.bottom < a.bounds.top { return a.bounds.top - b.bounds.bottom }
+private func verticalGap(_ nodeA: RemoteUiLayoutNode, _ nodeB: RemoteUiLayoutNode) -> Int {
+    if nodeA.bounds.bottom < nodeB.bounds.top { return nodeB.bounds.top - nodeA.bounds.bottom }
+    if nodeB.bounds.bottom < nodeA.bounds.top { return nodeA.bounds.top - nodeB.bounds.bottom }
     return 0
 }
 
@@ -329,12 +329,12 @@ private func contains(_ outer: RemoteUiLayoutBounds, _ inner: RemoteUiLayoutBoun
 }
 
 private func overlapOverSmallerArea(
-    _ a: RemoteUiLayoutBounds,
-    _ b: RemoteUiLayoutBounds
+    _ boundsA: RemoteUiLayoutBounds,
+    _ boundsB: RemoteUiLayoutBounds
 ) -> CGFloat {
-    let width = min(a.right, b.right) - max(a.left, b.left)
-    let height = min(a.bottom, b.bottom) - max(a.top, b.top)
+    let width = min(boundsA.right, boundsB.right) - max(boundsA.left, boundsB.left)
+    let height = min(boundsA.bottom, boundsB.bottom) - max(boundsA.top, boundsB.top)
     guard width > 0, height > 0 else { return 0 }
     let intersection = Int64(width) * Int64(height)
-    return CGFloat(intersection) / CGFloat(max(min(a.area(), b.area()), 1))
+    return CGFloat(intersection) / CGFloat(max(min(boundsA.area(), boundsB.area()), 1))
 }

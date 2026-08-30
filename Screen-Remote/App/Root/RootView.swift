@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 enum MainWindowMetrics {
@@ -6,6 +7,7 @@ enum MainWindowMetrics {
     static let minimumHeight: CGFloat = 600
     static let preferredHeight: CGFloat = 700
     static let compactContentWidth: CGFloat = 620
+    static let compactNavigationWidth: CGFloat = 1060
     static let collapsedSidebarWidth: CGFloat = 55
     static let expandedSidebarWidth: CGFloat = 260
 }
@@ -78,7 +80,8 @@ struct RootView: View {
 
             mainContent(
                 isSidebarCollapsed: isSidebarCollapsed,
-                usesCompactContent: contentWidth < MainWindowMetrics.compactContentWidth
+                usesCompactContent: contentWidth < MainWindowMetrics.compactContentWidth,
+                usesCompactNavigation: contentWidth < MainWindowMetrics.compactNavigationWidth
             )
             .onAppear {
                 appState.appWindowWidth = proxy.size.width
@@ -94,17 +97,6 @@ struct RootView: View {
         .background(AppTheme.background)
         .appDismissTextFieldFocusOnTap()
         .animation(.easeOut(duration: 0.24), value: appState.isSidebarCollapsed)
-        .sheet(isPresented: $appState.showingSettings) {
-            SettingsView()
-                .environmentObject(appState)
-                .environment(\.locale, appState.resolvedLocale)
-                .id(appState.appLanguage)
-                .appPresentationWidth(
-                    relativeTo: appState.appWindowWidth,
-                    idealWidth: AppPresentationMetrics.IdealWidth.settings
-                )
-                .appPresentationHeight(relativeTo: appState.appWindowHeight)
-        }
         .sheet(isPresented: $appState.showingAddDevice) {
             AddDeviceView()
                 .environmentObject(appState)
@@ -172,7 +164,8 @@ struct RootView: View {
 
     private func mainContent(
         isSidebarCollapsed: Bool,
-        usesCompactContent: Bool
+        usesCompactContent: Bool,
+        usesCompactNavigation: Bool
     ) -> some View {
         HStack(spacing: 0) {
             SidebarView(
@@ -188,7 +181,7 @@ struct RootView: View {
             Divider().opacity(0.55)
 
             VStack(spacing: 0) {
-                TopBar(isCompact: usesCompactContent)
+                TopBar(isCompact: usesCompactNavigation)
                 Divider().opacity(0.55)
 
                 Group {
@@ -231,77 +224,92 @@ private struct TopBar: View {
                             withAnimation(.easeOut(duration: 0.16)) { appState.selection = section }
                         } label: {
                             Label(section.titleKey, systemImage: section.icon)
-                                .labelStyle(TopBarLabelStyle(isCompact: isCompact))
-                                .font(.system(size: 13, weight: appState.selection == section ? .semibold : .regular))
+                                .labelStyle(TopBarLabelStyle(
+                                    showsTitle: !isCompact || appState.selection == section
+                                ))
+                                .font(appState.selection == section ? AppTypography.subheadline : AppTypography.body)
                                 .foregroundColor(appState.selection == section ? Color.primary : Color.secondary)
-                                .padding(.horizontal, isCompact ? 10 : 13)
-                                .padding(.vertical, 8)
+                                .padding(.horizontal, isCompact ? 9 : 11)
+                                .padding(.vertical, 7)
                                 .appBackground(
                                     Group {
                                     if appState.selection == section {
-                                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                        RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
                                             .fill(Color.primary.opacity(0.075))
                                     }
                                     }
                                 )
-                                .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                                .contentShape(RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous))
                         }
                         .buttonStyle(.plain)
                         .help(section.titleKey)
+                        .accessibilityLabel(Text(section.titleKey))
                     }
                 }
             }
 
             Spacer()
 
+            let isSelectedDeviceConnected = appState.devices.indices.contains(appState.selectedDevice)
+                && appState.screenSessions.session(for: appState.devices[appState.selectedDevice].id).isConnected
+            let isRefreshEnabled = !appState.devices.isEmpty && (appState.selection == .screens || isSelectedDeviceConnected)
+
             Button {
-                if appState.devices.indices.contains(appState.selectedDevice) {
-                    let device = appState.devices[appState.selectedDevice]
-                    let session = appState.screenSessions.session(for: device.id)
-                    if !session.isConnected && !session.phase.isWorking {
-                        appState.connectScreenSession(deviceID: device.id)
-                        return
-                    }
-                }
                 if appState.selection == .apps {
                     appState.refreshSelectedDeviceApps()
                 }
                 NotificationCenter.default.post(name: .screenRemoteRefreshManagement, object: nil)
             } label: {
                 Image(systemName: "arrow.clockwise")
-                    .font(.system(size: 14, weight: .medium))
+                    .font(AppTypography.subheadline)
+                    .foregroundColor(isRefreshEnabled ? .primary : .secondary.opacity(0.4))
                     .frame(width: 30, height: 30)
                     .appBackground(Color.primary.opacity(0.06), in: Circle())
             }
             .buttonStyle(.plain)
-            .disabled(appState.devices.isEmpty)
-            .help("topBarRefreshApps")
+            .disabled(!isRefreshEnabled)
+            .help(isRefreshEnabled ? "commonRefresh" : (appState.selection == .screens ? "commonRefresh" : "managementNeedsConnection"))
+            .accessibilityLabel(Text("commonRefresh"))
 
             Button {
-                appState.showingSettings = true
+                openSettingsWindow()
             } label: {
                 Image(systemName: "gearshape")
-                    .font(.system(size: 14, weight: .medium))
+                    .font(AppTypography.subheadline)
                     .frame(width: 30, height: 30)
                     .appBackground(Color.primary.opacity(0.06), in: Circle())
             }
             .buttonStyle(.plain)
             .help("topBarSettings")
+            .accessibilityLabel(Text("topBarSettings"))
         }
         .padding(.leading, 18)
         .padding(.trailing, 18)
-        .frame(height: 54)
+        .frame(height: 48)
         .background(AppTheme.surface.opacity(0.96))
+    }
+
+    private func openSettingsWindow() {
+        guard let mainMenu = NSApp.mainMenu else { return }
+        for rootItem in mainMenu.items {
+            guard let settingsItem = rootItem.submenu?.items.first(where: {
+                $0.keyEquivalent == ","
+            }), let action = settingsItem.action else {
+                continue
+            }
+            NSApp.sendAction(action, to: settingsItem.target, from: settingsItem)
+            return
+        }
     }
 }
 
 private struct TopBarLabelStyle: LabelStyle {
-    let isCompact: Bool
+    let showsTitle: Bool
 
     func makeBody(configuration: Configuration) -> some View {
         HStack(spacing: 6) {
             configuration.icon
-            if !isCompact {
+            if showsTitle {
                 configuration.title
             }
         }

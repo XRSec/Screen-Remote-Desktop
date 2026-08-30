@@ -49,14 +49,14 @@ struct ConnectionDiscoveryRow: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 10) {
+            HStack(spacing: AppSpacing.sm) {
                 Image(systemName: transport == .usb ? "cable.connector" : "dot.radiowaves.left.and.right")
                     .foregroundColor(AppTheme.accent)
                 Text(String.localizedKey(transport == .usb ? "sessionSelectUSBDevice" : "sessionDiscoverDevices"))
-                    .font(.system(size: 13, weight: .medium))
+                    .font(AppTypography.body.weight(.medium))
                 Spacer()
                 Image(systemName: "chevron.right")
-                    .font(.caption.weight(.semibold))
+                    .font(AppTypography.caption.weight(.semibold))
                     .foregroundColor(.secondary)
             }
             .contentShape(Rectangle())

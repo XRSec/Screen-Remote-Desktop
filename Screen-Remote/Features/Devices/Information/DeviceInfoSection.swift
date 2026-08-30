@@ -9,7 +9,10 @@ struct DeviceInfoSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(group.title).font(.headline).padding(.bottom, 10)
+            Text(group.title)
+                .font(AppTypography.subheadline.weight(.semibold))
+                .padding(.horizontal, 2)
+                .padding(.bottom, AppSpacing.sm)
             VStack(spacing: 0) {
                 ForEach(Array(group.rows.enumerated()), id: \.element.id) { index, row in
                     HStack(alignment: .firstTextBaseline) {
@@ -18,13 +21,20 @@ struct DeviceInfoSection: View {
                         Text(row.value)
                             .multilineTextAlignment(.trailing)
                     }
-                    .font(.subheadline)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 11)
-                    if index != group.rows.count - 1 { Divider().padding(.leading, 14) }
+                    .font(AppTypography.body)
+                    .padding(.horizontal, AppSpacing.md)
+                    .padding(.vertical, AppSpacing.sm)
+                    if index != group.rows.count - 1 { Divider().padding(.leading, AppSpacing.md) }
                 }
             }
-            .appCard()
+            .background(
+                RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
+                    .fill(Color.primary.opacity(0.025))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
+                    .stroke(AppTheme.line, lineWidth: 1)
+            )
         }
     }
 }

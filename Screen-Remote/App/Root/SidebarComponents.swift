@@ -12,10 +12,10 @@ struct SidebarSectionHeader: View {
             Button(action: onToggle) {
                 HStack(spacing: 7) {
                     Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(AppTypography.caption2.weight(.semibold))
                         .foregroundColor(.secondary)
                     Text(title)
-                        .font(.title2.weight(.semibold))
+                        .font(AppTypography.subheadline.weight(.semibold))
                 }
                 .contentShape(Rectangle())
             }
@@ -32,7 +32,7 @@ struct SidebarSectionHeader: View {
             .help(addHelp)
         }
         .padding(.horizontal, 14)
-        .padding(.vertical, 4)
+        .padding(.vertical, 2)
     }
 }
 
@@ -74,7 +74,7 @@ struct SidebarUtilityBar: View {
                         .lineLimit(1)
                         .truncationMode(.tail)
                         .frame(maxWidth: 68)
-                    Image(systemName: "chevron.up.chevron.down").font(.system(size: 8))
+                    Image(systemName: "chevron.up.chevron.down").font(AppTypography.caption2)
                 }
                 .font(.caption)
                 .padding(.horizontal, 9)
@@ -113,38 +113,46 @@ struct UtilityButton: View {
         }
         .buttonStyle(.plain)
         .help(help)
+        .accessibilityLabel(Text(LocalizedStringKey(help)))
     }
 }
 
 struct SidebarToggleButton: View {
     let isCollapsed: Bool
     let action: () -> Void
+    @State private var isHovered = false
 
     private enum Layout {
-        static let width: CGFloat = 20
-        static let height: CGFloat = 72
-        static let cornerRadius: CGFloat = 8
-        static let iconSize: CGFloat = 11
+        static let width: CGFloat = 14
+        static let height: CGFloat = 44
+        static let cornerRadius: CGFloat = AppRadius.small
+        static let iconSize: CGFloat = 9.5
     }
 
     var body: some View {
         Button(action: action) {
             Image(systemName: isCollapsed ? "chevron.right" : "chevron.left")
-                .font(.system(size: Layout.iconSize, weight: .semibold))
-                .foregroundColor(.primary)
+                .font(AppTypography.caption.weight(.semibold))
+                .foregroundColor(isHovered ? .primary : .secondary.opacity(0.85))
                 .frame(width: Layout.width, height: Layout.height)
                 .background(
                     SidebarToggleHandleShape(radius: Layout.cornerRadius)
-                        .fill(AppTheme.sidebar)
+                        .fill(AppTheme.sidebar.opacity(isHovered ? 0.95 : 0.75))
                 )
                 .overlay(
                     SidebarToggleHandleShape(radius: Layout.cornerRadius)
-                        .stroke(Color.primary.opacity(0.16), lineWidth: 1)
+                        .stroke(AppTheme.line.opacity(isHovered ? 1.0 : 0.6), lineWidth: 0.75)
                 )
                 .contentShape(SidebarToggleHandleShape(radius: Layout.cornerRadius))
         }
         .buttonStyle(.plain)
         .help(isCollapsed ? "sidebarExpandDeviceList" : "sidebarCollapseDeviceList")
+        .accessibilityLabel(Text(isCollapsed ? "sidebarExpandDeviceList" : "sidebarCollapseDeviceList"))
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.12)) {
+                isHovered = hovering
+            }
+        }
     }
 }
 
@@ -209,7 +217,8 @@ struct DeviceRow: View {
 
     private var statusColor: Color {
         if session.phase == .failed { return .red }
-        return isSessionConnected ? .secondary : .orange
+        if isSessionConnected { return .green }
+        return .secondary
     }
 
     private var isSessionActive: Bool {
@@ -220,33 +229,45 @@ struct DeviceRow: View {
         isSessionActive ? "sessionStopAction" : "sessionStartAction"
     }
 
+    private var showsSessionAction: Bool {
+        isHovered || isSelected || isSessionActive
+    }
+
+    private var showsEditAction: Bool {
+        isHovered || isSelected
+    }
+
+    @ViewBuilder
+    private var statusIndicator: some View {
+        if session.phase.isWorking {
+            ProgressView()
+                .progressViewStyle(.circular)
+                .scaleEffect(0.48)
+                .frame(width: 10, height: 10)
+        } else {
+            Circle()
+                .fill(statusColor.opacity(isSessionConnected || session.phase == .failed ? 1 : 0.62))
+                .frame(width: 7, height: 7)
+                .frame(width: 10, height: 10)
+        }
+    }
+
     var body: some View {
-        HStack(spacing: 2) {
+        HStack(spacing: 6) {
             HStack(spacing: 8) {
-                VStack(alignment: .leading, spacing: 3) {
+                statusIndicator
+
+                VStack(alignment: .leading, spacing: 2) {
                     Text(device.name)
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(AppTypography.subheadline.weight(.semibold))
+                        .lineLimit(1)
                     Text(statusText)
-                        .font(.caption)
-                        .foregroundColor(statusColor)
-                        .lineLimit(2)
+                        .font(AppTypography.caption)
+                        .foregroundColor(session.phase == .failed ? .red : .secondary)
+                        .lineLimit(1)
                 }
 
                 Spacer(minLength: 4)
-                if session.phase.isWorking {
-                    ProgressView()
-                        .progressViewStyle(.circular)
-                        .scaleEffect(0.55)
-                        .frame(width: 16, height: 16)
-                } else if session.phase == .failed {
-                    Circle()
-                        .fill(statusColor)
-                        .frame(width: 8, height: 8)
-                } else if isSessionConnected {
-                    Image(systemName: "battery.75percent")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
             }
             .contentShape(Rectangle())
             .sessionClickGesture(onSingleClick: action, onDoubleClick: onDoubleClick)
@@ -256,52 +277,44 @@ struct DeviceRow: View {
 
             Button(action: onToggleSession) {
                 Image(systemName: isSessionActive ? "stop.fill" : "play.fill")
-                    .font(.system(size: 10, weight: .semibold))
+                    .font(AppTypography.caption2.weight(.semibold))
                     .foregroundColor(isSessionActive ? .red : AppTheme.accent)
                     .frame(width: 24, height: 24)
                     .background(Circle().fill(Color.primary.opacity(0.055)))
-                    .overlay(
-                        Circle()
-                            .stroke(Color.primary.opacity(0.12), lineWidth: 0.5)
-                    )
-                    .shadow(color: Color.black.opacity(0.10), radius: 1.5, x: 0, y: 1)
             }
             .buttonStyle(.plain)
             .help(sessionActionLocalizationKey)
             .accessibilityLabel(Text(sessionActionLocalizationKey))
+            .opacity(showsSessionAction ? 1 : 0)
+            .allowsHitTesting(showsSessionAction)
 
             Button(action: onEdit) {
-                Image(systemName: "pencil")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(isSelected ? AppTheme.accent : .secondary)
+                Image(systemName: "ellipsis")
+                    .font(AppTypography.caption2.weight(.semibold))
+                    .foregroundColor(.secondary)
                     .frame(width: 24, height: 24)
-                    .background(
-                        Circle()
-                            .fill(Color.primary.opacity(isSelected ? 0.09 : 0.055))
-                    )
-                    .overlay(
-                        Circle()
-                            .stroke(Color.primary.opacity(0.12), lineWidth: 0.5)
-                    )
-                    .shadow(color: Color.black.opacity(0.10), radius: 1.5, x: 0, y: 1)
+                    .background(Circle().fill(Color.primary.opacity(0.055)))
             }
             .buttonStyle(.plain)
             .help("sessionEditTitle")
+            .accessibilityLabel(Text("sessionEditTitle"))
+            .opacity(showsEditAction ? 1 : 0)
+            .allowsHitTesting(showsEditAction)
         }
-        .padding(10)
+        .padding(.horizontal, AppSpacing.sm)
+        .padding(.vertical, 7)
         .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(device.accent.opacity(isSelected ? 0.20 : (isHovered ? 0.14 : 0.10)))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(
-                    device.accent.opacity(isSelected ? 0.45 : (isHovered ? 0.28 : 0.18)),
-                    lineWidth: isHovered ? 1 : 0.5
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
+                .fill(
+                    isSelected
+                        ? Color.accentColor.opacity(0.17)
+                        : (isHovered ? Color.primary.opacity(0.045) : Color.clear)
                 )
         )
-        .scaleEffect(isHovered ? 1.01 : 1)
-        .animation(.easeOut(duration: 0.18), value: isHovered)
+        .accessibilityElement(children: .contain)
+        .accessibilityAction(named: Text(sessionActionLocalizationKey), onToggleSession)
+        .accessibilityAction(named: Text("sessionEditTitle"), onEdit)
+        .animation(.easeOut(duration: 0.12), value: isHovered)
         .onHover { hovering in
             isHovered = hovering
         }
@@ -319,17 +332,40 @@ struct VirtualDeviceRow: View {
         device.isRunning ? "virtualDeviceActionStop" : "virtualDeviceActionStart"
     }
 
-    var body: some View {
-        HStack(spacing: 2) {
-            HStack(spacing: 12) {
-                PhoneGlyph(color: device.isRunning ? .green : .gray)
+    private var showsPrimaryAction: Bool {
+        isHovered || device.isRunning || isWorking
+    }
 
-                VStack(alignment: .leading, spacing: 3) {
+    private var showsEditAction: Bool {
+        isHovered && !device.isRunning && !isWorking
+    }
+
+    @ViewBuilder
+    private var statusIndicator: some View {
+        if isWorking {
+            ProgressView()
+                .progressViewStyle(.circular)
+                .scaleEffect(0.48)
+                .frame(width: 10, height: 10)
+        } else {
+            Circle()
+                .fill((device.isRunning ? Color.green : Color.secondary).opacity(device.isRunning ? 1 : 0.62))
+                .frame(width: 7, height: 7)
+                .frame(width: 10, height: 10)
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 6) {
+            HStack(spacing: 8) {
+                statusIndicator
+
+                VStack(alignment: .leading, spacing: 2) {
                     Text(device.name)
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(AppTypography.subheadline.weight(.semibold))
                         .lineLimit(1)
                     Text(device.target)
-                        .font(.caption)
+                        .font(AppTypography.caption)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
@@ -339,44 +375,46 @@ struct VirtualDeviceRow: View {
 
             Button(action: action) {
                 Image(systemName: device.isRunning ? "stop.fill" : "play.fill")
-                    .font(.system(size: 10, weight: .semibold))
+                    .font(AppTypography.caption2.weight(.semibold))
                     .foregroundColor(device.isRunning ? .red : AppTheme.accent)
                     .frame(width: 24, height: 24)
                     .background(Circle().fill(Color.primary.opacity(0.055)))
-                    .overlay(
-                        Circle()
-                            .stroke(Color.primary.opacity(0.12), lineWidth: 0.5)
-                    )
-                    .shadow(color: Color.black.opacity(0.10), radius: 1.5, x: 0, y: 1)
             }
             .buttonStyle(.plain)
             .disabled(isWorking)
             .help(actionLocalizationKey)
             .accessibilityLabel(Text(actionLocalizationKey))
+            .opacity(showsPrimaryAction ? 1 : 0)
+            .allowsHitTesting(showsPrimaryAction)
 
             Button(action: onEdit) {
-                Image(systemName: "pencil")
-                    .font(.system(size: 10, weight: .semibold))
+                Image(systemName: "ellipsis")
+                    .font(AppTypography.caption2.weight(.semibold))
                     .foregroundColor(.secondary)
                     .frame(width: 24, height: 24)
                     .background(Circle().fill(Color.primary.opacity(0.055)))
-                    .overlay(
-                        Circle()
-                            .stroke(Color.primary.opacity(0.12), lineWidth: 0.5)
-                    )
-                    .shadow(color: Color.black.opacity(0.10), radius: 1.5, x: 0, y: 1)
             }
             .buttonStyle(.plain)
             .disabled(device.isRunning || isWorking)
             .help("virtualDeviceEditTitle")
             .accessibilityLabel(Text("virtualDeviceEditTitle"))
+            .opacity(showsEditAction ? 1 : 0)
+            .allowsHitTesting(showsEditAction)
         }
-        .padding(10)
+        .padding(.horizontal, AppSpacing.sm)
+        .padding(.vertical, 7)
         .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color.primary.opacity(isHovered ? 0.06 : 0.02))
+            RoundedRectangle(cornerRadius: AppRadius.card, style: .continuous)
+                .fill(isHovered ? Color.primary.opacity(0.045) : Color.clear)
         )
-        .animation(.easeOut(duration: 0.18), value: isHovered)
+        .accessibilityElement(children: .contain)
+        .accessibilityAction(named: Text(actionLocalizationKey)) {
+            if !isWorking { action() }
+        }
+        .accessibilityAction(named: Text("virtualDeviceEditTitle")) {
+            if !device.isRunning && !isWorking { onEdit() }
+        }
+        .animation(.easeOut(duration: 0.12), value: isHovered)
         .onHover { hovering in
             isHovered = hovering
         }

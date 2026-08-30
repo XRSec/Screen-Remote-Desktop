@@ -11,7 +11,7 @@ struct SidebarView: View {
     @State private var virtualDevicePendingEdit: AndroidVirtualDevice?
 
     private enum Layout {
-        static let contentTopPadding: CGFloat = 12
+        static let contentTopPadding: CGFloat = 36
     }
 
     var body: some View {
@@ -258,30 +258,7 @@ struct SidebarView: View {
     private var collapsedContent: some View {
         VStack(spacing: 14) {
             ForEach(appState.visibleDeviceOffsets(), id: \.element.id) { index, device in
-                PhoneGlyph(color: device.accent, compact: true)
-                    .padding(7)
-                    .background(RoundedRectangle(cornerRadius: 12).fill(appState.selectedDevice == index ? Color.primary.opacity(0.09) : .clear))
-                    .contentShape(Rectangle())
-                    .sessionClickGesture(
-                        onSingleClick: { appState.selectDevice(at: index) },
-                        onDoubleClick: {
-                            appState.selectDevice(at: index)
-                            appState.startScreenSession(deviceID: device.id)
-                        }
-                    )
-                    .accessibilityElement(children: .combine)
-                    .accessibilityAddTraits(.isButton)
-                    .accessibilityAction { appState.selectDevice(at: index) }
-                    .help(device.name)
-                    .contextMenu {
-                        Button("sessionEditTitle") {
-                            appState.editingDeviceID = device.id
-                        }
-                        Divider()
-                        Button("sessionDeleteTitle") {
-                            sessionPendingDeletion = device
-                        }
-                    }
+                collapsedDeviceGlyph(index: index, device: device)
             }
             Spacer()
             Button { appState.showingVirtualDevices = true } label: {
@@ -308,5 +285,32 @@ struct SidebarView: View {
             .padding(.bottom, 16)
         }
         .frame(maxWidth: .infinity)
+    }
+
+    private func collapsedDeviceGlyph(index: Int, device: Device) -> some View {
+        PhoneGlyph(color: device.accent, compact: true)
+            .padding(7)
+            .background(RoundedRectangle(cornerRadius: AppRadius.card).fill(appState.selectedDevice == index ? Color.primary.opacity(0.09) : .clear))
+            .contentShape(Rectangle())
+            .sessionClickGesture(
+                onSingleClick: { appState.selectDevice(at: index) },
+                onDoubleClick: {
+                    appState.selectDevice(at: index)
+                    appState.startScreenSession(deviceID: device.id)
+                }
+            )
+            .accessibilityElement(children: .combine)
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAction { appState.selectDevice(at: index) }
+            .help(device.name)
+            .contextMenu {
+                Button("sessionEditTitle") {
+                    appState.editingDeviceID = device.id
+                }
+                Divider()
+                Button("sessionDeleteTitle") {
+                    sessionPendingDeletion = device
+                }
+            }
     }
 }

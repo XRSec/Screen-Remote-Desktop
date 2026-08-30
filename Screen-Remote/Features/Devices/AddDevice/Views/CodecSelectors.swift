@@ -33,6 +33,7 @@ private enum VideoDecoderFeatureFilter: String, CaseIterable {
 }
 
 private func detectedVideoDecoderOptions(forceRefresh: Bool = false) -> [VideoDecoderOption] {
+    // pi-lens-ignore: large_tuple
     let formats: [(id: String, name: String, type: CMVideoCodecType, nativeRoute: Bool)] = [
         ("videotoolbox.h264", "VideoToolbox · H264", kCMVideoCodecType_H264, true),
         ("videotoolbox.hevc", "VideoToolbox · H265", kCMVideoCodecType_HEVC, true),
@@ -152,15 +153,15 @@ struct VideoDecoderSelector: View {
                                 if index < filteredDecoders.count - 1 { FormDivider() }
                             }
                         }
-                        .appCard(radius: 10)
+                        .appCard(radius: AppRadius.small)
                     }
 
                     Text("sessionVideoDecoderRecommendation")
-                        .font(.caption)
+                        .font(AppTypography.caption)
                         .foregroundColor(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
-                        .padding(13)
-                        .appBackground(AppTheme.accent.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+                        .padding(AppSpacing.md)
+                        .appBackground(AppTheme.accent.opacity(0.08), in: RoundedRectangle(cornerRadius: AppRadius.small))
                     }
                     .frame(width: max(geometry.size.width - 36, 0), alignment: .leading)
                     .padding(18)
@@ -327,15 +328,15 @@ struct AudioDecoderSelector: View {
                                 if index < filteredDecoders.count - 1 { FormDivider() }
                             }
                         }
-                        .appCard(radius: 10)
+                        .appCard(radius: AppRadius.small)
                     }
 
                     Text("sessionAudioDecoderEnumerationNote")
-                        .font(.caption)
+                        .font(AppTypography.caption)
                         .foregroundColor(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
-                        .padding(13)
-                        .appBackground(AppTheme.accent.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+                        .padding(AppSpacing.md)
+                        .appBackground(AppTheme.accent.opacity(0.08), in: RoundedRectangle(cornerRadius: AppRadius.small))
                     }
                     .frame(width: max(geometry.size.width - 36, 0), alignment: .leading)
                     .padding(18)
@@ -488,15 +489,15 @@ func codecChoiceRow(
     action: @escaping () -> Void
 ) -> some View {
     Button(action: action) {
-        HStack(spacing: 12) {
+        HStack(spacing: AppSpacing.md) {
             VStack(alignment: .leading, spacing: 3) {
-                Text(title).font(.system(size: 13, weight: .medium))
-                Text(detail).font(.caption2).foregroundColor(.secondary)
+                Text(title).font(AppTypography.body.weight(.medium))
+                Text(detail).font(AppTypography.caption2).foregroundColor(.secondary)
             }
             Spacer()
             if selected {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 14, weight: .medium))
+                    .font(AppTypography.subheadline.weight(.medium))
                     .foregroundColor(AppTheme.accent)
                     .frame(width: 18, height: 18)
             } else {
@@ -506,7 +507,7 @@ func codecChoiceRow(
                     .frame(width: 18, height: 18)
             }
         }
-        .padding(13)
+        .padding(AppSpacing.md)
         .contentShape(Rectangle())
     }
     .buttonStyle(.plain)

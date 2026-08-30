@@ -167,7 +167,6 @@ struct ScreenRemoteApp: App {
                 )
         }
         .windowStyle(.hiddenTitleBar)
-        .windowToolbarStyle(.unifiedCompact(showsTitle: false))
         .commands {
             CommandGroup(replacing: .newItem) { }
         }
