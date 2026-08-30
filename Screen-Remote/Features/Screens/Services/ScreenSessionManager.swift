@@ -2,7 +2,7 @@ import AppKit
 import Foundation
 
 @MainActor
-final class ScreenSessionManager: NSObject, ObservableObject {
+final class ScreenSessionManager: NSObject, ObservableObject, NSWindowDelegate {
     @Published var sessions: [UUID: ScreenSessionSnapshot] = [:]
     @Published var appVirtualDisplayLaunchCounts: [AppVirtualDisplayIdentifier: Int] = [:]
     @Published var layoutInspectorStates: [UUID: ScreenLayoutInspectorState] = [:]
@@ -18,6 +18,10 @@ final class ScreenSessionManager: NSObject, ObservableObject {
     var pendingVideoSurfaces: [UUID: ScrcpyVideoSurface] = [:]
     var appVirtualDisplayTasks: [AppVirtualDisplayKey: Task<Void, Never>] = [:]
     var appVirtualDisplayProcesses: [AppVirtualDisplayKey: Process] = [:]
+    var appVirtualDisplayNativeSessions: [AppVirtualDisplayKey: NativeScrcpySession] = [:]
+    var appVirtualDisplayDevices: [AppVirtualDisplayKey: Device] = [:]; var appVirtualDisplayWindows: [AppVirtualDisplayKey: NSWindow] = [:]
+    var appVirtualDisplayWindowKeys: [ObjectIdentifier: AppVirtualDisplayKey] = [:]
+    var appVirtualDisplayWindowCoordinators: [AppVirtualDisplayKey: ScreenWindowCoordinator] = [:]
     var layoutInspectorRefreshTasks: [UUID: Task<Void, Never>] = [:]
 
     override init() {
@@ -56,6 +60,13 @@ final class ScreenSessionManager: NSObject, ObservableObject {
         for process in appVirtualDisplayProcesses.values where process.isRunning {
             process.terminate()
         }
+        for session in appVirtualDisplayNativeSessions.values {
+            session.stop()
+        }
+        for window in appVirtualDisplayWindows.values {
+            window.delegate = nil
+            window.close()
+        }
         for task in layoutInspectorRefreshTasks.values {
             task.cancel()
         }
@@ -67,6 +78,11 @@ final class ScreenSessionManager: NSObject, ObservableObject {
         pendingVideoSurfaces.removeAll()
         appVirtualDisplayTasks.removeAll()
         appVirtualDisplayProcesses.removeAll()
+        appVirtualDisplayNativeSessions.removeAll()
+        appVirtualDisplayDevices.removeAll()
+        appVirtualDisplayWindows.removeAll()
+        appVirtualDisplayWindowKeys.removeAll()
+        appVirtualDisplayWindowCoordinators.removeAll()
         layoutInspectorRefreshTasks.removeAll()
     }
 
@@ -351,5 +367,39 @@ final class ScreenSessionManager: NSObject, ObservableObject {
                 log("App virtual display launch failed: \(app.packageName), \(error.localizedDescription)")
             }
         }
+    }
+}
+
+extension ScreenSessionManager {
+    @discardableResult
+    func sendKeyEvent(
+        deviceID: UUID,
+        keyCode: UInt32,
+        action: ScrcpyKeyAction
+    ) -> Bool {
+        guard let session = nativeSessions[deviceID] else { return false }
+        session.sendKeyEvent(keyCode: keyCode, action: action)
+        return true
+    }
+
+    @discardableResult
+    func sendText(deviceID: UUID, text: String) -> Bool {
+        guard let session = nativeSessions[deviceID] else { return false }
+        session.sendText(text)
+        return true
+    }
+
+    @discardableResult
+    func setClipboardAndPaste(deviceID: UUID, text: String) -> Bool {
+        guard let session = nativeSessions[deviceID] else { return false }
+        session.setClipboardAndPaste(text)
+        return true
+    }
+
+    @discardableResult
+    func requestClipboard(deviceID: UUID, copyKey: UInt8) -> Bool {
+        guard let session = nativeSessions[deviceID] else { return false }
+        session.requestClipboard(copyKey: copyKey)
+        return true
     }
 }

@@ -14,14 +14,23 @@ final class ScrcpyVideoToolboxDecoder {
     private let codec: NativeVideoCodec
     private let surface: ScrcpyVideoSurface
     private let hardwareDecodingEnabled: Bool
+    private let onFirstFrame: (() -> Void)?
     private let lock = NSLock()
+    private let firstFrameLock = NSLock()
     private var formatDescription: CMVideoFormatDescription?
     private var session: VTDecompressionSession?
+    private var hasNotifiedFirstFrame = false
 
-    init(codec: NativeVideoCodec, surface: ScrcpyVideoSurface, hardwareDecodingEnabled: Bool) {
+    init(
+        codec: NativeVideoCodec,
+        surface: ScrcpyVideoSurface,
+        hardwareDecodingEnabled: Bool,
+        onFirstFrame: (() -> Void)? = nil
+    ) {
         self.codec = codec
         self.surface = surface
         self.hardwareDecodingEnabled = hardwareDecodingEnabled
+        self.onFirstFrame = onFirstFrame
     }
 
     func configure(annexB: Data) throws {
@@ -53,7 +62,9 @@ final class ScrcpyVideoToolboxDecoder {
         var callback = VTDecompressionOutputCallbackRecord(
             decompressionOutputCallback: { refCon, _, status, _, imageBuffer, _, _ in
                 guard status == noErr, let refCon, let imageBuffer else { return }
-                Unmanaged<ScrcpyVideoToolboxDecoder>.fromOpaque(refCon).takeUnretainedValue().surface.publish(imageBuffer)
+                let decoder = Unmanaged<ScrcpyVideoToolboxDecoder>.fromOpaque(refCon).takeUnretainedValue()
+                decoder.surface.publish(imageBuffer)
+                decoder.notifyFirstFrameIfNeeded()
             },
             decompressionOutputRefCon: Unmanaged.passUnretained(self).toOpaque()
         )
@@ -153,6 +164,14 @@ final class ScrcpyVideoToolboxDecoder {
         lock.lock()
         defer { lock.unlock() }
         invalidateLocked()
+    }
+
+    private func notifyFirstFrameIfNeeded() {
+        firstFrameLock.lock()
+        defer { firstFrameLock.unlock() }
+        guard !hasNotifiedFirstFrame else { return }
+        hasNotifiedFirstFrame = true
+        onFirstFrame?()
     }
 
     private func invalidateLocked() {

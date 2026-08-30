@@ -93,7 +93,7 @@ struct RootView: View {
         }
         .background(AppTheme.background)
         .appDismissTextFieldFocusOnTap()
-        .animation(.snappy(duration: 0.24), value: appState.isSidebarCollapsed)
+        .animation(.easeOut(duration: 0.24), value: appState.isSidebarCollapsed)
         .sheet(isPresented: $appState.showingSettings) {
             SettingsView()
                 .environmentObject(appState)

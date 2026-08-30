@@ -87,9 +87,8 @@ private struct ScreensWorkspace: View {
 
         }
         .font(.system(size: 12.5))
-        .padding(.horizontal, 16)
-        .frame(height: 56)
-        .background(AppTheme.surface.opacity(0.96))
+        .padding(.horizontal, 14)
+        .frame(height: 48)
     }
 
     private var workspace: some View {
@@ -182,32 +181,50 @@ private struct ScreensWorkspace: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "rectangle.on.rectangle.slash")
-                .font(.system(size: 38))
-                .foregroundColor(.secondary)
-            Text("screensEmptyTitle").font(.headline)
-            Text("screensEmptyDetail")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        workspaceState(
+            icon: "rectangle.on.rectangle.slash",
+            title: "screensEmptyTitle",
+            detail: "screensEmptyDetail"
+        )
     }
 
     private var allDetachedState: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "macwindow.on.rectangle")
-                .font(.system(size: 38))
-                .foregroundColor(.secondary)
-            Text("screensAllDetachedTitle").font(.headline)
-            Text("screensAllDetachedDetail")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+        workspaceState(
+            icon: "macwindow.on.rectangle",
+            title: "screensAllDetachedTitle",
+            detail: "screensAllDetachedDetail"
+        )
+    }
+
+    private func workspaceState(
+        icon: String,
+        title: LocalizedStringKey,
+        detail: LocalizedStringKey
+    ) -> some View {
+        VStack(spacing: AppSpacing.lg) {
+            AppIconTile(symbol: icon, color: AppTheme.accent, size: 52)
+
+            VStack(spacing: AppSpacing.sm) {
+                Text(title)
+                    .font(AppTypography.title)
+                Text(detail)
+                    .font(AppTypography.body)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
+        .padding(AppSpacing.xl)
+        .frame(maxWidth: 420)
+        .appCard(radius: AppRadius.large)
+        .padding(AppSpacing.xl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    private func toggleSelection(_ id: UUID) {
+}
+
+private extension ScreensWorkspace {
+    func toggleSelection(_ id: UUID) {
         if !selectedDeviceIDs.insert(id).inserted {
             selectedDeviceIDs.remove(id)
         }
@@ -283,7 +300,7 @@ private struct ScreensWorkspace: View {
             bestScore = score
             bestFrames.removeAll(keepingCapacity: true)
 
-            var y = 16 + ScreenWindowMetrics.headerHeight
+            var verticalOffset = 16 + ScreenWindowMetrics.headerHeight
             for (rowIndex, row) in rows.enumerated() {
                 let videoHeight = videoHeights[rowIndex]
                 let height = ScreenTile.chromeHeight + videoHeight
@@ -293,17 +310,17 @@ private struct ScreensWorkspace: View {
                 let rowContentWidth = widths.reduce(0, +)
                     + horizontalSpacing * CGFloat(max(0, widths.count - 1))
                 let xOffset = 16 + max(0, (availableWidth - rowContentWidth) / 2)
-                var x = xOffset
+                var horizontalOffset = xOffset
                 for column in row.indices {
                     let device = row[column]
                     let width = widths[column]
                     bestFrames[device.id] = ScreenTileFrame(
-                        origin: CGPoint(x: x, y: y),
+                        origin: CGPoint(x: horizontalOffset, y: verticalOffset),
                         size: CGSize(width: width, height: height)
                     )
-                    x += width + horizontalSpacing
+                    horizontalOffset += width + horizontalSpacing
                 }
-                y += height + rowSpacing
+                verticalOffset += height + rowSpacing
             }
         }
 

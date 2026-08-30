@@ -9,9 +9,11 @@ jobs:
   verify-structure:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
       - name: Check Swift file responsibilities
         run: scripts/check-swift-file-size.sh
+      - name: Check session parameter classifications
+        run: make check-session-parameters
       - name: Check physical folders and Xcode groups
         run: scripts/check-project-structure.sh
       - name: Compile and verify String Catalog

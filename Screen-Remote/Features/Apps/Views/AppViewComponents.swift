@@ -36,8 +36,8 @@ struct ManagedAppGridItem: View {
     let app: ManagedAndroidApp
     let icon: NSImage?
     let isBusy: Bool
-    let isLaunchingVirtualDisplay: Bool
-    let openVirtualDisplay: () -> Void
+    let isLaunchingApp: Bool
+    let openApp: () -> Void
     let launchOnDevice: () -> Void
     let toggleEnabled: () -> Void
     let clearData: () -> Void
@@ -45,6 +45,7 @@ struct ManagedAppGridItem: View {
     let showDetails: () -> Void
     let exportAPK: () -> Void
     let uninstall: () -> Void
+    @State private var isHovered = false
 
     var body: some View {
         VStack(spacing: 10) {
@@ -58,7 +59,7 @@ struct ManagedAppGridItem: View {
                 } else {
                     AppIconTile(symbol: "app.fill", color: .appIndigo, size: 48)
                 }
-                if isBusy || isLaunchingVirtualDisplay {
+                if isBusy || isLaunchingApp {
                     RoundedRectangle(cornerRadius: 11)
                         .fill(Color.black.opacity(0.42))
                         .frame(width: 48, height: 48)
@@ -77,7 +78,10 @@ struct ManagedAppGridItem: View {
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 10)
         .padding(.vertical, 16)
-        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.035)))
+        .background(
+            RoundedRectangle(cornerRadius: AppRadius.medium, style: .continuous)
+                .fill(Color.primary.opacity(isHovered ? 0.065 : 0.035))
+        )
         .appOverlay(
             Group {
                 if !app.isEnabled {
@@ -92,9 +96,15 @@ struct ManagedAppGridItem: View {
             },
             alignment: .topTrailing
         )
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.line))
+        .overlay(
+            RoundedRectangle(cornerRadius: AppRadius.medium, style: .continuous)
+                .stroke(isHovered ? AppTheme.accent.opacity(0.28) : AppTheme.line)
+        )
         .contentShape(Rectangle())
-        .onTapGesture(count: 2, perform: openVirtualDisplay)
+        .scaleEffect(isHovered ? 1.015 : 1)
+        .animation(.easeOut(duration: 0.16), value: isHovered)
+        .onHover { isHovered = $0 }
+        .onTapGesture(count: 2, perform: openApp)
         .contextMenu {
             Button(action: showDetails) {
                 Label("appsManageDetails", systemImage: "info.circle")

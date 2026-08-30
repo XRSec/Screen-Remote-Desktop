@@ -2,6 +2,18 @@ import AppKit
 import Foundation
 import SwiftUI
 
+private struct AppMaterialEffectView: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.material = .contentBackground
+        view.blendingMode = .withinWindow
+        view.state = .active
+        return view
+    }
+
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
+}
+
 private struct TextFieldFocusDismissalView: NSViewRepresentable {
     func makeCoordinator() -> Coordinator {
         Coordinator()
@@ -254,6 +266,19 @@ extension View {
 
     func appBackground<Background: View>(_ backgroundView: Background, alignment: Alignment = .center) -> some View {
         background(backgroundView, alignment: alignment)
+    }
+
+    @ViewBuilder
+    func appMaterialBackground<S: Shape>(in shape: S, isActive: Bool = true) -> some View {
+        if isActive {
+            if #available(macOS 12, *) {
+                background(shape.fill(.ultraThinMaterial))
+            } else {
+                background(AppMaterialEffectView().clipShape(shape))
+            }
+        } else {
+            self
+        }
     }
 
     func appOverlay<Overlay: View>(_ overlay: Overlay, alignment: Alignment = .center) -> some View {

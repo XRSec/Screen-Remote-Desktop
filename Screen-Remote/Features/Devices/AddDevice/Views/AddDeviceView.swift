@@ -17,6 +17,7 @@ struct AddDeviceView: View {
         case audio
         case otherOptions
         case virtualDisplay
+        case startApp
     }
 
     @EnvironmentObject var appState: AppState
@@ -47,7 +48,7 @@ struct AddDeviceView: View {
     @State var ignoreVideoEncoderConstraints = false
     @State var compatibilityMode = false
     @State var gameMode = false
-    @State var showFloatingBall = true
+    @State var shellPassword = ""
     @State var enableHardwareDecoding = true
     @State var audioBitrate = "128K"
     @State var audioEncoder = ""
@@ -67,6 +68,7 @@ struct AddDeviceView: View {
     @State var showingVideoDecoderSelector = false
     @State var showingAudioEncoderSelector = false
     @State var showingAudioDecoderSelector = false
+    @State var showingRemoteAppSelector = false
     @State var connectionDiscoveryTarget: ConnectionDiscoveryTarget?
 
     static let accentColors: [Color] = [.appIndigo, .blue, .appCyan, .green, .orange, .purple]
@@ -104,7 +106,7 @@ struct AddDeviceView: View {
         _ignoreVideoEncoderConstraints = State(initialValue: options.ignoreVideoEncoderConstraints)
         _compatibilityMode = State(initialValue: options.compatibilityMode)
         _gameMode = State(initialValue: options.gameMode)
-        _showFloatingBall = State(initialValue: options.showFloatingBall)
+        _shellPassword = State(initialValue: options.shellPassword)
         _enableHardwareDecoding = State(initialValue: options.enableHardwareDecoding)
         _newDisplayEnabled = State(initialValue: options.newDisplayEnabled)
         _virtualDisplaySystemDecorations = State(initialValue: options.virtualDisplaySystemDecorations)
@@ -193,7 +195,8 @@ struct AddDeviceView: View {
                         RemoteEncoderSelector(
                             selection: $videoEncoder,
                             connections: currentConnections,
-                            kind: .video
+                            kind: .video,
+                            isNativeMode: !newDisplayEnabled
                         )
                         .environmentObject(appState)
                         .environment(\.locale, appState.resolvedLocale)
@@ -216,7 +219,18 @@ struct AddDeviceView: View {
                         RemoteEncoderSelector(
                             selection: $audioEncoder,
                             connections: currentConnections,
-                            kind: .audio
+                            kind: .audio,
+                            isNativeMode: false
+                        )
+                        .environmentObject(appState)
+                        .environment(\.locale, appState.resolvedLocale)
+                        .appPresentationWidth(relativeTo: appState.appWindowWidth)
+                        .appPresentationHeight(relativeTo: appState.appWindowHeight)
+                    }
+                    .sheet(isPresented: $showingRemoteAppSelector) {
+                        RemoteAppSelector(
+                            device: editingDevice,
+                            selection: $startApp
                         )
                         .environmentObject(appState)
                         .environment(\.locale, appState.resolvedLocale)

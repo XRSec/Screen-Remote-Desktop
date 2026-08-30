@@ -1,8 +1,36 @@
 import AppKit
 import Foundation
+import SwiftUI
+import ImageIO
+import UniformTypeIdentifiers
 
 @MainActor
 extension ScreenSessionManager {
+    func captureScreenshot(deviceID: UUID) -> URL? {
+        guard let image = videoSurfaces[deviceID]?.image else { return nil }
+        let picturesDirectory = FileManager.default.urls(for: .picturesDirectory, in: .userDomainMask).first
+            ?? FileManager.default.temporaryDirectory
+        let directory = picturesDirectory.appendingPathComponent("Screen Remote", isDirectory: true)
+        do {
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            let formatter = ISO8601DateFormatter()
+            formatter.formatOptions = [.withInternetDateTime, .withDashSeparatorInDate, .withColonSeparatorInTime]
+            let timestamp = formatter.string(from: Date()).replacingOccurrences(of: ":", with: "-")
+            let url = directory.appendingPathComponent("Screen-Remote-\(timestamp).png")
+            guard let destination = CGImageDestinationCreateWithURL(
+                url as CFURL,
+                UTType.png.identifier as CFString,
+                1,
+                nil
+            ) else { return nil }
+            CGImageDestinationAddImage(destination, image, nil)
+            guard CGImageDestinationFinalize(destination) else { return nil }
+            return url
+        } catch {
+            return nil
+        }
+    }
+
     func layoutInspectorState(for deviceID: UUID) -> ScreenLayoutInspectorState {
         layoutInspectorStates[deviceID] ?? ScreenLayoutInspectorState()
     }
@@ -431,4 +459,156 @@ private func sameDisplay(
     _ rhs: (width: Int, height: Int, densityDPI: Int?)
 ) -> Bool {
     lhs.width == rhs.width && lhs.height == rhs.height && lhs.densityDPI == rhs.densityDPI
+}
+
+@MainActor
+extension ScreenSessionManager {
+    func openAppInNativeVirtualDisplay(
+        app: ManagedAndroidApp,
+        device: Device,
+        appState: AppState,
+        adbPath configuredADBPath: String,
+        log: @escaping (String) -> Void
+    ) {
+        let parentSession = session(for: device.id)
+        guard parentSession.isConnected else {
+            log("App virtual display launch skipped because the ADB session is not connected: \(device.name)")
+            return
+        }
+
+        let key = AppVirtualDisplayKey(launchID: UUID(), deviceID: device.id, packageName: app.packageName)
+        var options = device.scrcpyOptions
+        options.newDisplayEnabled = true
+        options.virtualDisplaySystemDecorations = false
+        options.preserveVirtualDisplayContent = true
+        options.startApp = app.packageName
+        if nativeSessions[device.id] != nil || runningProcesses[device.id]?.isRunning == true {
+            options.enableAudio = false
+        }
+        let virtualDevice = Device(
+            id: key.launchID,
+            name: "\(device.name) — \(app.name)",
+            model: device.model,
+            systemVersion: device.systemVersion,
+            battery: device.battery,
+            accent: device.accent,
+            isConnected: device.isConnected,
+            groupIDs: device.groupIDs,
+            connections: device.connections,
+            scrcpyOptions: options
+        )
+        let surface = ScrcpyVideoSurface()
+        let nativeSession = NativeScrcpySession(
+            adbPath: executablePath(configuredADBPath, fallback: .adb),
+            serial: parentSession.adbSerial,
+            options: options,
+            surface: surface
+        )
+        sessions[key.launchID] = ScreenSessionSnapshot(
+            deviceID: key.launchID,
+            phase: .launching,
+            transport: parentSession.transport,
+            adbSerial: parentSession.adbSerial,
+            preflight: parentSession.preflight
+        )
+        videoSurfaces[key.launchID] = surface
+        nativeSessions[key.launchID] = nativeSession
+        appVirtualDisplayNativeSessions[key] = nativeSession
+        appVirtualDisplayDevices[key] = virtualDevice
+        appVirtualDisplayLaunchCounts[AppVirtualDisplayIdentifier(deviceID: device.id, packageName: app.packageName), default: 0] += 1
+        openNativeVirtualDisplayWindow(key: key, device: virtualDevice, appState: appState)
+
+        let sessionLog: (String) -> Void = { message in
+            Task { @MainActor in
+                log(message)
+            }
+        }
+        nativeSession.start(
+            log: sessionLog,
+            ready: { [weak self, weak nativeSession] deviceName in
+                Task { @MainActor [weak self, weak nativeSession] in
+                    guard let self, let nativeSession, self.nativeSessions[key.launchID] === nativeSession else { return }
+                    var snapshot = self.session(for: key.launchID)
+                    snapshot.phase = .running
+                    snapshot.detail = "\(snapshot.transport?.rawValue ?? "ADB") · \(snapshot.adbSerial) · \(deviceName)"
+                    self.sessions[key.launchID] = snapshot
+                    nativeSession.sendStartApp(app.packageName)
+                    self.finishAppVirtualDisplayLaunch(AppVirtualDisplayIdentifier(deviceID: device.id, packageName: app.packageName))
+                    log("App launch requested on native virtual display: \(app.packageName)")
+                }
+            },
+            stopped: { [weak self, weak nativeSession] error in
+                Task { @MainActor [weak self, weak nativeSession] in
+                    guard let self, let nativeSession, self.nativeSessions[key.launchID] === nativeSession else { return }
+                    if let error { log("App virtual display stopped: \(app.packageName), \(error.localizedDescription)") }
+                    self.stopNativeAppVirtualDisplay(key)
+                }
+            }
+        )
+    }
+
+    private func openNativeVirtualDisplayWindow(key: AppVirtualDisplayKey, device: Device, appState: AppState) {
+        let content = AppVirtualScreenWindowContent(device: device, sessionID: key.launchID)
+            .environmentObject(appState)
+            .environment(\.locale, appState.resolvedLocale)
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 480, height: 800),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+            backing: .buffered,
+            defer: false
+        )
+        window.title = device.name
+        window.contentViewController = NSHostingController(rootView: content)
+        window.isReleasedWhenClosed = false
+        window.delegate = self
+        window.acceptsMouseMovedEvents = true
+        window.isOpaque = false
+        window.backgroundColor = .clear
+        window.hasShadow = false
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
+        window.titlebarSeparatorStyle = .none
+        window.isMovableByWindowBackground = false
+        [.closeButton, .miniaturizeButton, .zoomButton].forEach { type in
+            window.standardWindowButton(type)?.isHidden = true
+        }
+        appVirtualDisplayWindows[key] = window
+        appVirtualDisplayWindowKeys[ObjectIdentifier(window)] = key
+        appState.screenWindows.registerExternalWindow(window, for: key.launchID)
+        appVirtualDisplayWindowCoordinators[key] = appState.screenWindows
+        appState.screenWindows.updateWindowSize(
+            deviceID: key.launchID,
+            device: device,
+            session: session(for: key.launchID),
+            surface: videoSurface(for: key.launchID)
+        )
+        window.center()
+        window.makeKeyAndOrderFront(nil)
+    }
+
+    @objc func windowWillClose(_ notification: Notification) {
+        guard let window = notification.object as? NSWindow,
+              let key = appVirtualDisplayWindowKeys[ObjectIdentifier(window)] else { return }
+        stopNativeAppVirtualDisplay(key)
+    }
+
+    func stopNativeAppVirtualDisplay(deviceID: UUID) {
+        guard let key = appVirtualDisplayNativeSessions.keys.first(where: { $0.launchID == deviceID }) else { return }
+        stopNativeAppVirtualDisplay(key)
+    }
+
+    func stopNativeAppVirtualDisplay(_ key: AppVirtualDisplayKey) {
+        appVirtualDisplayNativeSessions.removeValue(forKey: key)?.stop()
+        nativeSessions.removeValue(forKey: key.launchID)
+        videoSurfaces.removeValue(forKey: key.launchID)
+        sessions.removeValue(forKey: key.launchID)
+        appVirtualDisplayDevices.removeValue(forKey: key)
+        if let window = appVirtualDisplayWindows.removeValue(forKey: key) {
+            appVirtualDisplayWindowKeys.removeValue(forKey: ObjectIdentifier(window))
+            appVirtualDisplayWindowCoordinators.removeValue(forKey: key)?.unregisterExternalWindow(for: key.launchID, window: window)
+            window.delegate = nil
+            window.close()
+        }
+        finishAppVirtualDisplayLaunch(AppVirtualDisplayIdentifier(deviceID: key.deviceID, packageName: key.packageName))
+    }
 }

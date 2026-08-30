@@ -14,20 +14,27 @@ struct SettingsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("settingsTitle").font(.title2.bold())
-                    Text("settingsSubtitle").font(.subheadline).foregroundColor(.secondary)
+            HStack(spacing: AppSpacing.md) {
+                AppIconTile(symbol: "gearshape.fill", color: AppTheme.accent, size: 42)
+                VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                    Text("settingsTitle")
+                        .font(AppTypography.title)
+                    Text("settingsSubtitle")
+                        .font(AppTypography.body)
+                        .foregroundColor(.secondary)
                 }
                 Spacer()
-                Button("commonDone") { presentationMode.wrappedValue.dismiss() }.keyboardShortcut(.defaultAction)
+                Button("commonDone") { presentationMode.wrappedValue.dismiss() }
+                    .keyboardShortcut(.defaultAction)
             }
-            .padding(22)
+            .padding(.horizontal, AppSpacing.xl)
+            .frame(minHeight: 72)
+            .background(AppTheme.surface.opacity(0.72))
 
-            Divider()
+            Divider().opacity(0.6)
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: AppSpacing.lg) {
                     BasicPreferencesCard(
                         language: $appState.appLanguage,
                         theme: $appState.appTheme
@@ -69,7 +76,9 @@ struct SettingsView: View {
                         .padding(.horizontal, 4)
 
                 }
-                .padding(22)
+                .frame(maxWidth: 760)
+                .padding(AppSpacing.xl)
+                .frame(maxWidth: .infinity)
             }
         }
         .background(AppTheme.background)
@@ -192,12 +201,15 @@ private struct BasicPreferencesCard: View {
     @Binding var theme: AppThemePreference
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack {
+        VStack(alignment: .leading, spacing: AppSpacing.lg) {
+            HStack(spacing: AppSpacing.md) {
+                AppIconTile(symbol: "switch.2", color: .appIndigo, size: 36)
                 VStack(alignment: .leading, spacing: 2) {
-                    Label("settingsBasicPreferences", systemImage: "gearshape.fill").font(.headline)
+                    Text("settingsBasicPreferences")
+                        .font(AppTypography.section)
                     Text("settingsBasicPreferencesDetail")
-                        .font(.caption).foregroundColor(.secondary)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
             }
             VStack(alignment: .leading, spacing: 8) {
@@ -221,7 +233,7 @@ private struct BasicPreferencesCard: View {
                 .labelsHidden()
             }
         }
-        .padding(16)
+        .padding(AppSpacing.lg)
         .appCard()
     }
 }
@@ -246,12 +258,17 @@ private struct SDKConfigurationCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 13) {
-            HStack {
+            HStack(spacing: AppSpacing.md) {
+                AppIconTile(symbol: "iphone.gen3", color: .appTeal, size: 36)
                 VStack(alignment: .leading, spacing: 2) {
-                    Label("settingsVirtualDeviceCapability", systemImage: "iphone.gen3").font(.headline)
+                    Text("settingsVirtualDeviceCapability")
+                        .font(AppTypography.section)
                     Text("settingsVirtualDeviceCapabilityDetail")
-                        .font(.caption).foregroundColor(.secondary)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
+            }
+            HStack(spacing: AppSpacing.sm) {
                 Spacer()
                 Button {
                     openSDKFolder()
@@ -267,17 +284,17 @@ private struct SDKConfigurationCard: View {
                     .foregroundColor(.secondary)
                 Text("settingsSharedByNewAndLegacy").font(.caption.weight(.medium))
             }
-            
+
             DirectorySettingRow(
                 title: String.localizedKey("settingsSDKRoot"), placeholder: "~/Library/Android/sdk",
                 path: $sdkRoot, browse: { browseDirectory($sdkRoot) }
             )
-            
+
             DirectorySettingRow(
                 title: String.localizedKey("settingsAVDHome"), placeholder: String.localizedKey("settingsAVDHomePlaceholder"),
                 path: $avdHome, browse: { browseDirectory($avdHome) }
             )
-            
+
             DirectorySettingRow(
                 title: String.localizedKey("settingsSkinsPath"),
                 placeholder: "…/skins",
@@ -287,7 +304,7 @@ private struct SDKConfigurationCard: View {
             )
             Text("settingsSkinsPathDetail")
                 .font(.caption2).foregroundColor(.secondary)
-            
+
             ExecutableSettingRow(
                 title: String.localizedKey("settingsAndroidEmulator"),
                 path: $emulatorPath, status: emulatorStatus,
@@ -354,11 +371,14 @@ private struct BasicControlToolsCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HStack {
+            HStack(spacing: AppSpacing.md) {
+                AppIconTile(symbol: "cursorarrow.motionlines", color: .appCyan, size: 36)
                 VStack(alignment: .leading, spacing: 2) {
-                    Label("settingsBasicControl", systemImage: "cursorarrow.motionlines").font(.headline)
+                    Text("settingsBasicControl")
+                        .font(AppTypography.section)
                     Text("settingsBasicControlDetail")
-                        .font(.caption).foregroundColor(.secondary)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
                 Spacer()
                 Button("settingsAutoDetect", action: detect)
@@ -405,7 +425,11 @@ private struct InlineToolRow: View {
                 }
                 Spacer()
                 Label(status.title, systemImage: status.icon)
-                    .font(.caption.weight(.medium)).foregroundColor(status.color)
+                    .font(.caption.weight(.medium))
+                    .foregroundColor(status.color)
+                    .padding(.horizontal, AppSpacing.sm)
+                    .padding(.vertical, AppSpacing.xs)
+                    .appBackground(status.color.opacity(0.1), in: Capsule())
             }
             HStack(spacing: 8) {
                 TextField("settingsExecutablePath", text: $path).textFieldStyle(.roundedBorder)
@@ -420,19 +444,25 @@ private struct DirectorySettingRow: View {
     let title: String
     let placeholder: String
     @Binding var path: String
-    var status: ToolStatus? = nil
-    var download: (() -> Void)? = nil
+    var status: ToolStatus?
+    var download: (() -> Void)?
     let browse: () -> Void
 
     var body: some View {
-        HStack(spacing: 8) {
-            Text(title).font(.caption.weight(.medium)).frame(width: 128, alignment: .leading)
-            TextField(placeholder, text: $path).textFieldStyle(.roundedBorder)
-            if let status {
-                Image(systemName: status.icon).foregroundColor(status.color).help(status.title)
+        VStack(alignment: .leading, spacing: AppSpacing.xs) {
+            Text(title)
+                .font(.caption.weight(.medium))
+            HStack(spacing: AppSpacing.sm) {
+                TextField(placeholder, text: $path)
+                    .textFieldStyle(.roundedBorder)
+                if let status {
+                    Image(systemName: status.icon)
+                        .foregroundColor(status.color)
+                        .help(status.title)
+                }
+                Button("commonChooseEllipsis", action: browse)
+                if let download { Button("commonDownloadEllipsis", action: download) }
             }
-            Button("commonChooseEllipsis", action: browse)
-            if let download { Button("commonDownloadEllipsis", action: download) }
         }
     }
 }
@@ -441,16 +471,22 @@ private struct ExecutableSettingRow: View {
     let title: String
     @Binding var path: String
     let status: ToolStatus
-    var download: (() -> Void)? = nil
+    var download: (() -> Void)?
     let browse: () -> Void
 
     var body: some View {
-        HStack(spacing: 8) {
-            Text(title).font(.caption.weight(.medium)).frame(width: 128, alignment: .leading)
-            TextField("settingsExecutablePath", text: $path).textFieldStyle(.roundedBorder)
-            Image(systemName: status.icon).foregroundColor(status.color).help(status.title)
-            Button("commonChooseEllipsis", action: browse)
-            if let download { Button("commonDownloadEllipsis", action: download) }
+        VStack(alignment: .leading, spacing: AppSpacing.xs) {
+            Text(title)
+                .font(.caption.weight(.medium))
+            HStack(spacing: AppSpacing.sm) {
+                TextField("settingsExecutablePath", text: $path)
+                    .textFieldStyle(.roundedBorder)
+                Image(systemName: status.icon)
+                    .foregroundColor(status.color)
+                    .help(status.title)
+                Button("commonChooseEllipsis", action: browse)
+                if let download { Button("commonDownloadEllipsis", action: download) }
+            }
         }
     }
 }
@@ -466,9 +502,17 @@ private enum ToolStatus: Equatable {
         }
     }
     var color: Color {
-        switch self { case .unchecked: .secondary; case .ready: .green; case .missing: .secondary }
+        switch self {
+        case .unchecked: .secondary
+        case .ready: .green
+        case .missing: .orange
+        }
     }
     var icon: String {
-        switch self { case .unchecked: "circle.dashed"; case .ready: "checkmark.circle.fill"; case .missing: "exclamationmark.circle" }
+        switch self {
+        case .unchecked: "circle.dashed"
+        case .ready: "checkmark.circle.fill"
+        case .missing: "exclamationmark.circle"
+        }
     }
 }

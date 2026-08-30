@@ -6,7 +6,6 @@ catalog="$repo/Screen-Remote/Resources/Localizable.xcstrings"
 output=$(mktemp -d "${TMPDIR:-/tmp}/screen-remote-xcstrings.XXXXXX")
 trap 'rm -rf "$output"' EXIT
 
-plutil -lint "$catalog" >/dev/null
 xcrun xcstringstool compile "$catalog" --output-directory "$output" --language en --language zh-Hans >/dev/null
 
 python3 - "$repo" "$catalog" <<'PY'

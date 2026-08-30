@@ -42,77 +42,76 @@ func buildScrcpyArguments(
         "--serial", adbSerial,
         "--window-title", "Screen Remote — \(device.name)"
     ]
-    if options.maxSize > 0 {
-        arguments += ["--max-size", String(options.maxSize)]
-    }
-    if !options.videoBitrate.isEmpty {
-        arguments += ["--video-bit-rate", options.videoBitrate]
-    }
-    if options.maxFPS > 0 {
-        arguments += ["--max-fps", String(options.maxFPS)]
-    }
+    appendVideoArguments(options, automaticVideoEncoder: automaticVideoEncoder, to: &arguments)
+    appendAudioArguments(options, to: &arguments)
+    appendSessionArguments(options, to: &arguments)
+    appendVirtualDisplayArguments(options, to: &arguments)
+    return arguments
+}
+
+private func appendVideoArguments(
+    _ options: ScrcpyDeviceOptions,
+    automaticVideoEncoder: RemoteVideoEncoder?,
+    to arguments: inout [String]
+) {
+    if options.maxSize > 0 { arguments += ["--max-size", String(options.maxSize)] }
+    if !options.videoBitrate.isEmpty { arguments += ["--video-bit-rate", options.videoBitrate] }
+    if options.maxFPS > 0 { arguments += ["--max-fps", String(options.maxFPS)] }
     if !options.videoEncoder.isEmpty {
         let codec = automaticVideoEncoder?.codec ?? inferVideoCodec(fromEncoderName: options.videoEncoder)
         if let codec { arguments += ["--video-codec", codec] }
         arguments += ["--video-encoder", options.videoEncoder]
     } else if let automaticVideoEncoder {
-        arguments += [
-            "--video-codec", automaticVideoEncoder.codec,
-            "--video-encoder", automaticVideoEncoder.name
-        ]
+        arguments += ["--video-codec", automaticVideoEncoder.codec, "--video-encoder", automaticVideoEncoder.name]
     }
-    if options.enableAudio {
-        let audioCodec = codecForAudioDecoderSelection(options.audioDecoder)
-            ?? inferAudioCodec(fromEncoderName: options.audioEncoder)
-        if let audioCodec { arguments += ["--audio-codec", audioCodec] }
-        if !options.audioBitrate.isEmpty, audioCodec != "raw" {
-            arguments += ["--audio-bit-rate", options.audioBitrate]
-        }
-        if !options.audioEncoder.isEmpty, audioCodec != "raw" {
-            arguments += ["--audio-encoder", options.audioEncoder]
-        }
-    } else {
+}
+
+private func appendAudioArguments(
+    _ options: ScrcpyDeviceOptions,
+    to arguments: inout [String]
+) {
+    guard options.enableAudio else {
         arguments.append("--no-audio")
+        return
     }
-    if !options.clipboardSync {
-        arguments.append("--no-clipboard-autosync")
+    let audioCodec = codecForAudioDecoderSelection(options.audioDecoder)
+        ?? inferAudioCodec(fromEncoderName: options.audioEncoder)
+    if let audioCodec { arguments += ["--audio-codec", audioCodec] }
+    if !options.audioBitrate.isEmpty, audioCodec != "raw" {
+        arguments += ["--audio-bit-rate", options.audioBitrate]
     }
-    if options.turnScreenOff {
-        arguments.append("--turn-screen-off")
+    if !options.audioEncoder.isEmpty, audioCodec != "raw" {
+        arguments += ["--audio-encoder", options.audioEncoder]
     }
-    if options.powerOffOnClose && options.cleanupOnDisconnect {
-        arguments.append("--power-off-on-close")
+}
+
+private func appendSessionArguments(
+    _ options: ScrcpyDeviceOptions,
+    to arguments: inout [String]
+) {
+    if !options.clipboardSync { arguments.append("--no-clipboard-autosync") }
+    if options.turnScreenOff { arguments.append("--turn-screen-off") }
+    if options.powerOffOnClose && options.cleanupOnDisconnect { arguments.append("--power-off-on-close") }
+    if options.keepDeviceAwake { arguments.append("--stay-awake") }
+    if !options.cleanupOnDisconnect { arguments.append("--no-cleanup") }
+    if options.ignoreVideoEncoderConstraints { arguments.append("--ignore-video-encoder-constraints") }
+}
+
+private func appendVirtualDisplayArguments(
+    _ options: ScrcpyDeviceOptions,
+    to arguments: inout [String]
+) {
+    guard options.newDisplayEnabled else { return }
+    if options.newDisplayWidth > 0, options.newDisplayHeight > 0 {
+        var newDisplay = "\(options.newDisplayWidth)x\(options.newDisplayHeight)"
+        if options.newDisplayDPI > 0 { newDisplay += "/\(options.newDisplayDPI)" }
+        arguments.append("--new-display=\(newDisplay)")
+    } else {
+        arguments.append("--new-display")
     }
-    if options.keepDeviceAwake {
-        arguments.append("--stay-awake")
-    }
-    if !options.cleanupOnDisconnect {
-        arguments.append("--no-cleanup")
-    }
-    if options.ignoreVideoEncoderConstraints {
-        arguments.append("--ignore-video-encoder-constraints")
-    }
-    if options.newDisplayEnabled {
-        if options.newDisplayWidth > 0, options.newDisplayHeight > 0 {
-            var newDisplay = "\(options.newDisplayWidth)x\(options.newDisplayHeight)"
-            if options.newDisplayDPI > 0 {
-                newDisplay += "/\(options.newDisplayDPI)"
-            }
-            arguments.append("--new-display=\(newDisplay)")
-        } else {
-            arguments.append("--new-display")
-        }
-        if !options.virtualDisplaySystemDecorations {
-            arguments.append("--no-vd-system-decorations")
-        }
-        if options.preserveVirtualDisplayContent {
-            arguments.append("--no-vd-destroy-content")
-        }
-    }
-    if !options.startApp.isEmpty {
-        arguments += ["--start-app", options.startApp]
-    }
-    return arguments
+    if !options.virtualDisplaySystemDecorations { arguments.append("--no-vd-system-decorations") }
+    if options.preserveVirtualDisplayContent { arguments.append("--no-vd-destroy-content") }
+    if !options.startApp.isEmpty { arguments += ["--start-app", options.startApp] }
 }
 
 func resolveAutomaticVideoEncoder(

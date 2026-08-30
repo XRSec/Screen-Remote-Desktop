@@ -2,6 +2,123 @@ import AppKit
 import Foundation
 
 @MainActor
+private final class ReplacementNativeSessionState {
+    enum Lifecycle: String {
+        case preparing = "Preparing"
+        case videoReady = "VideoReady"
+        case audioReady = "AudioReady"
+        case switching = "Switching"
+        case completed = "Completed"
+        case failed = "Failed"
+    }
+
+    let deviceID: UUID
+    let deviceName: String
+    let waitsForAudio: Bool
+    let log: (String) -> Void
+    var lifecycle: Lifecycle = .preparing
+    var videoReady = false
+    var audioReady = false
+    var isSwapped = false
+    var isFailed = false
+    var replacementDeviceName: String
+    var timeoutTask: DispatchWorkItem?
+
+    init(device: Device, log: @escaping (String) -> Void) {
+        deviceID = device.id
+        deviceName = device.name
+        waitsForAudio = device.scrcpyOptions.enableAudio
+        replacementDeviceName = device.name
+        self.log = log
+    }
+
+    func logLifecycle(_ next: Lifecycle) {
+        lifecycle = next
+        log("Replacement lifecycle: device=\(deviceName) state=\(next.rawValue)")
+    }
+
+    func markFailed(_ reason: String) {
+        guard !isFailed else { return }
+        isFailed = true
+        timeoutTask?.cancel()
+        logLifecycle(.failed)
+        log("Replacement session failed: device=\(deviceName), reason=\(reason)")
+    }
+
+    func markAudioReady() {
+        guard !audioReady else { return }
+        audioReady = true
+        if lifecycle == .preparing || lifecycle == .audioReady || lifecycle == .videoReady {
+            logLifecycle(.audioReady)
+        }
+    }
+
+    func markVideoReady() {
+        guard !videoReady else { return }
+        videoReady = true
+        if lifecycle == .preparing || lifecycle == .audioReady || lifecycle == .videoReady {
+            logLifecycle(.videoReady)
+        }
+    }
+
+    func swapIfReady(
+        selfRef: ScreenSessionManager,
+        replacement: NativeScrcpySession,
+        previous: NativeScrcpySession
+    ) {
+        guard !isSwapped, !isFailed else { return }
+        guard selfRef.pendingNativeSessions[deviceID] === replacement else {
+            replacement.stop(log: log)
+            return
+        }
+        guard videoReady && (!waitsForAudio || audioReady) else { return }
+
+        isSwapped = true
+        timeoutTask?.cancel()
+        logLifecycle(.switching)
+        let oldSession = selfRef.nativeSessions[deviceID]
+        selfRef.pendingNativeSessions.removeValue(forKey: deviceID)
+        if let surface = selfRef.pendingVideoSurfaces.removeValue(forKey: deviceID) {
+            selfRef.videoSurfaces[deviceID] = surface
+        }
+        selfRef.nativeSessions[deviceID] = replacement
+        (oldSession ?? previous).stop(log: log)
+
+        var running = selfRef.session(for: deviceID)
+        running.phase = .running
+        running.processIdentifier = nil
+        running.detail = "\(running.transport?.rawValue ?? "ADB") · \(running.adbSerial) · \(replacementDeviceName)"
+        selfRef.sessions[deviceID] = running
+        logLifecycle(.completed)
+        log("Native scrcpy replacement ready; switching active video session: \(deviceName)")
+        log("Native scrcpy session started: \(deviceName), serial=\(running.adbSerial)")
+    }
+
+    func makeTimeout(replacement: NativeScrcpySession) -> DispatchWorkItem {
+        DispatchWorkItem { [weak self, weak replacement] in
+            DispatchQueue.main.async {
+                guard let self, let replacement else { return }
+                guard self.selfRefHasReplacement(replacement) else { return }
+                guard !self.isSwapped && !self.isFailed else { return }
+                self.markFailed("replacement session timed out")
+                self.log("Replacement session timeout: device=\(self.deviceName)")
+                self.manager?.pendingNativeSessions.removeValue(forKey: self.deviceID)
+                self.manager?.pendingVideoSurfaces.removeValue(forKey: self.deviceID)
+                replacement.stop(log: self.log)
+            }
+        }
+    }
+
+    private weak var manager: ScreenSessionManager?
+
+    func attach(manager: ScreenSessionManager) { self.manager = manager }
+
+    private func selfRefHasReplacement(_ replacement: NativeScrcpySession) -> Bool {
+        manager?.pendingNativeSessions[deviceID] === replacement
+    }
+}
+
+@MainActor
 extension ScreenSessionManager {
     func prepareAndLaunch(
         device: Device,
@@ -20,7 +137,7 @@ extension ScreenSessionManager {
         commandSnapshot.command = [
             configuration.adbPath,
             "-s", winner.candidate.adbSerial,
-            "shell", "scrcpy-server", NativeScrcpySession.serverVersion
+            "shell", "scrcpy-server", ScrcpyServerMetadata.version
         ]
         sessions[device.id] = commandSnapshot
         log("Native scrcpy session command prepared: \(formatCommand(commandSnapshot.command))")
@@ -35,7 +152,12 @@ extension ScreenSessionManager {
             surface: surface
         )
         nativeSessions[device.id] = nativeSession
-        startNativeSession(device: device, nativeSession: nativeSession, log: log)
+        startNativeSession(
+            device: device,
+            nativeSession: nativeSession,
+            adbPath: configuration.adbPath,
+            log: log
+        )
     }
 
     func reconnect(
@@ -79,44 +201,42 @@ extension ScreenSessionManager {
         )
     }
 
+    func applyLiveAudioVolume(deviceID: UUID, volume: Double) -> Bool {
+        let normalizedVolume = min(max(volume, 1), 3)
+        let appliedToNativeSession = nativeSessions[deviceID]?.applyAudioVolume(normalizedVolume) ?? false
+        let appliedToPending = pendingNativeSessions[deviceID]?.applyAudioVolume(normalizedVolume) ?? false
+        return appliedToNativeSession || appliedToPending
+    }
+
     private func startReplacementNativeSession(
         device: Device,
         previous: NativeScrcpySession,
         replacement: NativeScrcpySession,
         log: @escaping (String) -> Void
     ) {
-        replacement.start(
+        let state = ReplacementNativeSessionState(device: device, log: log)
+        state.attach(manager: self)
+        let timeoutTask = state.makeTimeout(replacement: replacement)
+        state.timeoutTask = timeoutTask
+        state.logLifecycle(.preparing)
+        startReplacementTransport(
+            replacement: replacement,
             log: log,
-            ready: { [weak self, weak replacement, weak previous] deviceName in
+            ready: { [weak self, weak replacement] deviceName in
+                state.replacementDeviceName = deviceName
                 DispatchQueue.main.async {
-                    guard let self,
-                          let replacement,
-                          self.pendingNativeSessions[device.id] === replacement else {
+                    guard let self, let replacement, self.pendingNativeSessions[device.id] === replacement else {
                         replacement?.stop(log: log)
                         return
                     }
-                    let oldSession = self.nativeSessions[device.id]
-                    self.pendingNativeSessions.removeValue(forKey: device.id)
-                    if let surface = self.pendingVideoSurfaces.removeValue(forKey: device.id) {
-                        self.videoSurfaces[device.id] = surface
-                    }
-                    self.nativeSessions[device.id] = replacement
-                    log("Native scrcpy replacement ready; switching active video session: \(device.name)")
-                    (oldSession ?? previous)?.stop(log: log)
-
-                    var running = self.session(for: device.id)
-                    running.phase = .running
-                    running.processIdentifier = nil
-                    running.detail = "\(running.transport?.rawValue ?? "ADB") · \(running.adbSerial) · \(deviceName)"
-                    self.sessions[device.id] = running
-                    log("Native scrcpy session started: \(device.name), serial=\(running.adbSerial)")
+                    log("Native scrcpy replacement metadata ready; waiting for first rendered frame: \(device.name)")
                 }
             },
             stopped: { [weak self, weak replacement] error in
                 DispatchQueue.main.async {
-                    guard let self,
-                          let replacement,
-                          self.pendingNativeSessions[device.id] === replacement else { return }
+                    guard let self, let replacement, self.pendingNativeSessions[device.id] === replacement else { return }
+                    let detail = error?.localizedDescription ?? "unknown error"
+                    state.markFailed("replacement stopped: \(detail)")
                     self.pendingNativeSessions.removeValue(forKey: device.id)
                     self.pendingVideoSurfaces.removeValue(forKey: device.id)
                     if self.nativeSessions[device.id] != nil {
@@ -124,27 +244,80 @@ extension ScreenSessionManager {
                         running.phase = .running
                         running.detail = "\(running.transport?.rawValue ?? "ADB") · \(running.adbSerial)"
                         self.sessions[device.id] = running
-                        log(
-                            "Native scrcpy replacement failed; retaining the previous session: " +
-                                "\(device.name), \(error?.localizedDescription ?? "unknown error")"
-                        )
+                        log("Native scrcpy replacement failed; retaining the previous session: \(device.name), \(detail)")
                     } else {
-                        self.restoreConnectedStateOrStop(
-                            deviceID: device.id,
-                            detail: error?.localizedDescription ?? ""
-                        )
-                        if let error {
-                            log("Native scrcpy replacement ended: \(device.name), \(error.localizedDescription)")
-                        }
+                        self.restoreConnectedStateOrStop(deviceID: device.id, detail: error?.localizedDescription ?? "")
+                        if let error { log("Native scrcpy replacement ended: \(device.name), \(error.localizedDescription)") }
                     }
+                }
+            },
+            onStartupAudioReady: { [weak self] in
+                DispatchQueue.main.async {
+                    guard let self else { return }
+                    state.markAudioReady()
+                    state.swapIfReady(selfRef: self, replacement: replacement, previous: previous)
+                }
+            },
+            onStartupFrameRendered: { [weak self] _ in
+                DispatchQueue.main.async {
+                    guard let self else { return }
+                    state.markVideoReady()
+                    state.swapIfReady(selfRef: self, replacement: replacement, previous: previous)
                 }
             }
         )
+        DispatchQueue.main.asyncAfter(deadline: .now() + 30, execute: timeoutTask)
+    }
+
+    private func startReplacementTransport(
+        replacement: NativeScrcpySession,
+        log: @escaping (String) -> Void,
+        ready: @escaping (String) -> Void,
+        stopped: @escaping (Error?) -> Void,
+        onStartupAudioReady: @escaping () -> Void,
+        onStartupFrameRendered: @escaping (String) -> Void
+    ) {
+        replacement.start(
+            log: log,
+            ready: ready,
+            stopped: stopped,
+            onStartupAudioReady: onStartupAudioReady,
+            onStartupFrameRendered: onStartupFrameRendered
+        )
+    }
+
+    private func launchConfiguredStartApp(
+        device: Device,
+        adbPath: String,
+        log: @escaping (String) -> Void
+    ) {
+        let options = device.scrcpyOptions
+        guard !options.newDisplayEnabled,
+              !options.startApp.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        let packageName = options.startApp.trimmingCharacters(in: .whitespacesAndNewlines)
+        let serial = session(for: device.id).adbSerial
+        Task {
+            let result = await SessionProcessRunner.run(
+                executable: adbPath,
+                arguments: [
+                    "-s", serial,
+                    "shell", "monkey", "-p", packageName,
+                    "-c", "android.intent.category.LAUNCHER", "1"
+                ],
+                timeout: 15
+            )
+            if result.succeeded {
+                log("Configured start app launched: \(packageName)")
+            } else {
+                log("Configured start app failed: \(packageName), \(result.failureDetail)")
+            }
+        }
     }
 
     private func startNativeSession(
         device: Device,
         nativeSession: NativeScrcpySession,
+        adbPath: String,
         log: @escaping (String) -> Void
     ) {
         nativeSession.start(
@@ -160,6 +333,11 @@ extension ScreenSessionManager {
                     running.detail = "\(running.transport?.rawValue ?? "ADB") · \(running.adbSerial) · \(deviceName)"
                     self.sessions[device.id] = running
                     log("Native scrcpy session started: \(device.name), serial=\(running.adbSerial)")
+                    self.launchConfiguredStartApp(
+                        device: device,
+                        adbPath: adbPath,
+                        log: log
+                    )
                 }
             },
             stopped: { [weak self, weak nativeSession] error in
@@ -364,6 +542,10 @@ extension ScreenSessionManager {
             if let process = appVirtualDisplayProcesses.removeValue(forKey: key), process.isRunning {
                 process.terminate()
             }
+        }
+        let nativeKeys = appVirtualDisplayNativeSessions.keys.filter { $0.deviceID == deviceID }
+        for key in nativeKeys {
+            stopNativeAppVirtualDisplay(key)
         }
     }
 

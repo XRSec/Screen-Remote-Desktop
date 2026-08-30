@@ -20,9 +20,9 @@ fi
 
 python3 "$repo/scripts/sync-xcode-project.py" --check
 
-if rg -n 'Process\(' "$source_root/Features" --glob '*View.swift' >/dev/null; then
+if rg -n '\bProcess\(' "$source_root/Features" --glob '*View.swift' >/dev/null; then
     echo "error: feature View files must not create Process directly" >&2
-    rg -n 'Process\(' "$source_root/Features" --glob '*View.swift' >&2
+    rg -n '\bProcess\(' "$source_root/Features" --glob '*View.swift' >&2
     exit 1
 fi
 

@@ -1,6 +1,6 @@
 # Screen Remote macOS 开发交接
 
-更新时间：2026-07-31
+更新时间：2026-08-09
 
 本文供下一位开发者接手当前 macOS 子项目。它记录当前工作区状态、已验证内容、尚未完成的功能，以及推荐的后续实现顺序。不要把本文当作已提交版本说明；当前工作区包含多组未提交改动。
 
@@ -8,31 +8,74 @@
 
 - 子项目：`Screen-Remote-macOS/`
 - 分支：`main`
-- 当前基线提交：`c2b0846`
+- 当前基线提交：`a202fdd`
+- 与 `origin/main` 的关系：本地 `main` ahead 11
 - Xcode scheme：`Screen-Remote`
 - 运行目标：`My Mac`
-- 本次使用的开发产物：`~/Library/Developer/Xcode/DerivedData/Screen-Remote-dkkobchccaabuidxxhryrcaqxzlf/Build/Products/Debug/Screen Remote.app`
-- 实机验收设备：Z5，ADB endpoint 曾为 `z5.local:30610` / `net.xrsec.fun:30610`
+- 最近一次记录的实机验收设备：Z5，ADB endpoint 曾为 `z5.local:30610` / `net.xrsec.fun:30610`
 
-当前工作树不是干净状态。已观察到以下修改或新增内容：
+本轮开始时工作树只有 `.github/workflows/architecture-guard.yml` 的 checkout action 版本修改，属于已有改动，必须保留。本轮在同一 workflow 中只追加了参数分类检查。当前工作树另外包含参数分类、arm64 发布约束、Xcode project 同步、native session 拆分、实机修复和文档同步改动：
 
+- `.github/workflows/architecture-guard.yml`
 - `Makefile`
 - `README.md`
+- `HANDOFF.md`
 - `Screen-Remote.xcodeproj/project.pbxproj`
-- `Screen-Remote/DeviceManagementViews.swift`
-- `Screen-Remote/Localizable.xcstrings`
-- `Screen-Remote/Models.swift`
-- `Screen-Remote/RootView.swift`
-- `Screen-Remote/ScreenSessionManager.swift`
-- `Screen-Remote/ScreensView.swift`
-- `Screen-Remote/NativeScrcpySession.swift`
-- `assets/scrcpy-LICENSE.txt`
-- `assets/scrcpy-server.jar`
-- `scripts/`
+- `Screen-Remote/Core/Models/SDLLogModels.swift`
+- `Screen-Remote/Core/State/AppState.swift`
+- `Screen-Remote/Features/Devices/AddDevice/Services/ConnectionLatencyTester.swift`
+- `Screen-Remote/Features/Devices/AddDevice/Views/CodecSelectors.swift`
+- `Screen-Remote/Features/Devices/AddDevice/Views/ConnectionLatencyTestView.swift`
+- `Screen-Remote/Features/Devices/AddDevice/Views/RemoteEncoderSelector.swift`
+- `Screen-Remote/Features/Devices/Discovery/ADBCommandRunner.swift`
+- `Screen-Remote/Features/Devices/Discovery/DeviceDiscoveryView.swift`
+- `Screen-Remote/Features/Management/Utilities/DeviceUtilitiesView.swift`
+- `Screen-Remote/Features/Management/Utilities/DeviceUtilityComponents.swift`
+- `Screen-Remote/Features/Screens/Services/ScreenSessionLaunch.swift`
+- `Screen-Remote/Features/Screens/Views/ScreenComponents.swift`
+- `Screen-Remote/Features/Screens/Views/ScrcpySessionParametersMenu.swift`
+- `Screen-Remote/Features/Screens/Views/ScrcpySurfaceInput.swift`
+- `Screen-Remote/Features/Screens/Views/ScreenWindowComponents.swift`
+- `Screen-Remote/Features/Tooling/Models/ToolDownloadModels.swift`
+- `Screen-Remote/Features/Tooling/Services/ToolLocator.swift`
+- `Screen-Remote/Features/Tooling/Views/ToolDownloadView.swift`
+- `Screen-Remote/Resources/Localizable.xcstrings`
+- `Screen-Remote/Services/Scrcpy/Session/NativeScrcpySession.swift`
+- `Screen-Remote/Services/Scrcpy/Session/NativeScrcpySession+Codec.swift`
+- `Screen-Remote/Services/Scrcpy/Session/NativeScrcpySession+Control.swift`
+- `Screen-Remote/Services/Scrcpy/Session/NativeScrcpySession+Socket.swift`
+- `Screen-Remote/Services/Scrcpy/Session/NativeScrcpyTypes.swift`
+- `Screen-Remote/Services/Scrcpy/Session/ScrcpyAudioRenderer.swift`
+- `Screen-Remote/Services/Scrcpy/Session/ScrcpyServerAsset.swift`
+- `Screen-Remote/Services/Scrcpy/Session/SessionParameterController.swift`
+- `scripts/check-project-structure.sh`
+- `scripts/check-session-parameters.swift`
+- `scripts/verify-localization.sh`
 
-这些改动不都属于同一个任务。接手时禁止 reset、checkout 或覆盖未辨认的修改；先逐个查看 diff，并与正在进行的 native scrcpy 工作协调。
+接手时禁止 reset、checkout 或覆盖未辨认的修改；先逐个查看 diff。
 
 ## 本轮已经完成并验证的内容
+
+### 2026-08-09：最近提交审计、session 收口与实机验收
+
+已核对 `64a44bd` 至 `a202fdd` 的 11 个提交。当前进度不再是“固定 H.264、参数切换未开始、滚动未开始”：代码已经包含 bundled-server codec 能力发现与缓存校验、H.264/H.265 runtime fallback、参数 replacement controller，以及滚动精度、归一化和 phase/momentum 保留。
+
+本轮补充：
+
+- `SessionParameterController` 已覆盖 `ScrcpyDeviceOptions` 的全部 28 个当前字段，避免选项已经持久化但 active session 无动作且无日志的空计划。
+- server/decoder 参数归类为 replacement restart；兼容模式、游戏模式和悬浮球归类为本地即时状态；尚无运行时消费者的 controller-awake 明确归类为 unsupported。
+- 新增 `make check-session-parameters`，逐字段验证分类且通过，并接入 architecture guard。
+- 明确项目仅支持 Apple Silicon：Xcode project 保持 `ARCHS = arm64`，`make release` 默认只构建 arm64，不提供 x86_64 产物；最低系统版本仍为 macOS 11，scrcpy server 与许可证均需打入 bundle。
+- String Catalog 校验脚本不再错误地把 JSON String Catalog 当作 plist 预检，并完成 4 条简体中文 `needs_review` 状态收口。
+- 使用既有稳定生成器规范化重写 PBX source/group/build phase；`scripts/sync-xcode-project.py --check` 现已通过，新拆分文件也由物理目录自动纳入工程。
+- `NativeScrcpySession.swift` 从 1485 行降至约 650 行；codec、control、socket、基础类型和 Core Audio renderer 分文件维护，socket/forward/stop 锁序与 AudioConverter 生命周期保持不变。
+- 修复 scrcpy server 部署真值：不再把“本进程曾部署”误当成远端 JAR 仍存在，而是每次启动检查远端 SHA-256。`cleanup=false` 会直接复用；`cleanup=true` 删除 JAR 后会重新 push。
+- Z5（SM-F731B / Android 14）已通过 exact `ScreenSessionManager` H.264 → H.265 replacement：两种 cleanup 配置均收到 H.264/H.265 首帧，replacement 依次进入 `VideoReady`、`Switching`、`Completed`，旧 forward 在切换后移除。
+- Z5 上已发送 precise `-0.25 × 24` 与 mouse-scale `-8 × 6` 滚动控制消息，两组设备截图均发生变化；设备当时处于锁屏，因此方向、距离及真实触控板 phase/momentum 的内容级验收仍需在解锁后的可滚动页面完成。
+- 右键输入采用确定性双绑定：普通右键发送 Android `BACK`，Shift+右键透传 secondary click，保留短信选中态“多功能”等上下文操作。scrcpy control 协议不返回事件是否被应用消费，不能可靠实现自动“未触发多功能时再返回”；两条绑定仍需在解锁短信页实机确认。
+- arm64 Release 构建成功；`project.pbxproj` 通过 `plutil -lint`，`git diff --check` 通过。
+
+Architecture guard 现已完整通过：project source references 已同步；连接延迟、ADB discovery 和工具定位的进程执行已移出 View；`ManagedProcess(` 不再被正则误报；`AppState` 日志模型、Device Utilities 组件、remote encoder selector、screen 参数菜单、surface/input 与 window components 均按职责拆分。所有非 allowlist Swift 文件都已低于 700 行，没有用 allowlist 掩盖问题。
 
 ### 设备信息页（2026-07-31 接手补完）
 
@@ -247,7 +290,7 @@ macOS 自有资产：
 15. **Screens** 工作区中的小窗与放大后的大窗都可以显示同一会话的原生画面。
 16. stop/异常/应用退出时关闭 socket、终止 server shell process、移除残留 forward、销毁 decoder 并清空画面。
 
-当前 native video 固定请求 H.264，以先建立 macOS 11 可用的 VideoToolbox 闭环；未修改 server 对 H.264 的产生逻辑。媒体包解析参考官方 scrcpy 4.1 `app/src/demuxer.c`，客户端组织方式参考 scrcpy-mask，但没有复制其 FFmpeg/Rust 解码实现。
+native video 已从最初固定 H.264 的闭环扩展为 H.264/H.265 VideoToolbox 选择，使用内置 server 探测远端 encoder，校验本地/远端 capability cache metadata，并在自动策略下按失败原因执行受控 codec fallback。媒体包解析参考官方 scrcpy 4.1 `app/src/demuxer.c`，客户端组织方式参考 scrcpy-mask，但没有复制其 FFmpeg/Rust 解码实现。
 
 `ScreenSessionManager` 的主屏幕 `start()` 已切换到 `NativeScrcpySession`。原来的外部 scrcpy process 路径仍保留给 app-specific virtual display，不能在后续清理时误删，除非该路径也已迁移到 native session model。
 
@@ -271,15 +314,15 @@ macOS 自有资产：
 
 按以下顺序继续，避免同时扩张多个协议面：
 
-1. **先完成实机会话验收**：确认 server push、forward、dummy byte、64-byte metadata、codec ID、session header、SPS/PPS、首帧和持续帧日志均符合官方 4.1。
-2. **修复帧呈现性能**：当前每帧由 `CIContext` 转为 `CGImage` 并通过 `@Published` 更新，闭环简单但成本高。建议改为 `CVPixelBuffer` + Metal/Core Image-backed `NSView`，避免 CPU 图像复制和 SwiftUI 全量刷新。
-3. **动态尺寸与旋转**：收到 session packet 时更新 surface 尺寸和窗口比例；确认 encoder 重新发 config 时安全重建 VideoToolbox session。
-4. **控制协议**：实现触控、鼠标、键盘、返回/主页、屏幕电源、剪贴板和 device-message reader。所有坐标必须基于实际视频尺寸、旋转和窗口 content rect 变换。
-5. **音频播放**：当前 audio socket 会读取 codec ID 并持续消费媒体包，防止 server 背压，但不解码、不播放。下一步选择原生 AudioToolbox/AVAudioEngine 路径，处理 Opus/AAC 能力与同步；不要只建立 socket 后长期不读。
-6. **参数映射**：当前主闭环只映射核心 H.264、码率、FPS、max size、audio on/off、虚拟显示和部分 lifecycle 参数。补齐 encoder、screen off、start app、clipboard、cleanup 等行为时应与 Android session 语义和官方 scrcpy 客户端逐项核对。
-7. **虚拟显示统一**：app-specific virtual display 目前仍调用外部 scrcpy executable；迁移后应复用同一 native session，不要复制第二套 socket/decoder 生命周期。
-8. **失败恢复**：覆盖 server 提前退出、push 失败、forward 冲突、video 连接前 localabstract 未创建、dummy byte 超时、第二/第三 socket 失败、格式变更、设备断线和用户取消。
-9. **多屏压力**：验证多个设备并发 session 时每个 session 内 socket 仍严格串行，且 decoder、audio focus、窗口拖出/拖回和清理互不串线。
+1. **完成实机会话与 replacement 验收**：确认 server push、ordered sockets、metadata、H.264/H.265 首帧、fallback、replacement timeout/cancel 和快速连续参数变更。
+2. **完成滚动输入验收**：分别使用鼠标与触控板核对方向、精度、phase/momentum、边界值和 Android 端实际滚动距离。
+3. **验收右键双绑定**：普通右键应返回，Shift+右键应在短信选中态触发“多功能”等 secondary-click 上下文操作。
+4. **修复帧呈现性能**：当前每帧由 `CIContext` 转为 `CGImage` 并通过 `@Published` 更新，闭环简单但成本高。建议改为 `CVPixelBuffer` + Metal/Core Image-backed `NSView`，避免 CPU 图像复制和 SwiftUI 全量刷新。
+5. **动态尺寸与旋转**：收到 session packet 时更新 surface 尺寸和窗口比例；确认 encoder 重新发 config 时安全重建 VideoToolbox session。
+6. **补齐控制协议**：继续完成剪贴板、device-message reader 和尚缺的输入行为。所有坐标必须基于实际视频尺寸、旋转和窗口 content rect 变换。
+7. **音频播放**：当前 audio socket 会读取 codec ID 并持续消费媒体包，防止 server 背压，但不解码、不播放。下一步选择原生 AudioToolbox/AVAudioEngine 路径，处理 Opus/AAC 能力与同步。
+8. **虚拟显示统一**：app-specific virtual display 目前仍调用外部 scrcpy executable；迁移后应复用同一 native session，不要复制第二套 socket/decoder 生命周期。
+9. **失败恢复与多屏压力**：覆盖 server/forward/socket/格式变更/断线/取消，并验证多设备 decoder、audio focus、窗口拖出/拖回和清理互不串线。
 
 特别注意：当前 socket 有 10 秒 receive timeout；这是初始保护值，不等于最终恢复策略。第二或第三 socket 建链失败后，官方 server 已经按 accept 顺序分配角色，不能针对同一 server/SCID 随意重开一组 socket；应销毁整次 session，使用新 SCID 重启。
 
@@ -312,7 +355,8 @@ Notifications、Messages、Photos 仍只有产品 UI 和空状态。需要先定
 
 ## 建议接手顺序
 
-1. 先阅读根目录 `AGENTS.md` 和 UI 设计系统。
-2. 查看并保护当前 dirty worktree，确认 native scrcpy 与文件管理改动归属。
-3. 完成 native scrcpy 实机会话验收并处理帧呈现性能。
-4. 再进入其他管理页和 Settings/companion 等后续工作。
+1. 先阅读根目录 `AGENTS.md`，涉及 UI 时再读取 UI 设计系统。
+2. 查看并保护当前 dirty worktree，保留已有 workflow 修改和本轮参数/多架构改动。
+3. 先完成 native scrcpy replacement、codec fallback 与滚动输入的实机验收。
+4. 再处理帧呈现性能、动态尺寸/旋转和 native virtual-display 统一。
+5. 最后进入其他管理页和 Settings/companion 等后续工作。

@@ -178,48 +178,6 @@ private struct DiscoveredDeviceRow: View {
     }
 }
 
-struct ADBCommandResult: Sendable {
-    let exitCode: Int32
-    let output: String
-    let error: String
-}
-
-enum ADBCommandRunner {
-    static func run(executable: String, arguments: [String]) async -> ADBCommandResult {
-        await withCheckedContinuation { continuation in
-            DispatchQueue.global(qos: .userInitiated).async {
-                guard FileManager.default.isExecutableFile(atPath: executable) else {
-                    continuation.resume(returning: ADBCommandResult(
-                        exitCode: 127,
-                        output: "",
-                        error: String(format: String.localizedKey("deviceDiscoveryADBNotFound %@"), executable)
-                    ))
-                    return
-                }
-
-                let process = Process()
-                let outputPipe = Pipe()
-                let errorPipe = Pipe()
-                process.executableURL = URL(fileURLWithPath: executable)
-                process.arguments = arguments
-                process.standardOutput = outputPipe
-                process.standardError = errorPipe
-                do {
-                    try process.run()
-                    process.waitUntilExit()
-                    continuation.resume(returning: ADBCommandResult(
-                        exitCode: process.terminationStatus,
-                        output: String(decoding: outputPipe.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self),
-                        error: String(decoding: errorPipe.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
-                    ))
-                } catch {
-                    continuation.resume(returning: ADBCommandResult(exitCode: 126, output: "", error: error.localizedDescription))
-                }
-            }
-        }
-    }
-}
-
 func parseADBDevices(_ output: String) -> [DiscoveredADBDevice] {
     output.split(whereSeparator: \.isNewline).dropFirst().compactMap { line in
         let fields = line.split(whereSeparator: \.isWhitespace).map(String.init)
@@ -309,19 +267,4 @@ func mdnsDeviceSerial(_ value: String) -> String {
         return serialAndNonce
     }
     return String(serialAndNonce[..<separator])
-}
-
-struct ContentUnavailableViewCompat: View {
-    let icon: String
-    let title: LocalizedStringKey
-    let detail: LocalizedStringKey
-
-    var body: some View {
-        VStack(spacing: 9) {
-            Image(systemName: icon).font(.system(size: 34)).foregroundColor(Color.secondary.opacity(0.65))
-            Text(title).font(.headline)
-            Text(detail).font(.caption).foregroundColor(.secondary).multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-    }
 }

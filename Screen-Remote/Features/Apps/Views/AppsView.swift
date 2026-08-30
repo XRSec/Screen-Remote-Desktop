@@ -92,7 +92,7 @@ struct AppsView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: AppSpacing.xl) {
                 LazyVGrid(
                     columns: statColumns,
                     spacing: 14
@@ -115,6 +115,7 @@ struct AppsView: View {
             }
             .padding(isCompact ? 20 : 28)
         }
+        .background(AppTheme.background)
         .alert(item: $appManager.actionResult) { result in
             Alert(
                 title: Text(result.title),
@@ -168,21 +169,24 @@ struct AppsView: View {
             }
 
             if appManager.isLoading {
-                HStack(spacing: 10) {
-                    ProgressView().scaleEffect(0.75)
+                VStack(spacing: AppSpacing.md) {
+                    ProgressView()
+                        .scaleEffect(0.8)
                     Text("appsManageLoading")
+                        .font(AppTypography.body)
                         .foregroundColor(.secondary)
                 }
-                .frame(maxWidth: .infinity, minHeight: 180)
+                .padding(AppSpacing.xl)
+                .frame(maxWidth: 360)
+                .appCard()
+                .frame(maxWidth: .infinity, minHeight: 220)
             } else if filteredManagedApps.isEmpty {
-                VStack(spacing: 10) {
-                    Image(systemName: searchText.isEmpty ? "apps.iphone" : "magnifyingglass")
-                        .font(.system(size: 32))
-                        .foregroundColor(.secondary)
-                    Text(searchText.isEmpty ? "appsManageEmpty" : "appsManageNoSearchResults")
-                        .foregroundColor(.secondary)
-                }
-                .frame(maxWidth: .infinity, minHeight: 180)
+                ContentUnavailableViewCompat(
+                    icon: searchText.isEmpty ? "apps.iphone" : "magnifyingglass",
+                    title: searchText.isEmpty ? "appsManageEmpty" : "appsManageNoSearchResults",
+                    detail: "appsSearchPrompt"
+                )
+                .frame(minHeight: 220)
             } else {
                 LazyVGrid(
                     columns: [GridItem(.adaptive(minimum: 150, maximum: 190), spacing: 12)],
@@ -193,16 +197,16 @@ struct AppsView: View {
                             app: app,
                             icon: appManager.icons[app.packageName],
                             isBusy: appManager.busyPackageNames.contains(app.packageName),
-                            isLaunchingVirtualDisplay: sessionManager.isLaunchingAppVirtualDisplay(
+                            isLaunchingApp: sessionManager.isLaunchingAppVirtualDisplay(
                                 deviceID: device.id,
                                 packageName: app.packageName
                             ),
-                            openVirtualDisplay: {
-                                sessionManager.openAppOnVirtualDisplay(
+                            openApp: {
+                                sessionManager.openAppInNativeVirtualDisplay(
                                     app: app,
                                     device: device,
+                                    appState: appState,
                                     adbPath: appState.adbPath,
-                                    scrcpyPath: appState.scrcpyPath,
                                     log: { appState.appendSDLLog($0) }
                                 )
                             },
@@ -220,16 +224,26 @@ struct AppsView: View {
                 }
             }
         } else if currentDevice == nil {
-            Text("appsManageNoDevice")
-                .foregroundColor(.secondary)
-                .frame(maxWidth: .infinity, minHeight: 180)
+            VStack(spacing: AppSpacing.md) {
+                AppIconTile(symbol: "iphone.slash", color: AppTheme.accent, size: 48)
+                Text("appsManageNoDevice")
+                    .font(AppTypography.section)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(AppSpacing.xl)
+            .frame(maxWidth: 420)
+            .appCard(radius: AppRadius.large)
+            .frame(maxWidth: .infinity, minHeight: 260)
         } else {
             ContentUnavailableViewCompat(
                 icon: "cable.connector",
                 title: "appsSessionRequiredTitle",
                 detail: "appsSessionRequiredDetail"
             )
-            .frame(minHeight: 260)
+            .padding(AppSpacing.lg)
+            .frame(maxWidth: 420)
+            .appCard(radius: AppRadius.large)
+            .frame(maxWidth: .infinity, minHeight: 260)
         }
     }
 

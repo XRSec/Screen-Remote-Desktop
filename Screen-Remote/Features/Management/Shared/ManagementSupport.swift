@@ -117,6 +117,9 @@ struct ManagementUnavailableView: View {
             title: "managementSessionRequiredTitle",
             detail: "managementSessionRequiredDetail"
         )
+        .padding(AppSpacing.lg)
+        .appCard(radius: AppRadius.large)
+        .padding(AppSpacing.xl)
         .frame(maxWidth: .infinity, minHeight: 300)
     }
 }
@@ -129,7 +132,14 @@ struct ManagementErrorBanner: View {
             .foregroundColor(.red)
             .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .appBackground(Color.red.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+            .appBackground(
+                Color.red.opacity(0.08),
+                in: RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
+            )
+            .appOverlay(
+                RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
+                    .stroke(Color.red.opacity(0.16), lineWidth: 1)
+            )
     }
 }
 

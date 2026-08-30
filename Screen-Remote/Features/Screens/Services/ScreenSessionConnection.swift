@@ -242,6 +242,24 @@ extension ScreenSessionManager {
                             )
                         }
                     }
+                    if !outcome.succeeded {
+                        let disconnect = await SessionProcessRunner.run(
+                            executable: adbPath,
+                            arguments: ["disconnect", candidate.adbSerial],
+                            timeout: 5
+                        )
+                        await MainActor.run {
+                            if disconnect.succeeded {
+                                log(
+                                    "Disconnected failed ADB race candidate: \(candidate.transport.rawValue):\(candidate.adbSerial)"
+                                )
+                            } else {
+                                log(
+                                    "Failed to disconnect ADB race candidate: \(candidate.transport.rawValue):\(candidate.adbSerial), \(disconnect.failureDetail)"
+                                )
+                            }
+                        }
+                    }
                     continuation.yield(outcome)
                 }
             }
@@ -255,7 +273,7 @@ extension ScreenSessionManager {
                 log(
                     "ADB connection race winner: \(outcome.candidate.transport.rawValue):\(outcome.candidate.adbSerial)"
                 )
-                // Intentionally do not cancel or disconnect the remaining candidates.
+                // Successful non-winning candidates stay available; failed candidates clean themselves up.
                 return outcome
             }
             lastError = outcome.error ?? lastError

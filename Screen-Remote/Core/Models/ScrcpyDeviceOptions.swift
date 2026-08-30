@@ -22,7 +22,7 @@ struct ScrcpyDeviceOptions: Codable, Equatable {
     var ignoreVideoEncoderConstraints = false
     var compatibilityMode = false
     var gameMode = false
-    var showFloatingBall = true
+    var shellPassword = ""
     var enableHardwareDecoding = true
     var newDisplayEnabled = false
     var virtualDisplaySystemDecorations = true
@@ -41,7 +41,7 @@ struct ScrcpyDeviceOptions: Codable, Equatable {
         cleanupOnDisconnect: Bool = true, keepControllerAwake: Bool = false,
         keepDeviceAwake: Bool = true, ignoreVideoEncoderConstraints: Bool = false,
         compatibilityMode: Bool = false, gameMode: Bool = false,
-        showFloatingBall: Bool = true, enableHardwareDecoding: Bool = true,
+        shellPassword: String = "", enableHardwareDecoding: Bool = true,
         newDisplayEnabled: Bool = false, virtualDisplaySystemDecorations: Bool = true,
         preserveVirtualDisplayContent: Bool = false, startApp: String = "",
         newDisplayWidth: Int = 0, newDisplayHeight: Int = 0, newDisplayDPI: Int = 0
@@ -65,7 +65,7 @@ struct ScrcpyDeviceOptions: Codable, Equatable {
         self.ignoreVideoEncoderConstraints = ignoreVideoEncoderConstraints
         self.compatibilityMode = compatibilityMode
         self.gameMode = gameMode
-        self.showFloatingBall = showFloatingBall
+        self.shellPassword = shellPassword
         self.enableHardwareDecoding = enableHardwareDecoding
         self.newDisplayEnabled = newDisplayEnabled
         self.virtualDisplaySystemDecorations = virtualDisplaySystemDecorations
@@ -101,7 +101,7 @@ struct ScrcpyDeviceOptions: Codable, Equatable {
             ignoreVideoEncoderConstraints: try values.decodeIfPresent(Bool.self, forKey: .ignoreVideoEncoderConstraints) ?? false,
             compatibilityMode: try values.decodeIfPresent(Bool.self, forKey: .compatibilityMode) ?? false,
             gameMode: try values.decodeIfPresent(Bool.self, forKey: .gameMode) ?? false,
-            showFloatingBall: try values.decodeIfPresent(Bool.self, forKey: .showFloatingBall) ?? true,
+            shellPassword: try values.decodeIfPresent(String.self, forKey: .shellPassword) ?? "",
             enableHardwareDecoding: try values.decodeIfPresent(Bool.self, forKey: .enableHardwareDecoding) ?? true,
             newDisplayEnabled: try values.decodeIfPresent(Bool.self, forKey: .newDisplayEnabled) ?? false,
             virtualDisplaySystemDecorations: try values.decodeIfPresent(Bool.self, forKey: .virtualDisplaySystemDecorations) ?? true,

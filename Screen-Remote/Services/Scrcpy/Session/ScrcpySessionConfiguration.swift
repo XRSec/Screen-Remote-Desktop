@@ -72,16 +72,26 @@ struct ScrcpyLocalVideoDecoderCapability: Codable, Equatable, Sendable {
     let hardwareAvailable: Bool
 }
 
+struct ScrcpyCodecCapabilityMetadata: Codable, Equatable, Sendable {
+    let serverVersion: String
+    let serverSHA256: String
+    let androidFingerprint: String?
+    let androidSdk: Int?
+    let capturedAt: Date
+}
+
 private struct ScrcpyCodecCapabilityCacheFile: Codable {
     var version = 1
     var localRuntimeSignature = ""
     var remoteEncoders: [String: [ScrcpyRemoteEncoder]] = [:]
+    var remoteEncoderMetadata: [String: ScrcpyCodecCapabilityMetadata] = [:]
     var localVideoDecoders: [ScrcpyLocalVideoDecoderCapability] = []
     var localAudioDecoders: [ScrcpyLocalAudioDecoder] = []
 }
 
 enum ScrcpyCodecCapabilityCache {
     private static let lock = NSLock()
+    private static let remoteEncoderCacheTTL: TimeInterval = 7 * 24 * 60 * 60
     private static let directory: URL = {
         if let override = ProcessInfo.processInfo.environment["SCREEN_REMOTE_CODEC_CACHE_DIRECTORY"],
            !override.isEmpty {
@@ -100,10 +110,17 @@ enum ScrcpyCodecCapabilityCache {
         return kind.map { requested in encoders.filter { $0.kind == requested } } ?? encoders
     }
 
+    static func remoteEncoderMetadata(for target: String) -> ScrcpyCodecCapabilityMetadata? {
+        lock.lock()
+        defer { lock.unlock() }
+        return cache.remoteEncoderMetadata[target]
+    }
+
     static func saveRemoteEncoders(
         _ encoders: [ScrcpyRemoteEncoder],
         for target: String,
-        replacing kind: ScrcpyMediaKind? = nil
+        replacing kind: ScrcpyMediaKind? = nil,
+        metadata: ScrcpyCodecCapabilityMetadata? = nil
     ) {
         guard !target.isEmpty, !encoders.isEmpty else { return }
         lock.lock()
@@ -115,6 +132,17 @@ enum ScrcpyCodecCapabilityCache {
         } else {
             cache.remoteEncoders[target] = uniqueEncoders(encoders)
         }
+        if let metadata {
+            cache.remoteEncoderMetadata[target] = metadata
+        }
+        persistLocked()
+        lock.unlock()
+    }
+
+    static func clearRemoteEncoders(for target: String) {
+        lock.lock()
+        cache.remoteEncoders.removeValue(forKey: target)
+        cache.remoteEncoderMetadata.removeValue(forKey: target)
         persistLocked()
         lock.unlock()
     }
@@ -168,6 +196,47 @@ enum ScrcpyCodecCapabilityCache {
     private static func uniqueEncoders(_ encoders: [ScrcpyRemoteEncoder]) -> [ScrcpyRemoteEncoder] {
         var seen = Set<ScrcpyRemoteEncoder>()
         return encoders.filter { seen.insert($0).inserted }
+    }
+
+    static func isValid(
+        metadata: ScrcpyCodecCapabilityMetadata,
+        currentFingerprint: String? = nil,
+        currentSdk: Int? = nil
+    ) -> Bool {
+        return cacheInvalidationReason(
+            metadata: metadata,
+            currentFingerprint: currentFingerprint,
+            currentSdk: currentSdk
+        ) == nil
+    }
+
+    static func cacheInvalidationReason(
+        metadata: ScrcpyCodecCapabilityMetadata,
+        currentFingerprint: String? = nil,
+        currentSdk: Int? = nil
+    ) -> String? {
+        if metadata.serverVersion != ScrcpyServerMetadata.version {
+            return "server version changed"
+        }
+        if metadata.serverSHA256 != ScrcpyServerMetadata.sha256 {
+            return "server hash changed"
+        }
+        if Date().timeIntervalSince(metadata.capturedAt) > remoteEncoderCacheTTL {
+            return "cache expired"
+        }
+        if let cachedFingerprint = metadata.androidFingerprint?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !cachedFingerprint.isEmpty,
+           let fingerprint = currentFingerprint?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !fingerprint.isEmpty,
+           cachedFingerprint != fingerprint {
+            return "android fingerprint changed"
+        }
+        if let cachedSdk = metadata.androidSdk,
+           let sdk = currentSdk,
+           cachedSdk != sdk {
+            return "android sdk changed"
+        }
+        return nil
     }
 
     private static func persistLocked() {

@@ -31,7 +31,8 @@ struct SidebarSectionHeader: View {
             .buttonStyle(.plain)
             .help(addHelp)
         }
-        .padding(.horizontal, 18)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 4)
     }
 }
 
@@ -78,7 +79,9 @@ struct SidebarUtilityBar: View {
                 .font(.caption)
                 .padding(.horizontal, 9)
                 .frame(height: 32)
-                .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.06)))
+                .appMaterialBackground(
+                    in: RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
+                )
             }
             .menuStyle(.borderlessButton)
             .fixedSize(horizontal: true, vertical: false)
@@ -104,7 +107,9 @@ struct UtilityButton: View {
         Button(action: action) {
             Image(systemName: icon)
                 .frame(width: 32, height: 32)
-                .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.06)))
+                .appMaterialBackground(
+                    in: RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
+                )
         }
         .buttonStyle(.plain)
         .help(help)
@@ -176,6 +181,7 @@ struct DeviceRow: View {
     let onDoubleClick: () -> Void
     let onToggleSession: () -> Void
     let onEdit: () -> Void
+    @State private var isHovered = false
 
     private var session: ScreenSessionSnapshot {
         sessionManager.session(for: device.id)
@@ -285,12 +291,20 @@ struct DeviceRow: View {
         .padding(10)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(device.accent.opacity(isSelected ? 0.20 : 0.10))
+                .fill(device.accent.opacity(isSelected ? 0.20 : (isHovered ? 0.14 : 0.10)))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(device.accent.opacity(isSelected ? 0.45 : 0.18), lineWidth: 0.5)
+                .stroke(
+                    device.accent.opacity(isSelected ? 0.45 : (isHovered ? 0.28 : 0.18)),
+                    lineWidth: isHovered ? 1 : 0.5
+                )
         )
+        .scaleEffect(isHovered ? 1.01 : 1)
+        .animation(.easeOut(duration: 0.18), value: isHovered)
+        .onHover { hovering in
+            isHovered = hovering
+        }
     }
 }
 
@@ -299,6 +313,7 @@ struct VirtualDeviceRow: View {
     let isWorking: Bool
     let action: () -> Void
     let onEdit: () -> Void
+    @State private var isHovered = false
 
     private var actionLocalizationKey: LocalizedStringKey {
         device.isRunning ? "virtualDeviceActionStop" : "virtualDeviceActionStart"
@@ -357,6 +372,14 @@ struct VirtualDeviceRow: View {
             .accessibilityLabel(Text("virtualDeviceEditTitle"))
         }
         .padding(10)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color.primary.opacity(isHovered ? 0.06 : 0.02))
+        )
+        .animation(.easeOut(duration: 0.18), value: isHovered)
+        .onHover { hovering in
+            isHovered = hovering
+        }
     }
 }
 

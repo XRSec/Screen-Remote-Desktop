@@ -1,42 +1,6 @@
 import AppKit
 import Combine
 import SwiftUI
-
-enum SDLLogTag: String, CaseIterable, Codable, Identifiable {
-    case connection
-    case adb
-    case scrcpyServer = "scrcpy_server"
-    case video
-    case audio
-    case control
-    case socks
-    case render
-    case apps
-    case files
-    case device
-    case other
-
-    var id: String { rawValue }
-}
-
-struct SDLLogEntry: Codable, Identifiable, Equatable {
-    let id: UUID
-    let timestamp: String
-    let tag: SDLLogTag
-    let message: String
-
-    init(id: UUID = UUID(), timestamp: String, tag: SDLLogTag, message: String) {
-        self.id = id
-        self.timestamp = timestamp
-        self.tag = tag
-        self.message = message
-    }
-
-    var line: String {
-        "\(timestamp)  [\(tag.rawValue)]  \(message)"
-    }
-}
-
 @MainActor
 final class AppState: ObservableObject {
     @Published var selection: AppSection = .screens
@@ -227,12 +191,65 @@ final class AppState: ObservableObject {
         _ mutation: (inout ScrcpyDeviceOptions) -> Void
     ) {
         guard let index = devices.firstIndex(where: { $0.id == deviceID }) else { return }
+        let previousOptions = devices[index].scrcpyOptions
         var device = devices[index]
         mutation(&device.scrcpyOptions)
         normalizeScreenOptions(&device.scrcpyOptions)
         guard device.scrcpyOptions != devices[index].scrcpyOptions else { return }
-        appendSDLLog("Screen session options changed: \(device.name)", tag: .connection)
-        updateDevice(device)
+        let evaluation = SessionParameterController.evaluate(previous: previousOptions, next: device.scrcpyOptions)
+        appendSDLLog("Session parameter update:\n" +
+            "Applied: \(formatSessionParameters(evaluation.applied))\n" +
+            "Requires restart: \(formatSessionParameters(evaluation.requiresRestart))\n" +
+            "Unsupported: \(formatSessionParameters(evaluation.unsupported))")
+
+        devices[index] = device
+        selectedDevice = index
+        appendSDLLog("Device session updated: \(device.name)")
+        if !evaluation.applied.isEmpty,
+           evaluation.applied.contains(.audioVolume) {
+            let volumeApplied = screenSessions.applyLiveAudioVolume(
+                deviceID: device.id,
+                volume: device.scrcpyOptions.audioVolume
+            )
+            appendSDLLog(
+                volumeApplied
+                    ? "Audio volume updated without session reconnect: \(device.name), volume=\(device.scrcpyOptions.audioVolume)"
+                    : "Audio volume updated in configuration only; it will apply on next session startup: \(device.name), volume=\(device.scrcpyOptions.audioVolume)",
+                tag: .connection
+            )
+        }
+        if !evaluation.requiresRestart.isEmpty {
+            screenSessions.reconnect(
+                device: device,
+                configuration: SessionLaunchConfiguration(
+                    adbPath: executablePath(adbPath, fallback: .adb),
+                    scrcpyPath: executablePath(scrcpyPath, fallback: .scrcpy)
+                ),
+                log: { [weak self] message in
+                    Task { @MainActor in
+                        self?.appendSDLLog(message, tag: .connection)
+                    }
+                }
+            )
+        }
+        if !evaluation.unsupported.isEmpty {
+            appendSDLLog(
+                "Unsupported session parameter updates detected in current app version: " +
+                "\(device.name), \(formatSessionParameters(evaluation.unsupported))",
+                tag: .connection
+            )
+        }
+    }
+
+    private func formatSessionParameters(_ parameters: [SessionParameter]) -> String {
+        guard !parameters.isEmpty else { return "" }
+        return parameters.map(\.rawValue).joined(separator: ",")
+    }
+
+    private func isOnlyAudioVolumeChange(previous: ScrcpyDeviceOptions, next: ScrcpyDeviceOptions) -> Bool {
+        var expected = previous
+        expected.audioVolume = next.audioVolume
+        return expected == next
     }
 
     func setScreenQuality(deviceID: UUID, preset: ScreenQualityPreset) {

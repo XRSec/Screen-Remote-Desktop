@@ -39,6 +39,10 @@ extension AddDeviceView {
             audioSection
         case .virtualDisplay:
             virtualDisplaySection
+        case .startApp:
+            if !newDisplayEnabled {
+                startAppSection
+            }
         case .otherOptions:
             otherOptionsSection
         }
@@ -156,7 +160,12 @@ extension AddDeviceView {
                     if enabled { applyGameModePresets() }
                 }
             FormDivider()
-            FormToggleRow(title: "sessionFloatingBall", isOn: $showFloatingBall, help: "sessionHelpFloatingBall")
+            FormSecureTextRow(
+                title: "sessionShellPassword",
+                text: $shellPassword,
+                placeholder: "sessionShellPasswordPlaceholder",
+                help: "sessionHelpShellPassword"
+            )
             FormDivider()
             FormToggleRow(title: "sessionHardwareDecoding", isOn: $enableHardwareDecoding, help: "sessionHelpHardwareDecoding", enabled: !compatibilityMode)
         }
@@ -346,10 +355,18 @@ extension AddDeviceView {
                 FormDivider()
                 FormToggleRow(title: "sessionPreserveDisplay", isOn: $preserveVirtualDisplayContent, help: "sessionHelpPreserveDisplay")
                 FormDivider()
-                FormTextRow(title: "sessionStartApp", placeholder: "com.example.app", text: $startApp, help: "sessionHelpStartApp")
-                FormDivider()
                 DisplaySizeRow(width: $newDisplayWidth, height: $newDisplayHeight, dpi: $newDisplayDPI)
             }
+        }
+    }
+
+    var startAppSection: some View {
+        DeviceFormSection(title: "sessionStartApp") {
+            StartAppFormRow(
+                text: $startApp,
+                isSearchEnabled: editingDevice != nil,
+                onSearch: { showingRemoteAppSelector = true }
+            )
         }
     }
 
@@ -533,7 +550,7 @@ extension AddDeviceView {
                     ignoreVideoEncoderConstraints: ignoreVideoEncoderConstraints,
                     compatibilityMode: compatibilityMode,
                     gameMode: gameMode,
-                    showFloatingBall: showFloatingBall,
+                    shellPassword: shellPassword,
                     enableHardwareDecoding: enableHardwareDecoding,
                     newDisplayEnabled: newDisplayEnabled,
                     virtualDisplaySystemDecorations: virtualDisplaySystemDecorations,
@@ -546,5 +563,184 @@ extension AddDeviceView {
             )
         if editingDevice == nil { appState.addDevice(device) } else { appState.updateDevice(device) }
         presentationMode.wrappedValue.dismiss()
+    }
+}
+
+private struct StartAppFormRow: View {
+    @Binding var text: String
+    let isSearchEnabled: Bool
+    let onSearch: () -> Void
+
+    var body: some View {
+        HStack(spacing: 10) {
+            FormLabel(title: "sessionStartApp", help: "sessionHelpStartApp")
+            Spacer()
+            TextField("com.example.app", text: $text)
+                .textFieldStyle(.roundedBorder)
+                .multilineTextAlignment(.trailing)
+                .frame(maxWidth: 360)
+            if !text.isEmpty {
+                Button {
+                    text = ""
+                } label: {
+                    Image(systemName: "trash")
+                }
+                .buttonStyle(.borderless)
+                .foregroundColor(.red)
+                .help("commonClear")
+            }
+            Button(action: onSearch) {
+                Image(systemName: "magnifyingglass")
+            }
+            .buttonStyle(.borderless)
+            .disabled(!isSearchEnabled)
+            .help("sessionSelectRemoteApp")
+        }
+        .padding(14)
+    }
+}
+
+struct RemoteAppSelector: View {
+    @EnvironmentObject private var appState: AppState
+    @Environment(\.presentationMode) private var presentationMode
+    let device: Device?
+    @Binding var selection: String
+    @State private var apps: [ManagedAndroidApp] = []
+    @State private var query = ""
+    @State private var isLoading = false
+    @State private var hasSearched = false
+    @State private var hasLoadedAllApps = false
+    @State private var errorMessage: String?
+
+    private var filteredApps: [ManagedAndroidApp] {
+        let keyword = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !keyword.isEmpty else { return apps }
+        return apps.filter {
+            $0.packageName.localizedCaseInsensitiveContains(keyword)
+                || $0.name.localizedCaseInsensitiveContains(keyword)
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ZStack {
+                Text("sessionSelectRemoteApp")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                HStack {
+                    Spacer()
+                    Button("commonCancel") { presentationMode.wrappedValue.dismiss() }
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 13)
+            Divider()
+            HStack(spacing: 8) {
+                TextField("appsSearchPrompt", text: $query)
+                    .textFieldStyle(.roundedBorder)
+                Button("Q", action: search)
+                    .buttonStyle(.borderless)
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 5)
+                    .background(AppTheme.accent.opacity(0.16))
+                    .cornerRadius(6)
+                    .keyboardShortcut(.defaultAction)
+                    .disabled(isLoading)
+                    .accessibilityLabel("appsSearchPrompt")
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            Divider()
+            Group {
+                if isLoading {
+                    ProgressView("appsManageLoading")
+                        .frame(maxWidth: .infinity, minHeight: 180)
+                } else if let errorMessage {
+                    VStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 28))
+                            .foregroundColor(.orange)
+                        Text("appsManageLoadFailedTitle")
+                            .font(.headline)
+                        Text(errorMessage)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 18)
+                    }
+                    .frame(maxWidth: .infinity)
+                } else if !hasSearched {
+                    ContentUnavailableViewCompat(
+                        icon: "magnifyingglass",
+                        title: "sessionSelectRemoteApp",
+                        detail: "appsSearchPrompt"
+                    )
+                } else if filteredApps.isEmpty {
+                    ContentUnavailableViewCompat(
+                        icon: "magnifyingglass",
+                        title: "appsManageNoSearchResults",
+                        detail: "appsSearchPrompt"
+                    )
+                } else {
+                    List(filteredApps) { app in
+                        Button {
+                            selection = app.packageName
+                            presentationMode.wrappedValue.dismiss()
+                        } label: {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(app.name)
+                                    Text(app.packageName)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer(minLength: 0)
+                            }
+                            .frame(maxWidth: .infinity, minHeight: 42, alignment: .leading)
+                            .contentShape(Rectangle())
+                            .padding(.horizontal, 10)
+                            .background(AppTheme.surface)
+                        }
+                        .buttonStyle(.plain)
+                        .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
+                        .listRowBackground(Color.clear)
+                    }
+                    .listStyle(.inset)
+                    .frame(maxHeight: 500)
+                }
+            }
+            .frame(minHeight: 220, maxHeight: 520)
+        }
+        .frame(minWidth: 480, idealHeight: 380, maxHeight: 620)
+    }
+
+    private func search() {
+        let keyword = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !keyword.isEmpty, hasLoadedAllApps {
+            hasSearched = true
+            errorMessage = nil
+            return
+        }
+        guard let device, !isLoading else { return }
+        isLoading = true
+        hasSearched = true
+        errorMessage = nil
+        let adbPath = appState.adbPath
+        Task {
+            do {
+                let serial = try await DeviceAppADB.resolveSerial(for: device, configuredADBPath: adbPath)
+                let loadedApps = try await DeviceAppADB.listApps(serial: serial, configuredADBPath: adbPath)
+                await MainActor.run {
+                    apps = loadedApps
+                    hasLoadedAllApps = keyword.isEmpty
+                    isLoading = false
+                }
+            } catch {
+                await MainActor.run {
+                    errorMessage = error.localizedDescription
+                    isLoading = false
+                }
+            }
+        }
     }
 }

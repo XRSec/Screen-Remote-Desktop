@@ -470,6 +470,35 @@ final class ScreenWindowCoordinator: NSObject, ObservableObject, NSWindowDelegat
     }
 }
 
+@MainActor
+extension ScreenWindowCoordinator {
+    func registerExternalWindow(_ window: NSWindow, for deviceID: UUID) {
+        windowControllers[deviceID] = NSWindowController(window: window)
+        windowDeviceIDs[ObjectIdentifier(window)] = deviceID
+    }
+
+    func unregisterExternalWindow(for deviceID: UUID, window: NSWindow? = nil) {
+        let controller = windowControllers.removeValue(forKey: deviceID)
+        if let window = window ?? controller?.window {
+            windowDeviceIDs.removeValue(forKey: ObjectIdentifier(window))
+        }
+        chromeVisibleDeviceIDs.remove(deviceID)
+        screenAspectRatios.removeValue(forKey: deviceID)
+        sourceVideoSizes.removeValue(forKey: deviceID)
+        lastDockedVideoSizes.removeValue(forKey: deviceID)
+    }
+
+    func isAlwaysOnTop(_ deviceID: UUID) -> Bool {
+        windowControllers[deviceID]?.window?.level == .floating
+    }
+
+    func toggleAlwaysOnTop(for deviceID: UUID) {
+        guard let window = windowControllers[deviceID]?.window else { return }
+        window.level = isAlwaysOnTop(deviceID) ? .normal : .floating
+        objectWillChange.send()
+    }
+}
+
 enum ScreenWindowMetrics {
     static let headerHeight: CGFloat = 32
     private static let originalBottomControlsHeight: CGFloat = 42

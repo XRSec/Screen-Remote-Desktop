@@ -138,8 +138,119 @@ may be reimplemented natively where direct source reuse is inappropriate.
      status, and diagnostic entry points.
    - Restructure Settings around appearance and language, device connectivity, screen and input,
      Android SDK and emulator tooling, downloads, storage, privacy, and advanced diagnostics.
-   - Surface dependency health and feature prerequisites where users make related choices instead
-     of relying on raw path fields alone.
+  - Surface dependency health and feature prerequisites where users make related choices instead
+    of relying on raw path fields alone.
+
+### macOS Remote-Control and Device-Management Roadmap (admin-verified)
+
+Last reviewed: 2026-08-09
+
+1. **Add audio and video encoder/decoder parameter selection**
+   - Status: 🟡 Partially complete
+   - Verification result: explicit remote encoder and local decoder selectors, bundled-server
+     capability discovery, cache validation, native H.264/H.265 selection, and automatic runtime
+     fallback are implemented. H.264 and H.265 first frames were verified on an SM-F731B running
+     Android 14. Audio playback and the full user-facing compatibility matrix remain incomplete.
+   - Next action: complete audio playback and verify the encoder/decoder matrix on macOS 11 and
+     current macOS releases against representative Android devices.
+
+2. **Support seamless parameter switching during active sessions and determine whether changes should
+   be persisted**
+   - Status: ⚠️ In progress
+   - Verification result: option changes are persisted with the device configuration; audio volume is
+     applied live, while server and decoder changes use a replacement session that keeps the current
+     session active until video and optional audio are ready. H.264 to H.265 replacement reached
+     `VideoReady`, `Switching`, and `Completed` on an SM-F731B with both cleanup modes. Every current
+     option is classified as live, restart-required, or unsupported by `SessionParameterController`.
+   - Next action: validate replacement timeout, cancellation, failed codec fallback, and rapid
+     consecutive updates on additional devices.
+
+3. **Debug scroll-wheel and trackpad event handling**
+   - Status: ⚠️ In progress
+   - Verification result: precise and non-precise scroll normalization plus began/changed/ended and
+     momentum phase preservation are implemented. Precise `-0.25` and mouse-scale `-8` control paths
+     both changed the captured device screen on an SM-F731B. The device was locked during automation,
+     so direction, distance, and phase behavior still need content-level verification.
+   - Next action: run the event parity matrix with a physical mouse and trackpad on an unlocked,
+     scrollable page and retain focused regression coverage for scrcpy fixed-point encoding.
+
+4. **Support secondary-click actions and back navigation**
+   - Status: ⚠️ In progress
+   - Verification result: plain right-click now sends Android `BACK`; Shift-right-click forwards the
+     secondary mouse button so contextual actions such as the SMS selection “More” menu remain
+     available. The control protocol does not report whether an app consumed a secondary click, so
+     an automatic “context action or Back if unhandled” fallback cannot be determined reliably.
+   - Next action: verify both bindings on an unlocked SMS conversation and other apps with contextual
+     secondary-click actions.
+
+5. **Evaluate additional parameters for large-window mode**
+   - Status: ⚪ Not started
+   - Verification result: large-window rendering behavior exists, but dedicated parameter tuning scope is
+     not yet tracked in plan text.
+   - Next action: define an explicit large-window parameter audit and completion checklist.
+
+6. **Launch directly into Screens without relying on the scrcpy binary**
+   - Status: ⚠️ In progress
+   - Verification result: primary session is on native scrcpy, while app-specific virtual display flow
+     still references the legacy executable path.
+   - Next action: finish unifying virtual-display launch to the native session model.
+
+7. **Use a true streaming canvas for device information rendering**
+   - Status: ⚪ Not started
+   - Verification result: current documentation focuses on feature availability, not continuous canvas
+     architecture for live management data.
+   - Next action: define streaming surface contract for device info and diagnostics updates.
+
+8. **Continue expanding the toolset**
+   - Status: ⚠️ In progress
+   - Verification result: core app, file, process, port-forwarding, and virtual-device tools are present.
+   - Next action: keep extending tools guided by usage frequency and error telemetry.
+
+9. **Optimize file management**
+   - Status: ⚪ Not started
+   - Verification result: feature coverage exists; optimization and throughput-focused UX improvements are
+     not yet explicit.
+   - Next action: add queue control, resume-capable transfer, and richer error taxonomy.
+
+10. **Improve process management with dadb-based app icons and Android-compatible app names**
+    - Status: 🟡 Partially complete
+    - Verification result: app metadata collection through helper-backed workflows exists; normalization
+      and process lifecycle binding still need completion.
+    - Next action: finalize name/icon normalization and unify process representation.
+
+11. **Complete port forwarding support**
+    - Status: ✅ Done
+    - Verification result: README capability list already includes port-forwarding and ADB-based workflow,
+      while handoff text still includes it under hardening priorities.
+
+12. **Improve notifications and add a session list to the notification panel**
+    - Status: ⚪ Not started
+    - Verification result: notifications/messages/photos are currently product UI with empty states and no
+      companion protocol data channel.
+    - Next action: finish protocol contract and bind notification sessions to UI list state.
+
+13. **Reconsider the scope and naming of the Messages feature**
+    - Status: ⚪ Not started
+    - Verification result: Messages is documented as shell-only; no scoped product naming work is
+      tracked as complete.
+    - Next action: confirm naming and scope once companion protocol is ready.
+
+14. **Defer further photo-library improvements**
+    - Status: ✅ Deferred
+    - Verification result: photos remain shell-only and should stay deferred until protocol/data model is
+      ready.
+    - Next action: keep deferred in next plan iteration and prevent scope creep.
+
+15. **Improve Settings based on the Android implementation and remove the scrcpy file-path setting**
+    - Status: ⚪ Not started
+    - Verification result: no explicit completion of this migration is documented yet.
+    - Next action: align settings schema with Android reference and remove direct binary path fields.
+
+16. **Complete virtual-device startup parameters**
+    - Status: ⚪ Not started
+    - Verification result: virtual-device create/start/stop flows exist, but startup parameters are not
+      yet fully finalized in roadmap form.
+    - Next action: define and enforce full startup parameter matrix.
 
 ## Run from Xcode
 
@@ -152,10 +263,16 @@ For local command-line development, you can also run:
 make run
 ```
 
+The session option classifier can be checked without an Android device:
+
+```sh
+make check-session-parameters
+```
+
 ## Release Packaging
 
-The release target archives a universal arm64 and x86_64 build and creates a versioned DMG in
-`dist/`:
+The release target archives an Apple Silicon arm64 build and creates a versioned DMG in `dist/`.
+Intel x86_64 Macs are not supported:
 
 ```sh
 make release
@@ -163,7 +280,7 @@ make release
 
 The DMG includes English and Simplified Chinese installation instructions and recovery tools for
 Gatekeeper launch failures. If `create-dmg` is installed, the package uses the background and icon
-layout in `dmg-assets/`; otherwise it falls back to a basic `hdiutil` image.
+layout in `assets/dmg/`; otherwise it falls back to a basic `hdiutil` image.
 
 Development builds use an `Apple Development` identity by default. For external distribution,
 provide a Developer ID Application identity and a configured notarization keychain profile:

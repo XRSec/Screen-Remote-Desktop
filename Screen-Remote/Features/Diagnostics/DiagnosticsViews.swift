@@ -91,62 +91,84 @@ struct SDLLogView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("diagnosticsSDLLogs").font(.title2.bold())
-                    Text("diagnosticsSDLLogsSubtitle").font(.caption).foregroundColor(.secondary)
+            HStack(spacing: AppSpacing.md) {
+                AppIconTile(symbol: "terminal.fill", color: .appIndigo, size: 40)
+                VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                    Text("diagnosticsSDLLogs")
+                        .font(AppTypography.title)
+                    Text("diagnosticsSDLLogsSubtitle")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
                 Spacer()
-                TextField("diagnosticsFilterLogs", text: $searchText).textFieldStyle(.roundedBorder).frame(width: 190)
-                Button {
-                    isTagFilterPresented.toggle()
-                } label: {
-                    Label(tagFilterTitle, systemImage: "line.3.horizontal.decrease.circle")
-                }
-                .popover(isPresented: $isTagFilterPresented, arrowEdge: .top) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Text("diagnosticsAllTags").font(.headline)
-                            Spacer()
-                            Button("diagnosticsClearTags") { selectedTags.removeAll() }
-                                .buttonStyle(.link)
-                        }
-                        Divider()
-                        ForEach(availableTags) { tag in
-                            Toggle(tag.rawValue, isOn: Binding(
-                                get: { selectedTags.contains(tag) },
-                                set: { isSelected in
-                                    if isSelected { selectedTags.insert(tag) }
-                                    else { selectedTags.remove(tag) }
-                                }
-                            ))
-                            .toggleStyle(.checkbox)
-                        }
-                    }
-                    .padding(14)
-                    .frame(width: 220)
-                }
-                Button("diagnosticsCopy") { copy(visibleLogs) }
-                    .disabled(visibleLogs.isEmpty)
-                Button("diagnosticsSelectAll") {
-                    NotificationCenter.default.post(name: .screenRemoteSelectAllLogs, object: nil)
-                }
-                .disabled(visibleLogs.isEmpty)
-                Button("diagnosticsRefresh") {
-                    selectedTags.removeAll()
-                    appState.refreshSDLLogs()
-                }
-                if !isLogAtBottom {
-                    Button {
-                        NotificationCenter.default.post(name: .screenRemoteScrollLogsToBottom, object: nil)
-                    } label: {
-                        Label("diagnosticsScrollToBottom", systemImage: "arrow.down.to.line")
-                    }
-                }
-                Button("diagnosticsClear") { appState.clearSDLLogs() }.disabled(appState.sdlLogs.isEmpty)
+                PageSearchField(
+                    searchText: $searchText,
+                    searchPrompt: "diagnosticsFilterLogs",
+                    expands: false
+                )
             }
-            .padding(18)
-            Divider()
+            .padding(.horizontal, AppSpacing.lg)
+            .frame(minHeight: 68)
+            .background(AppTheme.surface.opacity(0.72))
+
+            Divider().opacity(0.6)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: AppSpacing.sm) {
+                    Button {
+                        isTagFilterPresented.toggle()
+                    } label: {
+                        Label(tagFilterTitle, systemImage: "line.3.horizontal.decrease.circle")
+                    }
+                    .popover(isPresented: $isTagFilterPresented, arrowEdge: .top) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text("diagnosticsAllTags").font(.headline)
+                                Spacer()
+                                Button("diagnosticsClearTags") { selectedTags.removeAll() }
+                                    .buttonStyle(.link)
+                            }
+                            Divider()
+                            ForEach(availableTags) { tag in
+                                Toggle(tag.rawValue, isOn: Binding(
+                                    get: { selectedTags.contains(tag) },
+                                    set: { isSelected in
+                                        if isSelected { selectedTags.insert(tag) }
+                                        else { selectedTags.remove(tag) }
+                                    }
+                                ))
+                                .toggleStyle(.checkbox)
+                            }
+                        }
+                        .padding(14)
+                        .frame(width: 220)
+                    }
+                    Button("diagnosticsCopy") { copy(visibleLogs) }
+                        .disabled(visibleLogs.isEmpty)
+                    Button("diagnosticsSelectAll") {
+                        NotificationCenter.default.post(name: .screenRemoteSelectAllLogs, object: nil)
+                    }
+                    .disabled(visibleLogs.isEmpty)
+                    Button("diagnosticsRefresh") {
+                        selectedTags.removeAll()
+                        appState.refreshSDLLogs()
+                    }
+                    if !isLogAtBottom {
+                        Button {
+                            NotificationCenter.default.post(name: .screenRemoteScrollLogsToBottom, object: nil)
+                        } label: {
+                            Label("diagnosticsScrollToBottom", systemImage: "arrow.down.to.line")
+                        }
+                    }
+                    Button("diagnosticsClear") { appState.clearSDLLogs() }
+                        .disabled(appState.sdlLogs.isEmpty)
+                }
+                .padding(.horizontal, AppSpacing.lg)
+                .padding(.vertical, AppSpacing.sm)
+            }
+            .background(AppTheme.surface.opacity(0.5))
+
+            Divider().opacity(0.6)
 
             ZStack {
                 SDLLogTextView(
@@ -241,7 +263,7 @@ private struct SDLLogTextView: NSViewRepresentable {
             context.coordinator.scrollToBottom()
         } else if textView.frame.height > previousHeight {
             let addedHeight = textView.frame.height - previousHeight
-            context.coordinator.restoreScrollPosition(y: previousOriginY + addedHeight)
+            context.coordinator.restoreScrollPosition(verticalOffset: previousOriginY + addedHeight)
         }
     }
 
@@ -345,13 +367,13 @@ private struct SDLLogTextView: NSViewRepresentable {
             }
         }
 
-        func restoreScrollPosition(y: CGFloat) {
+        func restoreScrollPosition(verticalOffset: CGFloat) {
             guard let textView, let scrollView = textView.enclosingScrollView else { return }
             isProgrammaticScroll = true
             let maximumOriginY = max(0, textView.bounds.height - scrollView.contentView.bounds.height)
             scrollView.contentView.setBoundsOrigin(NSPoint(
                 x: scrollView.contentView.bounds.origin.x,
-                y: min(y, maximumOriginY)
+                y: min(verticalOffset, maximumOriginY)
             ))
             scrollView.reflectScrolledClipView(scrollView.contentView)
             DispatchQueue.main.async { [weak self] in

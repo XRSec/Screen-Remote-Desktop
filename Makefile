@@ -26,18 +26,30 @@ LOG_FILE := $(BUILD_ROOT)/screen-remote.log
 STAMP_FILE := $(BUILD_ROOT)/last-successful-build
 WATCH_PATHS := Screen-Remote Screen-Remote.xcodeproj/project.pbxproj
 
-.PHONY: help prepare-assets build release run dev reload launch stop logs clean
+.PHONY: help prepare-assets check-session-parameters build release run dev reload launch stop logs clean
 
 help:
 	@echo "make run      Build and launch the app outside Xcode"
 	@echo "make dev      Watch source files, then rebuild and restart on changes"
 	@echo "make release  Archive an unsigned Release build and create a DMG in dist/"
+	@echo "make check-session-parameters  Verify every screen option update classification"
 	@echo "make logs     Follow the application log"
 	@echo "make stop     Stop the application launched by this Makefile"
 	@echo "make clean    Remove local build artifacts"
 
 prepare-assets:
 	@"$(CURDIR)/scripts/prepare-scrcpy-server.sh"
+
+check-session-parameters:
+	@set -eu; \
+		output="$$(mktemp "$${TMPDIR:-/tmp}/screen-remote-session-parameters.XXXXXX")"; \
+		trap 'rm -f "$$output"' EXIT; \
+		xcrun swiftc \
+			"$(CURDIR)/Screen-Remote/Core/Models/ScrcpyDeviceOptions.swift" \
+			"$(CURDIR)/Screen-Remote/Services/Scrcpy/Session/SessionParameterController.swift" \
+			"$(CURDIR)/scripts/check-session-parameters.swift" \
+			-o "$$output"; \
+		"$$output"
 
 build: prepare-assets
 	@mkdir -p "$(BUILD_ROOT)"

@@ -52,6 +52,35 @@ struct FormTextRow: View {
     }
 }
 
+struct FormSecureTextRow: View {
+    let title: LocalizedStringKey
+    @Binding var text: String
+    var placeholder: String
+    var help: String? = nil
+
+    var body: some View {
+        HStack(spacing: 16) {
+            FormLabel(title: title, help: help)
+            Spacer()
+            SecureField(placeholder, text: $text)
+                .textFieldStyle(.roundedBorder)
+                .multilineTextAlignment(.trailing)
+                .frame(maxWidth: 360)
+            if !text.isEmpty {
+                Button {
+                    text = ""
+                } label: {
+                    Image(systemName: "trash")
+                }
+                .buttonStyle(.borderless)
+                .foregroundColor(.red)
+                .help("commonClear")
+            }
+        }
+        .padding(14)
+    }
+}
+
 struct FormField: View {
     let title: LocalizedStringKey
     let placeholder: String
@@ -337,9 +366,32 @@ struct DisplaySizeRow: View {
                 metricField("sessionHeight", text: $height)
                 Text("@").foregroundColor(.secondary)
                 metricField("DPI", text: $dpi)
+                Button {
+                    width = ""
+                    height = ""
+                    dpi = ""
+                } label: {
+                    Image(systemName: "trash")
+                }
+                .buttonStyle(.borderless)
+                .foregroundColor(.red)
+                .help("commonClear")
+                Button(action: synchronizeLocalDisplay) {
+                    Image(systemName: "arrow.clockwise")
+                }
+                .buttonStyle(.borderless)
+                .help("sessionSyncLocalDisplaySize")
             }
         }
         .padding(14)
+    }
+
+    private func synchronizeLocalDisplay() {
+        guard let screen = NSScreen.main else { return }
+        let scale = max(screen.backingScaleFactor, 1)
+        width = String(Int((screen.frame.width * scale).rounded()))
+        height = String(Int((screen.frame.height * scale).rounded()))
+        dpi = String(Int((160 * scale).rounded()))
     }
 
     private func metricField(_ placeholder: String, text: Binding<String>) -> some View {

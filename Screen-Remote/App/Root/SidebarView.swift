@@ -6,7 +6,7 @@ struct SidebarView: View {
     let allowsExpansion: Bool
     @StateObject private var virtualDeviceViewModel = VirtualDeviceViewModel()
     @State private var sessionsExpanded = true
-    @State private var virtualDevicesExpanded = true
+    @State private var virtualDevicesExpanded = false
     @State private var sessionPendingDeletion: Device?
     @State private var virtualDevicePendingEdit: AndroidVirtualDevice?
 
@@ -35,7 +35,8 @@ struct SidebarView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(AppTheme.sidebar)
+        .background(AppTheme.sidebar.opacity(0.88))
+        .appMaterialBackground(in: Rectangle())
         .clipped()
         .alert(item: $sessionPendingDeletion) { device in
             Alert(
@@ -105,7 +106,7 @@ struct SidebarView: View {
             )
 
             if sessionsExpanded {
-                LazyVStack(spacing: 9) {
+                LazyVStack(spacing: AppSpacing.sm) {
                     if appState.visibleDeviceOffsets().isEmpty {
                         Text("sidebarNoSessions")
                             .font(.caption)
@@ -179,7 +180,7 @@ struct SidebarView: View {
             )
 
             if virtualDevicesExpanded {
-                VStack(spacing: 9) {
+                VStack(spacing: AppSpacing.sm) {
                     if virtualDeviceViewModel.isWorking && virtualDeviceViewModel.devices.isEmpty {
                         HStack(spacing: 7) {
                             ProgressView().scaleEffect(0.65)
