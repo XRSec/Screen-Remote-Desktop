@@ -97,6 +97,15 @@ struct PhotosView: View {
                 expands: false
             )
 
+            if !photos.isEmpty {
+                Text("\(filteredPhotos.count)")
+                    .font(AppTypography.caption)
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal, AppSpacing.sm)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(Color.primary.opacity(0.06)))
+            }
+
             Button(action: loadPhotos) {
                 Image(systemName: "arrow.clockwise")
                     .font(AppTypography.body)
@@ -193,6 +202,10 @@ struct PhotosView: View {
         .contentShape(Rectangle())
         .onTapGesture {
             selectedPhotoID = item.id
+        }
+        .onTapGesture(count: 2) {
+            selectedPhotoID = item.id
+            downloadPhoto(item)
         }
         .contextMenu {
             Button("managementDownloadAction") {
