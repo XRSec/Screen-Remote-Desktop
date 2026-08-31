@@ -552,6 +552,7 @@ struct GroupManagerView: View {
             }
             .buttonStyle(.plain)
             .help("groupAddChild")
+            .accessibilityLabel(Text("groupAddChild"))
             Button {
                 confirmRemoveGroup(group)
             } label: {
@@ -559,6 +560,7 @@ struct GroupManagerView: View {
             }
             .buttonStyle(.plain)
             .help("groupDeleteSubtree")
+            .accessibilityLabel(Text("groupDeleteSubtree"))
         }
     }
 
