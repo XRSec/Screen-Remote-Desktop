@@ -294,6 +294,11 @@ struct SidebarView: View {
         let session = appState.screenSessions.session(for: device.id)
         return PhoneGlyph(color: device.accent, compact: true)
             .padding(7)
+            .overlay(
+                CollapsedSessionStatusIndicator(session: session)
+                    .padding(AppSpacing.xs),
+                alignment: .bottomTrailing
+            )
             .background(RoundedRectangle(cornerRadius: AppRadius.card).fill(appState.selectedDevice == index ? Color.primary.opacity(0.09) : .clear))
             .contentShape(Rectangle())
             .sessionClickGesture(
@@ -348,5 +353,32 @@ struct SidebarView: View {
 
     private func collapsedSessionActionKey(_ session: ScreenSessionSnapshot) -> LocalizedStringKey {
         session.isConnected || session.phase.isWorking ? "sessionStopAction" : "sessionStartAction"
+    }
+}
+
+private struct CollapsedSessionStatusIndicator: View {
+    let session: ScreenSessionSnapshot
+
+    var body: some View {
+        Group {
+            if session.phase.isWorking {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .scaleEffect(0.45)
+            } else {
+                Circle()
+                    .fill(statusColor)
+            }
+        }
+        .frame(width: 10, height: 10)
+        .padding(2)
+        .background(Circle().fill(AppTheme.sidebar))
+        .accessibilityHidden(true)
+    }
+
+    private var statusColor: Color {
+        if session.phase == .failed { return Color.red }
+        if session.phase.supportsBatteryInformation { return Color.green }
+        return Color.secondary
     }
 }
