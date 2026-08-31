@@ -8,11 +8,29 @@ struct PageSearchField: View {
     var body: some View {
         TextField(searchPrompt, text: $searchText)
             .textFieldStyle(.plain)
-            .padding(.horizontal, AppSpacing.md)
+            .padding(.leading, AppSpacing.md)
+            .padding(.trailing, AppSpacing.xl)
             .frame(minWidth: 120, maxWidth: expands ? .infinity : 230, minHeight: 34, maxHeight: 34)
             .background(RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous).fill(Color.primary.opacity(0.055)))
             .overlay(
-                Image(systemName: "magnifyingglass").foregroundColor(.secondary).padding(.trailing, 10),
+                Group {
+                    if searchText.isEmpty {
+                        Image(systemName: "magnifyingglass")
+                            .accessibilityHidden(true)
+                    } else {
+                        Button {
+                            searchText = ""
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                        }
+                        .buttonStyle(.plain)
+                        .help("commonClear")
+                        .accessibilityLabel(Text("commonClear"))
+                    }
+                }
+                .foregroundColor(.secondary)
+                .padding(.trailing, AppSpacing.sm)
+                .animation(.easeOut(duration: 0.12), value: searchText.isEmpty),
                 alignment: .trailing
             )
     }
