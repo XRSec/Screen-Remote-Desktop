@@ -50,6 +50,11 @@ struct ScrcpySurfacePlaceholder: View {
                 }
                 .foregroundColor(.white.opacity(0.86))
                 .padding(AppSpacing.lg)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(
+                    Text(String.localizedKey(session.phase.localizationKey))
+                )
+                .accessibilityValue(Text(device.name))
             }
         }
     }

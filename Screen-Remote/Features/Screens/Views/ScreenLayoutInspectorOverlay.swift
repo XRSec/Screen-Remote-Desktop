@@ -47,6 +47,7 @@ struct ScreenLayoutInspectorToolbar: View {
             .disabled(isLoading)
             .help("commonRefresh")
             .accessibilityLabel(Text("commonRefresh"))
+            .accessibilityValue(isLoading ? Text("commonLoading") : Text(""))
 
             Button(action: onClose) {
                 Image(systemName: "xmark.circle")
@@ -70,6 +71,8 @@ struct ScreenLayoutInspectorToolbar: View {
                     .opacity(234.0 / 255.0)
                 )
         )
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Text("screensLayoutAnalysis"))
     }
 }
 

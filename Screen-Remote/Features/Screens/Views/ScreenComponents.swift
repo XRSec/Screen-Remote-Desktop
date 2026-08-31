@@ -201,6 +201,14 @@ struct ScrcpyParentContainer: View {
         }
     }
 
+    private var screenStatusText: String {
+        if session.phase.isWorking {
+            return String.localizedKey(session.phase.localizationKey)
+        }
+        return session.batteryLevel.map { "\($0)%" }
+            ?? String.localizedKey("sidebarDeviceConnected")
+    }
+
     private var screenMetricsText: String? {
         guard surface.pixelSize.width > 0, surface.pixelSize.height > 0 else { return nil }
         let width = Int(surface.pixelSize.width.rounded())
@@ -225,12 +233,21 @@ struct ScrcpyParentContainer: View {
                             .font(isCompact ? AppTypography.caption.weight(.semibold) : AppTypography.subheadline.weight(.semibold))
                             .lineLimit(1)
                         if session.isConnected {
-                            Circle()
-                                .fill(Color.green)
-                                .frame(width: 6, height: 6)
-                            Text(session.batteryLevel.map { "\($0)%" } ?? String.localizedKey("sidebarDeviceConnected"))
-                                .font(AppTypography.caption)
-                                .foregroundColor(.secondary)
+                            HStack(spacing: 6) {
+                                Circle()
+                                    .fill(Color.green)
+                                    .frame(width: 6, height: 6)
+                                Text(screenStatusText)
+                                    .font(AppTypography.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel(
+                                Text(String.localizedKey(session.phase.localizationKey))
+                            )
+                            .accessibilityValue(
+                                session.batteryLevel.map { Text("\($0)%") } ?? Text("")
+                            )
                         }
                         if !isCompact, let metrics = screenMetricsText {
                             Divider()
@@ -239,6 +256,8 @@ struct ScrcpyParentContainer: View {
                                 .font(AppTypography.monospacedCaption)
                                 .foregroundColor(.secondary)
                                 .lineLimit(1)
+                                .accessibilityLabel(Text("screensStreamMetrics"))
+                                .accessibilityValue(Text(metrics))
                         }
                     }
                         .truncationMode(.tail)

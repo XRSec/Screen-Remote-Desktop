@@ -72,11 +72,11 @@ struct SidebarView: View {
                     sessionsSection
                     virtualDevicesSection
                 }
-                .padding(.bottom, 12)
+                .padding(.bottom, AppSpacing.md)
             }
 
             SidebarUtilityBar()
-                .padding(.horizontal, 12)
+                .padding(.horizontal, AppSpacing.md)
                 .padding(.bottom, 14)
         }
         .onAppear {
@@ -92,7 +92,7 @@ struct SidebarView: View {
     }
 
     private var sessionsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: AppSpacing.md) {
             SidebarSectionHeader(
                 title: "sidebarSessions",
                 isExpanded: sessionsExpanded,
@@ -109,7 +109,7 @@ struct SidebarView: View {
                 LazyVStack(spacing: AppSpacing.sm) {
                     if appState.visibleDeviceOffsets().isEmpty {
                         Text("sidebarNoSessions")
-                            .font(.caption)
+                            .font(AppTypography.caption)
                             .foregroundColor(.secondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(10)
@@ -163,7 +163,7 @@ struct SidebarView: View {
     }
 
     private var virtualDevicesSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: AppSpacing.md) {
             SidebarSectionHeader(
                 title: "sidebarVirtualDevices",
                 isExpanded: virtualDevicesExpanded,
@@ -185,14 +185,14 @@ struct SidebarView: View {
                         HStack(spacing: 7) {
                             ProgressView().scaleEffect(0.65)
                             Text("virtualDeviceStatusReadingSDK")
-                                .font(.caption)
+                                .font(AppTypography.caption)
                                 .foregroundColor(.secondary)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(10)
                     } else if virtualDeviceViewModel.devices.isEmpty {
                         Text("virtualDeviceNoDevicesSidebar")
-                            .font(.caption)
+                            .font(AppTypography.caption)
                             .foregroundColor(.secondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(10)
@@ -224,9 +224,9 @@ struct SidebarView: View {
                         HStack {
                             Text("virtualDeviceManageAction")
                             Spacer()
-                            Image(systemName: "chevron.right").font(.caption2)
+                            Image(systemName: "chevron.right").font(AppTypography.caption2)
                         }
-                        .font(.caption)
+                        .font(AppTypography.caption)
                         .foregroundColor(.secondary)
                         .padding(10)
                         .contentShape(Rectangle())

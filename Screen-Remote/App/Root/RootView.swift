@@ -218,7 +218,7 @@ private struct TopBar: View {
     var body: some View {
         HStack(spacing: 14) {
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 4) {
+                HStack(spacing: AppSpacing.xs) {
                     ForEach(AppSection.allCases) { section in
                         Button {
                             withAnimation(.easeOut(duration: 0.16)) { appState.selection = section }
@@ -244,8 +244,13 @@ private struct TopBar: View {
                         .buttonStyle(.plain)
                         .help(section.titleKey)
                         .accessibilityLabel(Text(section.titleKey))
+                        .accessibilityAddTraits(
+                            appState.selection == section ? .isSelected : []
+                        )
                     }
                 }
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel(Text("topBarWorkspaces"))
             }
 
             Spacer()
@@ -253,6 +258,12 @@ private struct TopBar: View {
             let isSelectedDeviceConnected = appState.devices.indices.contains(appState.selectedDevice)
                 && appState.screenSessions.session(for: appState.devices[appState.selectedDevice].id).isConnected
             let isRefreshEnabled = !appState.devices.isEmpty && (appState.selection == .screens || isSelectedDeviceConnected)
+            let refreshLabelKey: LocalizedStringKey = appState.selection == .apps
+                ? "topBarRefreshApps"
+                : "commonRefresh"
+            let refreshHelpKey: LocalizedStringKey = isRefreshEnabled
+                ? refreshLabelKey
+                : (appState.devices.isEmpty ? "sidebarNoSessions" : "managementNeedsConnection")
 
             Button {
                 if appState.selection == .apps {
@@ -268,8 +279,9 @@ private struct TopBar: View {
             }
             .buttonStyle(.plain)
             .disabled(!isRefreshEnabled)
-            .help(isRefreshEnabled ? "commonRefresh" : (appState.selection == .screens ? "commonRefresh" : "managementNeedsConnection"))
-            .accessibilityLabel(Text("commonRefresh"))
+            .help(refreshHelpKey)
+            .accessibilityLabel(Text(refreshLabelKey))
+            .accessibilityHint(isRefreshEnabled ? Text("") : Text(refreshHelpKey))
 
             Button {
                 openSettingsWindow()

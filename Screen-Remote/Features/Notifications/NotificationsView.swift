@@ -94,7 +94,9 @@ private struct NotificationCard: View {
                     .help("notificationsDismiss")
                     .accessibilityLabel(Text("notificationsDismiss"))
                 }
-                Text(notification.title).font(AppTypography.headline)
+                Text(notification.title)
+                    .font(AppTypography.headline)
+                    .accessibilityAddTraits(.isHeader)
                 Text(notification.body).font(AppTypography.subheadline).foregroundColor(.secondary)
                 if notification.icon == "message.fill" {
                     Label("notificationsReplyUnavailable", systemImage: "info.circle")

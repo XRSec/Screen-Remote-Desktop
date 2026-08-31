@@ -598,6 +598,7 @@ private struct StartAppFormRow: View {
             .disabled(!isSearchEnabled)
             .help("sessionSelectRemoteApp")
             .accessibilityLabel(Text("sessionSelectRemoteApp"))
+            .accessibilityHint(isSearchEnabled ? Text("") : Text("sessionSelectRemoteAppRequiresSavedDevice"))
         }
         .padding(14)
     }

@@ -63,14 +63,35 @@ struct SidebarUtilityBar: View {
     var body: some View {
         HStack(spacing: 7) {
             Menu {
-                Button("sidebarAllDevices") { appState.selectedGroupID = DeviceGroup.allID }
+                Button {
+                    appState.selectedGroupID = DeviceGroup.allID
+                } label: {
+                    if appState.selectedGroupID == DeviceGroup.allID {
+                        Label("sidebarAllDevices", systemImage: "checkmark")
+                    } else {
+                        Text("sidebarAllDevices")
+                    }
+                }
+                .accessibilityAddTraits(
+                        appState.selectedGroupID == DeviceGroup.allID ? .isSelected : []
+                    )
                 Divider()
                 ForEach(appState.flattenedGroups()) { entry in
                     Button {
                         appState.selectedGroupID = entry.group.id
                     } label: {
-                        Text(String(repeating: "  ", count: entry.depth) + "↳ " + entry.group.name)
+                        if appState.selectedGroupID == entry.group.id {
+                            Label(
+                                String(repeating: "  ", count: entry.depth) + "↳ " + entry.group.name,
+                                systemImage: "checkmark"
+                            )
+                        } else {
+                            Text(String(repeating: "  ", count: entry.depth) + "↳ " + entry.group.name)
+                        }
                     }
+                    .accessibilityAddTraits(
+                        appState.selectedGroupID == entry.group.id ? .isSelected : []
+                    )
                 }
                 Divider()
                 Button("sidebarManageGroups") { appState.showingGroupManager = true }
@@ -93,6 +114,8 @@ struct SidebarUtilityBar: View {
             .menuStyle(.borderlessButton)
             .fixedSize(horizontal: true, vertical: false)
             .frame(maxWidth: 120, alignment: .leading)
+            .accessibilityLabel(Text("sidebarDeviceGroup"))
+            .accessibilityValue(Text(selectedGroupName))
 
             UtilityButton(icon: "dot.radiowaves.left.and.right", help: "sidebarMDNSAndPortScan") {
                 appState.showingDeviceDiscovery = true
@@ -119,7 +142,7 @@ struct UtilityButton: View {
                 )
         }
         .buttonStyle(.plain)
-        .help(help)
+        .help(Text(LocalizedStringKey(help)))
         .accessibilityLabel(Text(LocalizedStringKey(help)))
     }
 }
@@ -139,7 +162,7 @@ struct SidebarToggleButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: isCollapsed ? "chevron.right" : "chevron.left")
-                .font(AppTypography.caption.weight(.semibold))
+                .font(.system(size: Layout.iconSize, weight: .semibold))
                 .foregroundColor(isHovered ? .primary : .secondary.opacity(0.85))
                 .frame(width: Layout.width, height: Layout.height)
                 .background(
@@ -207,6 +230,9 @@ struct DeviceRow: View {
     }
 
     private var statusText: String {
+        if session.phase.isWorking {
+            return String.localizedKey(session.phase.localizationKey)
+        }
         if session.phase == .failed {
             return String.localizedKey("screenSessionFailed")
         }
@@ -261,8 +287,9 @@ struct DeviceRow: View {
 
     var body: some View {
         HStack(spacing: 6) {
-            HStack(spacing: 8) {
+            HStack(spacing: AppSpacing.sm) {
                 statusIndicator
+                    .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(device.name)
@@ -274,7 +301,7 @@ struct DeviceRow: View {
                         .lineLimit(1)
                 }
 
-                Spacer(minLength: 4)
+                Spacer(minLength: AppSpacing.xs)
             }
             .contentShape(Rectangle())
             .sessionClickGesture(onSingleClick: action, onDoubleClick: onDoubleClick)
@@ -293,6 +320,7 @@ struct DeviceRow: View {
             .help(sessionActionLocalizationKey)
             .accessibilityLabel(Text(sessionActionLocalizationKey))
             .opacity(showsSessionAction ? 1 : 0)
+            .accessibilityHidden(!showsSessionAction)
             .allowsHitTesting(showsSessionAction)
 
             Button(action: onEdit) {
@@ -306,6 +334,7 @@ struct DeviceRow: View {
             .help("sessionEditTitle")
             .accessibilityLabel(Text("sessionEditTitle"))
             .opacity(showsEditAction ? 1 : 0)
+            .accessibilityHidden(!showsEditAction)
             .allowsHitTesting(showsEditAction)
         }
         .padding(.horizontal, AppSpacing.sm)
@@ -364,8 +393,9 @@ struct VirtualDeviceRow: View {
 
     var body: some View {
         HStack(spacing: 6) {
-            HStack(spacing: 8) {
+            HStack(spacing: AppSpacing.sm) {
                 statusIndicator
+                    .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(device.name)
@@ -377,8 +407,14 @@ struct VirtualDeviceRow: View {
                         .lineLimit(1)
                 }
 
-                Spacer(minLength: 4)
+                Spacer(minLength: AppSpacing.xs)
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityValue(
+                isWorking
+                    ? Text("commonLoading")
+                    : (device.isRunning ? Text("virtualDeviceRunning") : Text("screenSessionStopped"))
+            )
 
             Button(action: action) {
                 Image(systemName: device.isRunning ? "stop.fill" : "play.fill")
@@ -392,6 +428,7 @@ struct VirtualDeviceRow: View {
             .help(actionLocalizationKey)
             .accessibilityLabel(Text(actionLocalizationKey))
             .opacity(showsPrimaryAction ? 1 : 0)
+            .accessibilityHidden(!showsPrimaryAction)
             .allowsHitTesting(showsPrimaryAction)
 
             Button(action: onEdit) {
@@ -406,6 +443,7 @@ struct VirtualDeviceRow: View {
             .help("virtualDeviceEditTitle")
             .accessibilityLabel(Text("virtualDeviceEditTitle"))
             .opacity(showsEditAction ? 1 : 0)
+            .accessibilityHidden(!showsEditAction)
             .allowsHitTesting(showsEditAction)
         }
         .padding(.horizontal, AppSpacing.sm)
@@ -463,7 +501,7 @@ struct PhoneGlyph: View {
                 .fill(LinearGradient(colors: [color.opacity(0.35), color], startPoint: .topLeading, endPoint: .bottomTrailing))
             RoundedRectangle(cornerRadius: compact ? 5 : 6, style: .continuous)
                 .stroke(.white.opacity(0.65), lineWidth: 1)
-                .padding(4)
+                .padding(AppSpacing.xs)
             Capsule().fill(.white.opacity(0.7)).frame(width: compact ? 8 : 10, height: 2).offset(y: compact ? -12 : -15)
         }
         .frame(width: compact ? 30 : 36, height: compact ? 40 : 48)

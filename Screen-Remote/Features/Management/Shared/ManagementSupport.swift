@@ -135,9 +135,9 @@ struct ManagementErrorBanner: View {
     let message: String
     var body: some View {
         Label(message, systemImage: "exclamationmark.triangle.fill")
-            .font(.subheadline)
+            .font(AppTypography.subheadline)
             .foregroundColor(.red)
-            .padding(12)
+            .padding(AppSpacing.md)
             .frame(maxWidth: .infinity, alignment: .leading)
             .appBackground(
                 Color.red.opacity(0.08),

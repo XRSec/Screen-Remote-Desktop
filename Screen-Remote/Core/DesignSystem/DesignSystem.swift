@@ -130,6 +130,7 @@ struct ContentUnavailableViewCompat: View {
             VStack(spacing: AppSpacing.xs) {
                 Text(title)
                     .font(AppTypography.section)
+                    .accessibilityAddTraits(.isHeader)
                 Text(detail)
                     .font(AppTypography.body)
                     .foregroundColor(.secondary)

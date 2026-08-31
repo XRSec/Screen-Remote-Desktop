@@ -119,6 +119,7 @@ struct PhotosView: View {
             .disabled(isLoading)
             .help("commonRefresh")
             .accessibilityLabel(Text("commonRefresh"))
+            .accessibilityValue(isLoading ? Text("commonLoading") : Text(""))
         }
         .padding(.horizontal, isCompact ? AppSpacing.md : AppSpacing.lg)
         .padding(.vertical, AppSpacing.sm)
@@ -128,18 +129,33 @@ struct PhotosView: View {
     private var contentArea: some View {
         if isLoading {
             VStack(spacing: AppSpacing.md) {
-                ProgressView().scaleEffect(0.8)
+                ProgressView()
+                    .scaleEffect(0.8)
+                    .accessibilityHidden(true)
                 Text("commonLoading")
                     .font(AppTypography.body)
                     .foregroundColor(.secondary)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if filteredPhotos.isEmpty {
-            ContentUnavailableViewCompat(
-                icon: "photo.on.rectangle.angled",
-                title: "photosEmptyTitle",
-                detail: "photosEmptyDetail"
-            )
+            let hasSearchQuery = !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            Group {
+                if hasSearchQuery {
+                    ContentUnavailableViewCompat(
+                        icon: "magnifyingglass",
+                        title: "photosSearchNoResults",
+                        detail: "photosSearchPrompt",
+                        actionTitle: "commonClear",
+                        action: { searchText = "" }
+                    )
+                } else {
+                    ContentUnavailableViewCompat(
+                        icon: "photo.on.rectangle.angled",
+                        title: "photosEmptyTitle",
+                        detail: "photosEmptyDetail"
+                    )
+                }
+            }
             .padding(isCompact ? AppSpacing.lg : AppSpacing.xxl)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
@@ -226,6 +242,12 @@ struct PhotosView: View {
         .accessibilityAddTraits(.isButton)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityAction { selectedPhotoID = item.id }
+        .accessibilityAction(named: Text("managementDownloadAction")) {
+            downloadPhoto(item)
+        }
+        .accessibilityAction(named: Text("commonDelete")) {
+            confirmDelete(item)
+        }
     }
 
     private func loadPhotos() {

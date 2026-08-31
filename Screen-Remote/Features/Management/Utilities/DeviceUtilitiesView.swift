@@ -122,10 +122,13 @@ struct DeviceUtilitiesView: View {
 
     var body: some View {
         ScrollView {
-            if managementTarget(from: appState) == nil { ManagementUnavailableView() }
-            else {
+            if managementTarget(from: appState) == nil { ManagementUnavailableView() } else {
                 VStack(alignment: .leading, spacing: AppSpacing.lg) {
-                    if isBusy || isRefreshing { ProgressView().frame(maxWidth: .infinity) }
+                    if isBusy || isRefreshing {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                            .accessibilityLabel(Text("commonLoading"))
+                    }
                     if let errorMessage { ManagementErrorBanner(message: errorMessage) }
                     if let resultMessage {
                         Label(resultMessage, systemImage: "checkmark.circle.fill")
@@ -147,6 +150,7 @@ struct DeviceUtilitiesView: View {
                                         .font(AppTypography.section)
                                         .foregroundColor(AppTheme.accent)
                                         .frame(width: 24, height: 24)
+                                        .accessibilityHidden(true)
                                     VStack(alignment: .leading, spacing: AppSpacing.xs) {
                                         Text(action.title)
                                             .font(AppTypography.subheadline.weight(.semibold))
@@ -315,7 +319,7 @@ struct DeviceUtilitiesView: View {
                 }
             }
         ) {
-            HStack(spacing: 12) {
+            HStack(spacing: AppSpacing.md) {
                 UtilityTextField(title: "managementWidth", text: $resolutionWidth)
                 UtilityTextField(title: "managementHeight", text: $resolutionHeight)
             }
@@ -570,7 +574,6 @@ extension DeviceUtilitiesView {
         guard alert.runModal() == .alertFirstButtonReturn else { return }
         action()
     }
-
 
     private func confirmFixedPort() {
         guard let target = managementTarget(from: appState), let port = validPort else { return }

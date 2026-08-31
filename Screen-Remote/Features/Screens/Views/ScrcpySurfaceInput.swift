@@ -62,6 +62,8 @@ struct ScrcpyBottomControls: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Text("screensDeviceControls"))
     }
 
     private func captureScreenshot() {
@@ -610,14 +612,32 @@ struct ScrcpyContainerControlButton: View {
     let action: () -> Void
     @State private var isHovered = false
 
+    @ViewBuilder
     var body: some View {
+        if let onLongPress {
+            controlButton
+                .simultaneousGesture(
+                    LongPressGesture(minimumDuration: 2)
+                        .onEnded { _ in onLongPress() }
+                )
+                .accessibilityHint(Text("screensControlHomeScreenshotHint"))
+                .accessibilityAction(named: Text("managementScreenshot"), onLongPress)
+        } else {
+            controlButton
+        }
+    }
+
+    private var controlButton: some View {
         Button(action: action) {
             Group {
                 if isLoading {
-                    ProgressView().controlSize(.small).scaleEffect(0.7)
+                    ProgressView()
+                        .controlSize(.small)
+                        .scaleEffect(0.7)
+                        .accessibilityHidden(true)
                 } else {
                     Image(systemName: icon)
-                        .font(AppTypography.caption.weight(.semibold))
+                        .font(.system(size: iconSize, weight: .semibold))
                 }
             }
             .foregroundColor(isActive ? AppTheme.accent : .primary)
@@ -639,11 +659,9 @@ struct ScrcpyContainerControlButton: View {
         .animation(.easeOut(duration: 0.12), value: isHovered)
         .onHover { isHovered = $0 }
         .disabled(isLoading)
-        .simultaneousGesture(
-            LongPressGesture(minimumDuration: 2)
-                .onEnded { _ in onLongPress?() }
-        )
         .help(Text(help))
         .accessibilityLabel(Text(help))
+        .accessibilityValue(isLoading ? Text("commonLoading") : Text(""))
+        .accessibilityAddTraits(isActive ? .isSelected : [])
     }
 }

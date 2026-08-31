@@ -6862,6 +6862,23 @@
         }
       }
     },
+    "photosSearchNoResults" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No matching media"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有匹配的媒体"
+          }
+        }
+      }
+    },
     "photosSearchPrompt" : {
       "localizations" : {
         "en" : {
@@ -7096,6 +7113,23 @@
         }
       }
     },
+    "screensDeviceControls" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Device controls"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设备控制"
+          }
+        }
+      }
+    },
     "screensControlBack" : {
       "localizations" : {
         "en" : {
@@ -7124,6 +7158,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "前往主屏幕"
+          }
+        }
+      }
+    },
+    "screensControlHomeScreenshotHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Also provides a Screenshot action."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "还提供截图操作。"
           }
         }
       }
@@ -8146,6 +8197,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "会话参数"
+          }
+        }
+      }
+    },
+    "screensStreamMetrics" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stream metrics"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "投屏参数"
           }
         }
       }
@@ -11504,6 +11572,23 @@
         }
       }
     },
+    "sidebarDeviceGroup" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Device group"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设备分组"
+          }
+        }
+      }
+    },
     "sidebarDeviceNotConnected" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -12537,6 +12622,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "设置"
+          }
+        }
+      }
+    },
+    "topBarWorkspaces" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Workspaces"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工作区"
           }
         }
       }

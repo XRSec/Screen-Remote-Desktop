@@ -71,7 +71,9 @@ struct ManagedAppGridItem: View {
                     RoundedRectangle(cornerRadius: AppRadius.small)
                         .fill(Color.black.opacity(0.42))
                         .frame(width: 48, height: 48)
-                    ProgressView().scaleEffect(0.65)
+                    ProgressView()
+                        .scaleEffect(0.65)
+                        .accessibilityHidden(true)
                 }
             }
             .animation(.easeOut(duration: 0.18), value: icon != nil)
@@ -136,10 +138,16 @@ struct ManagedAppGridItem: View {
                 Label("appsManageExportAPK", systemImage: "square.and.arrow.down")
             }
         }
-        .disabled(isBusy)
+        .disabled(isBusy || isLaunchingApp)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
-        .accessibilityValue(app.isEnabled ? Text("") : Text("appsDisabledAppsFilter"))
+        .accessibilityValue(
+            isLaunchingApp
+                ? Text("appsManageLaunching")
+                : (isBusy
+                    ? Text("commonLoading")
+                    : (app.isEnabled ? Text("appsEnabledAppsFilter") : Text("appsDisabledAppsFilter")))
+        )
         .accessibilityAction { openApp() }
     }
 }

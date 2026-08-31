@@ -6,7 +6,9 @@ struct UtilitySheetHeader: View {
 
     var body: some View {
         HStack {
-            Text(title).font(.title2.bold())
+            Text(title)
+                .font(.title2.bold())
+                .accessibilityAddTraits(.isHeader)
             Spacer()
             Button(action: close) { Image(systemName: "xmark.circle.fill") }
                 .buttonStyle(.plain)
@@ -46,8 +48,8 @@ struct UtilityForm<Content: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(detail).font(.subheadline).foregroundColor(.secondary)
+        VStack(alignment: .leading, spacing: AppSpacing.lg) {
+            Text(detail).font(AppTypography.subheadline).foregroundColor(.secondary)
             content
             HStack {
                 if let secondaryTitle, let secondaryAction {
@@ -68,8 +70,13 @@ struct UtilityTextField: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(title).font(.caption).foregroundColor(.secondary)
-            TextField("", text: $text).textFieldStyle(.roundedBorder)
+            Text(title)
+                .font(AppTypography.caption)
+                .foregroundColor(.secondary)
+                .accessibilityHidden(true)
+            TextField("", text: $text)
+                .textFieldStyle(.roundedBorder)
+                .accessibilityLabel(Text(title))
         }
     }
 }
@@ -85,8 +92,8 @@ struct UtilityOptionList<Content: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text(detail).font(.subheadline).foregroundColor(.secondary)
-            VStack(spacing: 8) { content }
+            Text(detail).font(AppTypography.subheadline).foregroundColor(.secondary)
+            VStack(spacing: AppSpacing.sm) { content }
         }
     }
 }
@@ -135,23 +142,26 @@ struct UtilityOptionButton: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 12) {
-                Image(systemName: icon).frame(width: 22)
-                if let title { Text(title) }
-                else if let titleText { Text(titleText) }
+            HStack(spacing: AppSpacing.md) {
+                Image(systemName: icon)
+                    .frame(width: 22)
+                    .accessibilityHidden(true)
+                if let title { Text(title) } else if let titleText { Text(titleText) }
                 Spacer()
                 if let badge {
-                    Text(badge).font(.caption2).foregroundColor(.secondary)
-                        .padding(.horizontal, 8).padding(.vertical, 4)
+                    Text(badge).font(AppTypography.caption2).foregroundColor(.secondary)
+                        .padding(.horizontal, AppSpacing.sm).padding(.vertical, AppSpacing.xs)
+                        .accessibilityHidden(true)
                         .appBackground(Color.primary.opacity(0.06), in: Capsule())
                 }
-                Image(systemName: "chevron.right").font(.caption2).foregroundColor(.secondary)
+                Image(systemName: "chevron.right").font(AppTypography.caption2).foregroundColor(.secondary)
                     .accessibilityHidden(true)
             }
-            .padding(12)
+            .padding(AppSpacing.md)
             .contentShape(Rectangle())
-            .appCard(radius: 12)
+            .appCard(radius: AppRadius.card)
             .accessibilityElement(children: .combine)
+            .accessibilityValue(badge.map { Text($0) } ?? Text(""))
         }
         .buttonStyle(.plain)
         .foregroundColor(isDestructive ? .red : .primary)
