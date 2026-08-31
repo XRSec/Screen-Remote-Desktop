@@ -314,10 +314,14 @@ struct PhotosView: View {
 
         Task {
             do {
-                _ = try await ManagementADB.run(
+                let output = try await ManagementADB.run(
                     target: target,
                     arguments: ["pull", item.fullPath, url.path]
                 )
+                guard output.succeeded else {
+                    throw ManagementError.message(output.failureDetail)
+                }
+                appState.appendSDLLog("Photo downloaded: \(target.device.name), file=\(item.name)")
             } catch {
                 await MainActor.run {
                     self.errorMessage = error.localizedDescription
@@ -350,6 +354,7 @@ struct PhotosView: View {
                     target: target,
                     command: "rm -f \(ManagementADB.quote(item.fullPath))"
                 )
+                appState.appendSDLLog("Photo deleted: \(target.device.name), file=\(item.name)")
                 loadPhotos()
             } catch {
                 await MainActor.run {
