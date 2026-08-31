@@ -241,6 +241,7 @@ struct PhotosView: View {
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityValue(Text(photoAccessibilitySummary(item)))
         .accessibilityAction { selectedPhotoID = item.id }
         .accessibilityAction(named: Text("managementDownloadAction")) {
             downloadPhoto(item)
@@ -248,6 +249,18 @@ struct PhotosView: View {
         .accessibilityAction(named: Text("commonDelete")) {
             confirmDelete(item)
         }
+    }
+
+    private func photoAccessibilitySummary(_ item: RemotePhotoItem) -> String {
+        let mediaType = String.localizedKey(
+            item.isVideo ? "photosMediaTypeVideo" : "photosMediaTypeImage"
+        )
+        return String(
+            format: String.localizedKey("photosMediaAccessibilitySummary"),
+            mediaType,
+            item.sizeText,
+            item.dateText
+        )
     }
 
     private func loadPhotos() {
