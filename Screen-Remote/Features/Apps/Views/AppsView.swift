@@ -185,18 +185,12 @@ struct AppsView: View {
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel(Text("appsManageLoading"))
             } else if filteredManagedApps.isEmpty {
-                VStack(spacing: AppSpacing.md) {
-                    Image(systemName: appManager.apps.isEmpty ? "apps.iphone" : "magnifyingglass")
-                        .font(AppTypography.largeTitle)
-                        .foregroundColor(.secondary)
-                    Text(appManager.apps.isEmpty ? "appsManageEmpty" : "appsManageNoSearchResults")
-                        .font(AppTypography.section)
-                        .multilineTextAlignment(.center)
-                    Text("appsSearchPrompt")
-                        .font(AppTypography.body)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                    Button(appManager.apps.isEmpty ? "commonRefresh" : "commonClear") {
+                ContentUnavailableViewCompat(
+                    icon: appManager.apps.isEmpty ? "apps.iphone" : "magnifyingglass",
+                    title: appManager.apps.isEmpty ? "appsManageEmpty" : "appsManageNoSearchResults",
+                    detail: "appsSearchPrompt",
+                    actionTitle: appManager.apps.isEmpty ? "commonRefresh" : "commonClear",
+                    action: {
                         if appManager.apps.isEmpty {
                             appManager.loadApps(for: device, appState: appState, force: true)
                         } else {
@@ -205,8 +199,7 @@ struct AppsView: View {
                             enabledFilter = .all
                         }
                     }
-                    .buttonStyle(.bordered)
-                }
+                )
                 .padding(AppSpacing.xl)
                 .frame(maxWidth: .infinity, minHeight: 220)
             } else {
