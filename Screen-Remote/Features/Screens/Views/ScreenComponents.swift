@@ -267,6 +267,12 @@ struct ScrcpyParentContainer: View {
                                 .accessibilityLabel(Text("screensStreamMetrics"))
                                 .accessibilityValue(Text(metrics))
                         }
+                        if isCompact, let metrics = screenMetricsText {
+                            Color.clear
+                                .frame(width: 0, height: 0)
+                                .accessibilityLabel(Text("screensStreamMetrics"))
+                                .accessibilityValue(Text(metrics))
+                        }
                     }
                         .truncationMode(.tail)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
