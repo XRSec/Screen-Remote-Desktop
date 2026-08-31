@@ -137,5 +137,9 @@ struct ManagedAppGridItem: View {
             }
         }
         .disabled(isBusy)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityValue(app.isEnabled ? Text("") : Text("appsDisabledAppsFilter"))
+        .accessibilityAction { openApp() }
     }
 }
