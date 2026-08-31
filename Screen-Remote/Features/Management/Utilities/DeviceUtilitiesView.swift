@@ -160,6 +160,7 @@ struct DeviceUtilitiesView: View {
                                     Image(systemName: "chevron.right")
                                         .font(AppTypography.caption2.weight(.semibold))
                                         .foregroundColor(Color.secondary.opacity(0.7))
+                                        .accessibilityHidden(true)
                                 }
                                 .padding(.horizontal, AppSpacing.md)
                                 .padding(.vertical, AppSpacing.md)
@@ -171,6 +172,7 @@ struct DeviceUtilitiesView: View {
                                     RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
                                         .stroke(AppTheme.line, lineWidth: 1)
                                 )
+                                .accessibilityElement(children: .combine)
                             }.buttonStyle(.plain).disabled(isBusy)
                         }
                     }
