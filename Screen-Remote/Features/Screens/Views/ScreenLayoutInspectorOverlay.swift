@@ -46,6 +46,7 @@ struct ScreenLayoutInspectorToolbar: View {
             .buttonStyle(.plain)
             .disabled(isLoading)
             .help("commonRefresh")
+            .accessibilityLabel(Text("commonRefresh"))
 
             Button(action: onClose) {
                 Image(systemName: "xmark.circle")
@@ -55,6 +56,7 @@ struct ScreenLayoutInspectorToolbar: View {
             }
             .buttonStyle(.plain)
             .help("commonClose")
+            .accessibilityLabel(Text("commonClose"))
         }
         .padding(AppSpacing.xs)
         .background(
