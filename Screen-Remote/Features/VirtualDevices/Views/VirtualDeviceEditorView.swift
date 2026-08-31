@@ -82,6 +82,7 @@ struct VirtualDeviceEditorView: View {
                                     )
                                 }
                                 .buttonStyle(.plain)
+                                .accessibilityAddTraits(options.formFactor == factor ? .isSelected : [])
                             }
                         }
                     }
@@ -327,6 +328,7 @@ private struct SkinCard: View {
             .overlay(RoundedRectangle(cornerRadius: AppRadius.small).stroke(isSelected ? AppTheme.accent : AppTheme.line, lineWidth: 1))
         }
         .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 
