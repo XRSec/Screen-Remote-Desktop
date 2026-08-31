@@ -179,12 +179,30 @@ struct AppsView: View {
                 .padding(AppSpacing.xl)
                 .frame(maxWidth: .infinity, minHeight: 220)
             } else if filteredManagedApps.isEmpty {
-                ContentUnavailableViewCompat(
-                    icon: searchText.isEmpty ? "apps.iphone" : "magnifyingglass",
-                    title: searchText.isEmpty ? "appsManageEmpty" : "appsManageNoSearchResults",
-                    detail: "appsSearchPrompt"
-                )
-                .frame(minHeight: 220)
+                VStack(spacing: AppSpacing.md) {
+                    Image(systemName: appManager.apps.isEmpty ? "apps.iphone" : "magnifyingglass")
+                        .font(AppTypography.largeTitle)
+                        .foregroundColor(.secondary)
+                    Text(appManager.apps.isEmpty ? "appsManageEmpty" : "appsManageNoSearchResults")
+                        .font(AppTypography.section)
+                        .multilineTextAlignment(.center)
+                    Text("appsSearchPrompt")
+                        .font(AppTypography.body)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                    Button(appManager.apps.isEmpty ? "commonRefresh" : "commonClear") {
+                        if appManager.apps.isEmpty {
+                            appManager.loadApps(for: device, appState: appState, force: true)
+                        } else {
+                            searchText = ""
+                            appFilter = .all
+                            enabledFilter = .all
+                        }
+                    }
+                    .buttonStyle(.bordered)
+                }
+                .padding(AppSpacing.xl)
+                .frame(maxWidth: .infinity, minHeight: 220)
             } else {
                 LazyVGrid(
                     columns: [GridItem(.adaptive(minimum: 150, maximum: 190), spacing: 12)],
