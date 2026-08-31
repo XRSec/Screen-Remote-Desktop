@@ -6357,6 +6357,23 @@
         }
       }
     },
+    "notificationsDismiss" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dismiss Notification"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭通知"
+          }
+        }
+      }
+    },
     "notificationsEmptyTitle" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -91,6 +91,8 @@ private struct NotificationCard: View {
                     }
                     .buttonStyle(.plain)
                     .foregroundColor(.secondary)
+                    .help("notificationsDismiss")
+                    .accessibilityLabel(Text("notificationsDismiss"))
                 }
                 Text(notification.title).font(AppTypography.headline)
                 Text(notification.body).font(AppTypography.subheadline).foregroundColor(.secondary)
