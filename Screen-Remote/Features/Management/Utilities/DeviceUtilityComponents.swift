@@ -11,7 +11,8 @@ struct UtilitySheetHeader: View {
             Button(action: close) { Image(systemName: "xmark.circle.fill") }
                 .buttonStyle(.plain)
                 .foregroundColor(.secondary)
-                .help("commonCancel")
+                .help("commonClose")
+                .accessibilityLabel(Text("commonClose"))
         }
         .padding(20)
     }
