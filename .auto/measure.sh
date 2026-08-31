@@ -6,36 +6,48 @@ from pathlib import Path
 import re
 import sys
 
-source = Path("Screen-Remote/Features/Management/Utilities/DeviceUtilitiesView.swift").read_text(encoding="utf-8")
+root = Path("Screen-Remote/App/Root/RootView.swift").read_text(encoding="utf-8")
 catalog = Path("Screen-Remote/Resources/Localizable.xcstrings").read_text(encoding="utf-8")
-combined = source + "\n" + catalog
+combined = root + "\n" + catalog
 
-# Product gap: eight unrelated device utilities currently appear as one flat
-# grid. Grouping them into system, display, and quick-action sections improves
-# scanning and makes high-impact reboot/display controls easier to distinguish.
+# Product gap: the global refresh button is currently enabled in Screens,
+# Notifications, and Messages even though none of those workspaces subscribes
+# to its refresh event. A visible enabled no-op is misleading; refresh should
+# be available only where a real reload path exists.
 checks = {
-    "system_optimization_section": r'managementSystemOptimizationSection.*?\.fixedPort.*?\.activation.*?\.animation',
-    "display_controls_section": r'managementDisplayControlsSection.*?\.density.*?\.resolution',
-    "quick_actions_section": r'managementQuickActionsSection.*?\.screenshot.*?\.reboot.*?\.standby',
-    "localized_section_headers": r'"managementSystemOptimizationSection".*?"managementDisplayControlsSection".*?"managementQuickActionsSection"',
+    "explicit_refreshable_workspaces": r'refreshableSections.*?\.deviceInfo.*?\.utilities.*?\.files.*?\.apps.*?\.processes.*?\.portForward.*?\.photos',
+    "unsupported_workspaces_disabled": r'isWorkspaceRefreshable.*?refreshableSections\.contains\(appState\.selection\).*?isRefreshEnabled\s*=\s*isWorkspaceRefreshable',
+    "dispatch_matches_capability": r'switch appState\.selection.*?case \.apps:.*?refreshSelectedDeviceApps.*?case \.deviceInfo, \.utilities, \.files, \.processes, \.portForward, \.photos:.*?screenRemoteRefreshManagement.*?default:',
+    "localized_unavailable_hint": r'topBarRefreshUnavailable.*?Refresh isn.*?available.*?当前工作区.*?刷新',
 }
 
 gaps = [name for name, pattern in checks.items() if re.search(pattern, combined, flags=re.S) is None]
 
-# Guard all eight real utility destinations and their existing presentation
-# path. Passing cannot drop an action or bypass present(_:).
-required_cases = ["fixedPort", "screenshot", "reboot", "activation", "density", "resolution", "animation", "standby"]
-missing_cases = [case for case in required_cases if f"sheet: .{case}" not in source]
-required_behavior = ["Button { present(action.sheet) }", "LazyVGrid", "ForEach"]
-missing_behavior = [item for item in required_behavior if item not in source]
-if missing_cases or missing_behavior:
-    print("Measurement invalid: utility behavior is incomplete:", file=sys.stderr)
-    for item in missing_cases + missing_behavior:
-        print(f"- {item}", file=sys.stderr)
+# Preserve each real receiver and the apps-specific reload. Passing cannot
+# disable refresh globally or remove working reload paths.
+required = [
+    "appState.refreshSelectedDeviceApps()",
+    "NotificationCenter.default.post(name: .screenRemoteRefreshManagement, object: nil)",
+]
+receivers = [
+    "DeviceInformationView.swift",
+    "DeviceUtilitiesView.swift",
+    "DeviceFilesView.swift",
+    "DeviceProcessesView.swift",
+    "PortForwardView.swift",
+    "PhotosView.swift",
+]
+missing = [item for item in required if item not in root]
+for filename in receivers:
+    matches = list(Path("Screen-Remote").rglob(filename))
+    if not matches or ".screenRemoteRefreshManagement" not in matches[0].read_text(encoding="utf-8"):
+        missing.append(filename)
+if missing:
+    print("Measurement invalid: real refresh behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC utility_information_architecture_gaps={len(gaps)}")
-print(f"METRIC utility_named_sections={3 - sum(name != 'localized_section_headers' for name in gaps)}")
+print(f"METRIC topbar_refresh_honesty_gaps={len(gaps)}")
+print(f"METRIC topbar_refresh_supported_workspaces={7 if not gaps else 0}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY

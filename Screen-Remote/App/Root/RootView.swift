@@ -215,6 +215,16 @@ private struct TopBar: View {
     @EnvironmentObject private var appState: AppState
     let isCompact: Bool
 
+    private let refreshableSections: Set<AppSection> = [
+        .deviceInfo,
+        .utilities,
+        .files,
+        .apps,
+        .processes,
+        .portForward,
+        .photos,
+    ]
+
     var body: some View {
         HStack(spacing: 14) {
             ScrollView(.horizontal, showsIndicators: false) {
@@ -257,19 +267,26 @@ private struct TopBar: View {
 
             let isSelectedDeviceConnected = appState.devices.indices.contains(appState.selectedDevice)
                 && appState.screenSessions.session(for: appState.devices[appState.selectedDevice].id).isConnected
-            let isRefreshEnabled = !appState.devices.isEmpty && (appState.selection == .screens || isSelectedDeviceConnected)
+            let isWorkspaceRefreshable = refreshableSections.contains(appState.selection)
+            let isRefreshEnabled = isWorkspaceRefreshable && isSelectedDeviceConnected
             let refreshLabelKey: LocalizedStringKey = appState.selection == .apps
                 ? "topBarRefreshApps"
                 : "commonRefresh"
             let refreshHelpKey: LocalizedStringKey = isRefreshEnabled
                 ? refreshLabelKey
-                : (appState.devices.isEmpty ? "sidebarNoSessions" : "managementNeedsConnection")
+                : (!isWorkspaceRefreshable
+                    ? "topBarRefreshUnavailable"
+                    : (appState.devices.isEmpty ? "sidebarNoSessions" : "managementNeedsConnection"))
 
             Button {
-                if appState.selection == .apps {
+                switch appState.selection {
+                case .apps:
                     appState.refreshSelectedDeviceApps()
+                case .deviceInfo, .utilities, .files, .processes, .portForward, .photos:
+                    NotificationCenter.default.post(name: .screenRemoteRefreshManagement, object: nil)
+                default:
+                    break
                 }
-                NotificationCenter.default.post(name: .screenRemoteRefreshManagement, object: nil)
             } label: {
                 Image(systemName: "arrow.clockwise")
                     .font(AppTypography.subheadline)

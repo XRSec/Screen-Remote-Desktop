@@ -12661,6 +12661,23 @@
         }
       }
     },
+    "topBarRefreshUnavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refresh isn’t available in this workspace."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当前工作区不支持刷新。"
+          }
+        }
+      }
+    },
     "topBarSettings" : {
       "localizations" : {
         "en" : {
