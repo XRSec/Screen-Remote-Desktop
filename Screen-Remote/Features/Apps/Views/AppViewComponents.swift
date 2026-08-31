@@ -150,6 +150,15 @@ struct ManagedAppGridItem: View {
                     : (app.isEnabled ? Text("appsEnabledAppsFilter") : Text("appsDisabledAppsFilter")))
         )
         .accessibilityAction { openApp() }
+        .accessibilityAction(named: Text("appsManageDetails")) { showDetails() }
+        .accessibilityAction(named: Text("appsManageLaunchOnDevice")) { launchOnDevice() }
+        .accessibilityAction(named: Text(app.isEnabled ? "appsManageDisable" : "appsManageEnable")) {
+            toggleEnabled()
+        }
+        .accessibilityAction(named: Text("appsManageForceStop")) { forceStop() }
+        .accessibilityAction(named: Text("appsManageClearData")) { clearData() }
+        .accessibilityAction(named: Text("appsManageExportAPK")) { exportAPK() }
+        .accessibilityAction(named: Text("appsManageUninstall")) { uninstall() }
     }
 
     private func highlightedText(_ value: String, terms: [String]) -> Text {

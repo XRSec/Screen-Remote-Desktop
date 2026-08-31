@@ -6,40 +6,47 @@ from pathlib import Path
 import re
 import sys
 
-source = Path("Screen-Remote/Features/Apps/Views/AppsView.swift").read_text(encoding="utf-8")
-match = re.search(r'else if filteredManagedApps\.isEmpty \{(.*?)\n            \} else \{\n                LazyVGrid', source, flags=re.S)
-if match is None:
-    print("Measurement invalid: Apps empty-state branch is missing", file=sys.stderr)
-    sys.exit(2)
-empty_branch = match.group(1)
+source = Path("Screen-Remote/Features/Apps/Views/AppViewComponents.swift").read_text(encoding="utf-8")
 
-# Product gap: Apps reimplements an empty/search-empty layout instead of using
-# the shared ContentUnavailableViewCompat. This drifts from the app-wide header
-# navigation semantics and duplicates icon/title/detail/action structure.
-checks = {
-    "empty_state_uses_shared_component": r'ContentUnavailableViewCompat\(',
-    "empty_state_title_switch_preserved": r'ContentUnavailableViewCompat\(.*?title: appManager\.apps\.isEmpty\s*\? "appsManageEmpty"\s*:\s*"appsManageNoSearchResults"',
-    "empty_state_action_switch_preserved": r'actionTitle: appManager\.apps\.isEmpty\s*\? "commonRefresh"\s*:\s*"commonClear".*?action: \{.*?loadApps.*?searchText = "".*?appFilter = \.all.*?enabledFilter = \.all',
+# Product gap: app-card management commands exist only in a pointer context
+# menu. VoiceOver users get only the default Open action, so details, launch on
+# device, enable/disable, force stop, clear data, export, and uninstall are not
+# discoverable as named actions.
+actions = {
+    "details": ("appsManageDetails", "showDetails"),
+    "launch_on_device": ("appsManageLaunchOnDevice", "launchOnDevice"),
+    "toggle_enabled": ("app.isEnabled ? \"appsManageDisable\" : \"appsManageEnable\"", "toggleEnabled"),
+    "force_stop": ("appsManageForceStop", "forceStop"),
+    "clear_data": ("appsManageClearData", "clearData"),
+    "export_apk": ("appsManageExportAPK", "exportAPK"),
+    "uninstall": ("appsManageUninstall", "uninstall"),
 }
 
-gaps = [name for name, pattern in checks.items() if re.search(pattern, empty_branch, flags=re.S) is None]
+gaps = []
+for name, (label, handler) in actions.items():
+    pattern = rf'accessibilityAction\(named: Text\([^\n]*{re.escape(label)}[^\n]*\)\).*?{handler}\(\)'
+    if re.search(pattern, source, flags=re.S) is None:
+        gaps.append(name)
 
-# Guard both real recovery paths and honest empty/search-empty distinctions.
+# Guard the existing context menu, default open action, and all real handlers.
 required = [
-    '"appsManageEmpty"',
-    '"appsManageNoSearchResults"',
-    "appManager.loadApps(for: device, appState: appState, force: true)",
-    'searchText = ""',
-    "appFilter = .all",
-    "enabledFilter = .all",
+    ".contextMenu",
+    ".accessibilityAction { openApp() }",
+    "Button(action: showDetails)",
+    "Button(action: launchOnDevice)",
+    "Button(action: toggleEnabled)",
+    "Button(action: forceStop)",
+    "Button(action: clearData)",
+    "Button(action: exportAPK)",
+    "Button(action: uninstall)",
 ]
 missing = [item for item in required if item not in source]
 if missing:
-    print("Measurement invalid: Apps empty-state behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: app-card management behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC apps_empty_state_consistency_gaps={len(gaps)}")
-print(f"METRIC apps_shared_empty_states={1 if not gaps else 0}")
+print(f"METRIC app_card_named_action_gaps={len(gaps)}")
+print(f"METRIC app_card_named_actions={len(actions) - len(gaps)}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY
