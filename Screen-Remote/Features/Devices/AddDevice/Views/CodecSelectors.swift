@@ -512,6 +512,7 @@ func codecChoiceRow(
         .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
+    .accessibilityAddTraits(selected ? .isSelected : [])
 }
 
 func closestPreset(_ value: String, values: [Int], fallback: Int) -> String {
