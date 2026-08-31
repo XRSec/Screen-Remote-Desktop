@@ -6,37 +6,38 @@ from pathlib import Path
 import re
 import sys
 
-path = Path("Screen-Remote/Features/Apps/Views/AppsView.swift")
-source = path.read_text(encoding="utf-8")
+apps_view = Path("Screen-Remote/Features/Apps/Views/AppsView.swift").read_text(encoding="utf-8")
+components = Path("Screen-Remote/Features/Apps/Views/AppViewComponents.swift").read_text(encoding="utf-8")
 
-# Product gap: both app-filter dimensions should expose their current choices
-# directly as native segmented controls. Menu pickers hide state alternatives
-# and add an avoidable click for a frequently repeated filtering task.
+# Product gap: when users enter multiple search terms, every visible app card
+# should reveal why it matched in both searchable fields. Filtering alone makes
+# package-name matches especially hard to locate in a dense adaptive grid.
 checks = {
-    "visibility_filter_segmented": r'Picker\("appsTypeFilterTitle",\s*selection:\s*\$appFilter\).*?\.pickerStyle\(\.segmented\)',
-    "enabled_filter_segmented": r'Picker\("appsStateFilterTitle",\s*selection:\s*\$enabledFilter\).*?\.pickerStyle\(\.segmented\)',
+    "terms_forwarded_to_cards": r'ManagedAppGridItem\(.*?searchTerms:\s*searchTerms',
+    "app_name_highlighted": r'highlightedText\(app\.name,\s*terms:\s*searchTerms\)',
+    "package_name_highlighted": r'highlightedText\(app\.packageName,\s*terms:\s*searchTerms\)',
 }
 
 gaps = []
+combined = apps_view + "\n" + components
 for name, pattern in checks.items():
-    if re.search(pattern, source, flags=re.S) is None:
+    if re.search(pattern, combined, flags=re.S) is None:
         gaps.append(name)
 
-# Guard the real interaction surface: all choices and accessible group labels
-# must remain present; changing the measurement cannot erase product behavior.
+# Preserve actual search semantics and guard against a benchmark-only marker.
 required = [
-    "ForEach(AppVisibilityFilter.allCases)",
-    "ForEach(AppEnabledFilter.allCases)",
-    '.accessibilityLabel(Text("appsTypeFilterTitle"))',
-    '.accessibilityLabel(Text("appsStateFilterTitle"))',
+    "searchText.split(whereSeparator: \\.isWhitespace)",
+    "allSatisfy { term in",
+    "localizedCaseInsensitiveContains",
 ]
-missing = [item for item in required if item not in source]
+missing = [item for item in required if item not in combined]
 if missing:
-    print("Measurement invalid: required filter behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: searchable/highlight behavior is incomplete:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC apps_filter_discoverability_gaps={len(gaps)}")
-print(f"METRIC apps_filter_segmented_controls={2 - len(gaps)}")
+print(f"METRIC apps_search_highlight_gaps={len(gaps)}")
+highlighted_fields = sum(name not in gaps for name in ("app_name_highlighted", "package_name_highlighted"))
+print(f"METRIC apps_search_highlighted_fields={highlighted_fields}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY

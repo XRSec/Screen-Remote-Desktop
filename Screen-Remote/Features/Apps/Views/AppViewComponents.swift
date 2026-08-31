@@ -39,6 +39,7 @@ struct PageSearchField: View {
 struct ManagedAppGridItem: View {
     let app: ManagedAndroidApp
     let icon: NSImage?
+    let searchTerms: [String]
     let isBusy: Bool
     let isLaunchingApp: Bool
     let openApp: () -> Void
@@ -77,10 +78,10 @@ struct ManagedAppGridItem: View {
                 }
             }
             .animation(.easeOut(duration: 0.18), value: icon != nil)
-            Text(app.name)
+            highlightedText(app.name, terms: searchTerms)
                 .font(AppTypography.caption.weight(.medium))
                 .lineLimit(1)
-            Text(app.packageName)
+            highlightedText(app.packageName, terms: searchTerms)
                 .font(AppTypography.monospacedCaption)
                 .foregroundColor(.secondary)
                 .lineLimit(1)
@@ -149,5 +150,42 @@ struct ManagedAppGridItem: View {
                     : (app.isEnabled ? Text("appsEnabledAppsFilter") : Text("appsDisabledAppsFilter")))
         )
         .accessibilityAction { openApp() }
+    }
+
+    private func highlightedText(_ value: String, terms: [String]) -> Text {
+        var segments: [(range: Range<String.Index>, highlighted: Bool)] = []
+        var matchedRanges: [Range<String.Index>] = []
+
+        for term in terms where !term.isEmpty {
+            var searchStart = value.startIndex
+            while searchStart < value.endIndex,
+                  let range = value.range(
+                    of: term,
+                    options: [.caseInsensitive, .diacriticInsensitive],
+                    range: searchStart..<value.endIndex
+                  ) {
+                if !matchedRanges.contains(where: { $0.overlaps(range) }) {
+                    matchedRanges.append(range)
+                }
+                searchStart = range.upperBound
+            }
+        }
+
+        var cursor = value.startIndex
+        for range in matchedRanges.sorted(by: { $0.lowerBound < $1.lowerBound }) {
+            if cursor < range.lowerBound {
+                segments.append((cursor..<range.lowerBound, false))
+            }
+            segments.append((range, true))
+            cursor = range.upperBound
+        }
+        if cursor < value.endIndex {
+            segments.append((cursor..<value.endIndex, false))
+        }
+
+        return segments.reduce(Text("")) { result, segment in
+            let text = Text(String(value[segment.range]))
+            return result + (segment.highlighted ? text.foregroundColor(AppTheme.accent).bold() : text)
+        }
     }
 }

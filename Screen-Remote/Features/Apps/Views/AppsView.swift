@@ -41,6 +41,10 @@ struct AppsView: View {
     @State private var appFilter = AppVisibilityFilter.user
     @State private var enabledFilter = AppEnabledFilter.enabled
 
+    private var searchTerms: [String] {
+        searchText.split(whereSeparator: \.isWhitespace).map(String.init)
+    }
+
     private var filteredManagedApps: [ManagedAndroidApp] {
         let visibleApps: [ManagedAndroidApp]
         switch appFilter {
@@ -60,10 +64,9 @@ struct AppsView: View {
         case .all:
             stateFilteredApps = visibleApps
         }
-        guard !searchText.isEmpty else { return stateFilteredApps }
-        let terms = searchText.split(whereSeparator: \.isWhitespace)
+        guard !searchTerms.isEmpty else { return stateFilteredApps }
         return stateFilteredApps.filter { app in
-            terms.allSatisfy { term in
+            searchTerms.allSatisfy { term in
                 app.name.localizedCaseInsensitiveContains(term)
                     || app.packageName.localizedCaseInsensitiveContains(term)
             }
@@ -212,6 +215,7 @@ struct AppsView: View {
                         ManagedAppGridItem(
                             app: app,
                             icon: appManager.icons[app.packageName],
+                            searchTerms: searchTerms,
                             isBusy: appManager.busyPackageNames.contains(app.packageName),
                             isLaunchingApp: sessionManager.isLaunchingAppVirtualDisplay(
                                 deviceID: device.id,
