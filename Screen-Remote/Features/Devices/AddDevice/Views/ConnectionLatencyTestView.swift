@@ -98,6 +98,11 @@ struct AccentPickerControl: View {
     var body: some View {
         HStack(spacing: 9) {
             ForEach(colors.indices, id: \.self) { index in
+                let optionLabel = String(
+                    format: String.localizedKey("addDeviceLabelColorOption"),
+                    index + 1,
+                    colors.count
+                )
                 Button {
                     selection = index
                 } label: {
@@ -109,6 +114,8 @@ struct AccentPickerControl: View {
                 }
                 .buttonStyle(.plain)
                 .help("addDeviceChooseLabelColor")
+                .accessibilityLabel(Text(optionLabel))
+                .accessibilityAddTraits(selection == index ? .isSelected : [])
             }
         }
     }

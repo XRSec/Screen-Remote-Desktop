@@ -101,6 +101,23 @@
         }
       }
     },
+    "addDeviceLabelColorOption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Label color %d of %d"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "标签颜色 %d，共 %d 个"
+          }
+        }
+      }
+    },
     "addDeviceConnectionSection" : {
       "extractionState" : "manual",
       "localizations" : {
