@@ -6061,19 +6061,19 @@
         }
       }
     },
-    "messagesEmptyDetail" : {
+    "messagesSyncUnavailableDetail" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Messages from your connected device will appear here."
+            "value" : "Message sync is not available in this version. No SMS data is collected from your device."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已连接设备中的消息会显示在这里。"
+            "value" : "当前版本尚不支持消息同步，也不会从设备收集短信数据。"
           }
         }
       }
@@ -6176,19 +6176,19 @@
         }
       }
     },
-    "notificationsEmptyDetail" : {
+    "notificationsSyncUnavailableDetail" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Notifications from your connected device will appear here."
+            "value" : "Notification sync is not available in this version. No device notifications are collected."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已连接设备中的通知会显示在这里。"
+            "value" : "当前版本尚不支持通知同步，也不会收集设备通知。"
           }
         }
       }

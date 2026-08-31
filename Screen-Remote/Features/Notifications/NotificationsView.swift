@@ -21,7 +21,7 @@ struct NotificationsView: View {
                 ContentUnavailableViewCompat(
                     icon: "bell.slash",
                     title: "notificationsEmptyTitle",
-                    detail: "notificationsEmptyDetail"
+                    detail: "notificationsSyncUnavailableDetail"
                 )
                 .padding(isCompact ? AppSpacing.lg : AppSpacing.xxl)
                 .frame(maxWidth: .infinity, minHeight: 360)
