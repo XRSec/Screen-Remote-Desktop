@@ -117,6 +117,7 @@ struct PhotosView: View {
             .buttonStyle(.plain)
             .disabled(isLoading)
             .help("commonRefresh")
+            .accessibilityLabel(Text("commonRefresh"))
         }
         .padding(.horizontal, isCompact ? AppSpacing.md : AppSpacing.lg)
         .padding(.vertical, AppSpacing.sm)
