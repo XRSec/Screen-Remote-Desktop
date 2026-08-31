@@ -110,7 +110,7 @@ struct DeviceFilesView: View {
                                     toggleSelection: { toggleSelection(entry, in: column.path) },
                                     open: { select(entry, in: column) },
                                     download: { download(entry, in: column.path) },
-                                    delete: { delete(entry, in: column.path) }
+                                    delete: { confirmDelete(entry, in: column.path) }
                                 )
                                 Divider().padding(.leading, 48)
                             }
@@ -152,7 +152,7 @@ struct DeviceFilesView: View {
             .appCard()
             HStack {
                 Button("managementDownload") { download(selection.entry, in: selection.basePath) }
-                Button("managementDelete") { delete(selection.entry, in: selection.basePath) }
+                Button("managementDelete") { confirmDelete(selection.entry, in: selection.basePath) }
             }
             Spacer()
         }
@@ -390,6 +390,21 @@ struct DeviceFilesView: View {
             }
             catch { errorMessage = error.localizedDescription }
         }
+    }
+
+    private func confirmDelete(_ entry: RemoteFileEntry, in basePath: String? = nil) {
+        let alert = NSAlert()
+        alert.messageText = String.localizedKey("managementDelete")
+        alert.informativeText = String(
+            format: String.localizedKey("managementDeleteConfirmation"),
+            entry.name
+        )
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: String.localizedKey("managementDelete"))
+        alert.addButton(withTitle: String.localizedKey("commonCancel"))
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        delete(entry, in: basePath)
     }
 
     private func delete(_ entry: RemoteFileEntry, in basePath: String? = nil) {

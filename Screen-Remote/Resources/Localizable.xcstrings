@@ -3726,6 +3726,23 @@
         }
       }
     },
+    "managementDeleteConfirmation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete “%@” permanently? This action can't be undone."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "永久删除“%@”？此操作无法撤销。"
+          }
+        }
+      }
+    },
     "managementDeleteSelected" : {
 
     },
