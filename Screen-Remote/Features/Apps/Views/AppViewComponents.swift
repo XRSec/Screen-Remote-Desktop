@@ -152,6 +152,7 @@ struct ManagedAppGridItem: View {
         .accessibilityAction { openApp() }
         .modifier(ManagedAppAccessibilityActions(
             isEnabled: app.isEnabled,
+            actionsAvailable: !isBusy && !isLaunchingApp,
             showDetails: showDetails,
             launchOnDevice: launchOnDevice,
             toggleEnabled: toggleEnabled,
@@ -202,6 +203,7 @@ struct ManagedAppGridItem: View {
 
 private struct ManagedAppAccessibilityActions: ViewModifier {
     let isEnabled: Bool
+    let actionsAvailable: Bool
     let showDetails: () -> Void
     let launchOnDevice: () -> Void
     let toggleEnabled: () -> Void
@@ -210,16 +212,21 @@ private struct ManagedAppAccessibilityActions: ViewModifier {
     let exportAPK: () -> Void
     let uninstall: () -> Void
 
+    @ViewBuilder
     func body(content: Content) -> some View {
-        content
-            .accessibilityAction(named: Text("appsManageDetails")) { showDetails() }
-            .accessibilityAction(named: Text("appsManageLaunchOnDevice")) { launchOnDevice() }
-            .accessibilityAction(named: Text(isEnabled ? "appsManageDisable" : "appsManageEnable")) {
-                toggleEnabled()
-            }
-            .accessibilityAction(named: Text("appsManageForceStop")) { forceStop() }
-            .accessibilityAction(named: Text("appsManageClearData")) { clearData() }
-            .accessibilityAction(named: Text("appsManageExportAPK")) { exportAPK() }
-            .accessibilityAction(named: Text("appsManageUninstall")) { uninstall() }
+        if actionsAvailable {
+            content
+                .accessibilityAction(named: Text("appsManageDetails")) { showDetails() }
+                .accessibilityAction(named: Text("appsManageLaunchOnDevice")) { launchOnDevice() }
+                .accessibilityAction(named: Text(isEnabled ? "appsManageDisable" : "appsManageEnable")) {
+                    toggleEnabled()
+                }
+                .accessibilityAction(named: Text("appsManageForceStop")) { forceStop() }
+                .accessibilityAction(named: Text("appsManageClearData")) { clearData() }
+                .accessibilityAction(named: Text("appsManageExportAPK")) { exportAPK() }
+                .accessibilityAction(named: Text("appsManageUninstall")) { uninstall() }
+        } else {
+            content
+        }
     }
 }

@@ -3,47 +3,44 @@ set -euo pipefail
 
 python3 - <<'PY'
 from pathlib import Path
-import json
 import re
 import sys
 
-source = Path("Screen-Remote/Features/Apps/Views/AppsView.swift").read_text(encoding="utf-8")
-catalog = json.loads(Path("Screen-Remote/Resources/Localizable.xcstrings").read_text(encoding="utf-8"))["strings"]
-match = re.search(r'else if currentDevice == nil \{(.*?)\n        \} else \{', source, flags=re.S)
-if match is None:
-    print("Measurement invalid: Apps no-device branch is missing", file=sys.stderr)
-    sys.exit(2)
-no_device_branch = match.group(1)
+source = Path("Screen-Remote/Features/Apps/Views/AppViewComponents.swift").read_text(encoding="utf-8")
 
-# Product gap: Apps' no-device state is a custom icon/title with no recovery
-# action. It should use the shared empty-state component and offer Add Session,
-# just like management pages now do when no device exists.
+# Product gap: app cards are disabled while busy/launching, but their seven
+# named management actions remain attached by a modifier that knows only
+# enabled state. Disabled cards should not advertise actions they cannot run.
 checks = {
-    "shared_no_device_state": r'ContentUnavailableViewCompat\(',
-    "no_device_title_is_concise": r'title: "appsNoDeviceTitle".*?detail: "appsManageNoDevice"',
-    "add_session_action": r'actionTitle: "addDeviceTitle".*?appState\.showingAddDevice = true',
+    "modifier_accepts_availability": r'ManagedAppAccessibilityActions.*?let actionsAvailable: Bool',
+    "card_passes_availability": r'ManagedAppAccessibilityActions\(.*?actionsAvailable: !isBusy && !isLaunchingApp',
+    "actions_conditionally_exposed": r'func body\(content: Content\).*?if actionsAvailable.*?accessibilityAction\(named:',
+    "disabled_state_preserved": r'\.disabled\(isBusy \|\| isLaunchingApp\)',
 }
-gaps = [name for name, pattern in checks.items() if re.search(pattern, no_device_branch, flags=re.S) is None]
-loc = catalog.get("appsNoDeviceTitle", {}).get("localizations", {})
-if not all(loc.get(lang, {}).get("stringUnit", {}).get("value") for lang in ("en", "zh-Hans")):
-    gaps.append("no_device_title_localized")
+gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
 
-# Preserve distinction from disconnected selected device, connection recovery,
-# app-manager lifecycle, and the existing no-device message.
+# Preserve all seven real actions, default open action, state values, and the
+# busy/launching overlay. Passing cannot remove functionality to hide the gap.
 required = [
-    "currentDevice == nil",
-    '"appsManageNoDevice"',
-    'title: "appsSessionRequiredTitle"',
-    "appState.connectScreenSession(deviceID: currentDevice.id)",
-    "appManager.endManaging()",
+    'Text("appsManageDetails")',
+    'Text("appsManageLaunchOnDevice")',
+    "toggleEnabled()",
+    "forceStop()",
+    "clearData()",
+    "exportAPK()",
+    "uninstall()",
+    ".accessibilityAction { openApp() }",
+    "isBusy || isLaunchingApp",
+    'Text("appsManageLaunching")',
+    'Text("commonLoading")',
 ]
 missing = [item for item in required if item not in source]
 if missing:
-    print("Measurement invalid: Apps unavailable-state behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: app-card state/actions are missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC apps_no_device_recovery_gaps={len(gaps)}")
-print(f"METRIC apps_no_device_recovery_actions={1 if not gaps else 0}")
+print(f"METRIC app_card_action_availability_gaps={len(gaps)}")
+print(f"METRIC app_card_action_availability_states={2 if not gaps else 1}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY
