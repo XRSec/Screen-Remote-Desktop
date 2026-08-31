@@ -113,16 +113,22 @@ enum ManagementError: LocalizedError {
 struct ManagementUnavailableView: View {
     @EnvironmentObject private var appState: AppState
 
+    private var hasSelectedDevice: Bool {
+        appState.devices.indices.contains(appState.selectedDevice)
+    }
+
     var body: some View {
         ContentUnavailableViewCompat(
             icon: "cable.connector",
             title: "managementSessionRequiredTitle",
             detail: "managementSessionRequiredDetail",
-            actionTitle: "sessionStartAction",
+            actionTitle: hasSelectedDevice ? "sessionStartAction" : "addDeviceTitle",
             action: {
-                if appState.devices.indices.contains(appState.selectedDevice) {
+                if hasSelectedDevice {
                     let device = appState.devices[appState.selectedDevice]
                     appState.connectScreenSession(deviceID: device.id)
+                } else {
+                    appState.showingAddDevice = true
                 }
             }
         )
