@@ -5970,6 +5970,40 @@
         }
       }
     },
+    "managementNoDeviceDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add a device session before using management tools."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请先添加设备会话，再使用管理工具。"
+          }
+        }
+      }
+    },
+    "managementNoDeviceTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No device session"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂无设备会话"
+          }
+        }
+      }
+    },
     "managementSessionRequiredTitle" : {
       "extractionState" : "manual",
       "localizations" : {

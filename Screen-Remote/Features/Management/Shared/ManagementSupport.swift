@@ -120,8 +120,8 @@ struct ManagementUnavailableView: View {
     var body: some View {
         ContentUnavailableViewCompat(
             icon: "cable.connector",
-            title: "managementSessionRequiredTitle",
-            detail: "managementSessionRequiredDetail",
+            title: hasSelectedDevice ? "managementSessionRequiredTitle" : "managementNoDeviceTitle",
+            detail: hasSelectedDevice ? "managementSessionRequiredDetail" : "managementNoDeviceDetail",
             actionTitle: hasSelectedDevice ? "sessionStartAction" : "addDeviceTitle",
             action: {
                 if hasSelectedDevice {
