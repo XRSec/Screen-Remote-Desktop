@@ -73,7 +73,6 @@ struct NotificationsView: View {
 private struct NotificationCard: View {
     @EnvironmentObject private var appState: AppState
     let notification: PhoneNotification
-    @State private var reply = ""
 
     var body: some View {
         HStack(alignment: .top, spacing: AppSpacing.md) {
@@ -96,24 +95,10 @@ private struct NotificationCard: View {
                 Text(notification.title).font(AppTypography.headline)
                 Text(notification.body).font(AppTypography.subheadline).foregroundColor(.secondary)
                 if notification.icon == "message.fill" {
-                    HStack(spacing: AppSpacing.sm) {
-                        TextField("notificationsQuickReply", text: $reply)
-                            .textFieldStyle(.plain)
-                            .padding(.horizontal, 11)
-                            .frame(height: 32)
-                            .appBackground(Color.primary.opacity(0.05), in: RoundedRectangle(cornerRadius: AppRadius.small))
-                        Button {
-                            guard !reply.isEmpty else { return }
-                            reply = ""
-                        } label: {
-                            Image(systemName: "paperplane.fill")
-                                .foregroundColor(.white)
-                                .frame(width: 32, height: 32)
-                                .appBackground(AppTheme.accent, in: RoundedRectangle(cornerRadius: AppRadius.small))
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    .padding(.top, 2)
+                    Label("notificationsReplyUnavailable", systemImage: "info.circle")
+                        .font(AppTypography.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.top, 2)
                 }
             }
         }

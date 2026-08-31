@@ -6208,18 +6208,19 @@
         }
       }
     },
-    "notificationsQuickReply" : {
+    "notificationsReplyUnavailable" : {
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quick reply"
+            "value" : "Quick reply is not available in this version."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "快速回复"
+            "value" : "当前版本暂不支持快速回复。"
           }
         }
       }
