@@ -8,31 +8,32 @@ import sys
 
 source = Path("Screen-Remote/Features/Apps/Views/AppsView.swift").read_text(encoding="utf-8")
 
-# Product gap: the Apps loading state exposes both an unlabeled progress
-# indicator and a separate Loading text node. VoiceOver may announce duplicate,
-# fragmented feedback instead of one coherent live state.
+# Product gap: each summary metric is exposed as separate icon/value/label
+# fragments. VoiceOver should encounter one coherent metric whose label is the
+# localized meaning and whose value is the count.
 checks = {
-    "decorative_spinner_hidden": r'if appManager\.isLoading.*?ProgressView\(\).*?\.accessibilityHidden\(true\).*?Text\("appsManageLoading"\)',
-    "loading_group_has_single_label": r'if appManager\.isLoading.*?VStack.*?\.accessibilityElement\(children: \.combine\).*?\.accessibilityLabel\(Text\("appsManageLoading"\)\)',
+    "metric_children_combined": r'private func summaryMetric.*?HStack.*?\.accessibilityElement\(children: \.combine\)',
+    "metric_label_exposed": r'private func summaryMetric.*?\.accessibilityLabel\(Text\(label\)\)',
+    "metric_value_exposed": r'private func summaryMetric.*?\.accessibilityValue\(Text\(value\)\)',
+    "decorative_metric_icon_hidden": r'private func summaryMetric.*?Image\(systemName: icon\).*?\.accessibilityHidden\(true\)',
 }
 
 gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
 
-# Preserve the actual manager-backed loading branch and visible localized text.
-# Passing cannot remove progress feedback or replace it with a benchmark marker.
+# Preserve both real metrics and their connected-device count semantics.
 required = [
-    "if appManager.isLoading",
-    "ProgressView()",
-    'Text("appsManageLoading")',
-    "appManager.loadApps(for: device, appState: appState, force: true)",
+    'label: "appsUserInstalledCount"',
+    'label: "appsInstalledCount"',
+    "userInstalledAppCount",
+    "appManager.apps.count",
 ]
 missing = [item for item in required if item not in source]
 if missing:
-    print("Measurement invalid: real Apps loading behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: Apps summary metrics are missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC apps_loading_accessibility_gaps={len(gaps)}")
-print(f"METRIC apps_loading_coherent_states={1 if not gaps else 0}")
+print(f"METRIC apps_summary_accessibility_gaps={len(gaps)}")
+print(f"METRIC apps_summary_coherent_metrics={2 if not gaps else 0}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY

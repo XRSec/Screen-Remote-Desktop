@@ -303,6 +303,7 @@ struct AppsView: View {
                 .font(AppTypography.subheadline)
                 .foregroundColor(color)
                 .frame(width: 20)
+                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 1) {
                 Text(value)
                     .font(AppTypography.subheadline.weight(.semibold))
@@ -311,6 +312,9 @@ struct AppsView: View {
                     .foregroundColor(.secondary)
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(Text(label))
+        .accessibilityValue(Text(value))
     }
 
     private var appListControls: some View {
