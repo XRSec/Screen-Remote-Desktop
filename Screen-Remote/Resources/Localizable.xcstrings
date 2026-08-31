@@ -6762,6 +6762,40 @@
         }
       }
     },
+    "photosCategory" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Category"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分类"
+          }
+        }
+      }
+    },
+    "photosMediaCount" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total: %d items"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "共 %d 项"
+          }
+        }
+      }
+    },
     "photosEmptyTitle" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10186,6 +10220,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "选择远端 App"
+          }
+        }
+      }
+    },
+    "sessionSelectRemoteAppRequiresSavedDevice" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save the device before selecting a remote app."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请先保存设备，再选择远端 App。"
           }
         }
       }

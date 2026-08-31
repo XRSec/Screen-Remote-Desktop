@@ -108,6 +108,7 @@ struct PhotosView: View {
                     .padding(.horizontal, AppSpacing.sm)
                     .padding(.vertical, 2)
                     .background(Capsule().fill(Color.primary.opacity(0.06)))
+                    .accessibilityLabel(Text(String(format: String.localizedKey("photosMediaCount"), filteredPhotos.count)))
             }
 
             Button(action: loadPhotos) {
