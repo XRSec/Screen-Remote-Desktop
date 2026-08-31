@@ -7,15 +7,21 @@ struct MessagesView: View {
     @State private var isShowingConversation = false
     @State private var searchText = ""
 
+    private var filteredConversations: [(offset: Int, element: Conversation)] {
+        let indexedConversations = Array(appState.conversations.enumerated())
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return indexedConversations }
+        return indexedConversations.filter { _, conversation in
+            conversation.name.localizedCaseInsensitiveContains(query)
+                || conversation.preview.localizedCaseInsensitiveContains(query)
+        }
+    }
+
     var body: some View {
         if appState.conversations.isEmpty {
-            ContentUnavailableViewCompat(
-                icon: "message",
-                title: "messagesEmptyTitle",
-                detail: "messagesEmptyDetail"
-            )
-            .padding(isCompact ? 20 : 28)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            emptyState
+                .padding(isCompact ? 20 : 28)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             Group {
                 if isCompact {
@@ -40,30 +46,24 @@ struct MessagesView: View {
 
     private var conversationList: some View {
         VStack(spacing: 0) {
-            HStack(spacing: AppSpacing.sm) {
-                PageSearchField(searchText: $searchText, searchPrompt: "messagesSearchPrompt", expands: true)
-                Button {
-                    // Start new conversation placeholder action
-                } label: {
-                    Image(systemName: "square.and.pencil")
-                }
-                .buttonStyle(.plain)
-            }
-            .padding(AppSpacing.md)
+            PageSearchField(searchText: $searchText, searchPrompt: "messagesSearchPrompt", expands: true)
+                .padding(AppSpacing.md)
 
             Divider()
 
             ScrollView {
-                LazyVStack(spacing: 3) {
-                    if appState.conversations.isEmpty {
-                        ContentUnavailableViewCompat(
-                            icon: "message",
-                            title: "messagesEmptyTitle",
-                            detail: "messagesEmptyDetail"
-                        )
-                        .frame(minHeight: 260)
-                    } else {
-                        ForEach(Array(appState.conversations.enumerated()), id: \.element.id) { index, conversation in
+                if filteredConversations.isEmpty {
+                    ContentUnavailableViewCompat(
+                        icon: "magnifyingglass",
+                        title: "messagesSearchNoResults",
+                        detail: "messagesSearchPrompt",
+                        actionTitle: "commonClear",
+                        action: { searchText = "" }
+                    )
+                    .padding(AppSpacing.lg)
+                } else {
+                    LazyVStack(spacing: 3) {
+                        ForEach(filteredConversations, id: \.element.id) { index, conversation in
                             ConversationRow(conversation: conversation, isSelected: selectedConversation == index) {
                                 selectedConversation = index
                                 if isCompact {
@@ -72,8 +72,8 @@ struct MessagesView: View {
                             }
                         }
                     }
+                    .padding(AppSpacing.sm)
                 }
-                .padding(AppSpacing.sm)
             }
         }
         .background(AppTheme.surface.opacity(0.65))
@@ -108,21 +108,21 @@ struct MessagesView: View {
 
                 Divider()
 
-                ContentUnavailableViewCompat(
-                    icon: "message",
-                    title: "messagesEmptyTitle",
-                    detail: "messagesEmptyDetail"
-                )
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                emptyState
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         } else {
-            ContentUnavailableViewCompat(
-                icon: "message",
-                title: "messagesEmptyTitle",
-                detail: "messagesEmptyDetail"
-            )
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            emptyState
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+    }
+
+    private var emptyState: some View {
+        ContentUnavailableViewCompat(
+            icon: "message",
+            title: "messagesEmptyTitle",
+            detail: "messagesEmptyDetail"
+        )
     }
 }
 

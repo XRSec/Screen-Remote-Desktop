@@ -6077,6 +6077,23 @@
         }
       }
     },
+    "messagesSearchNoResults" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No matching conversations"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有匹配的对话"
+          }
+        }
+      }
+    },
     "messagesSearchPrompt" : {
       "localizations" : {
         "en" : {
