@@ -166,6 +166,8 @@ struct DeviceUtilitiesView: View {
                                 Color.green.opacity(0.07),
                                 in: RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
                             )
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel(Text(resultMessage))
                     }
                     ForEach(DeviceUtilitySection.allCases) { section in
                         VStack(alignment: .leading, spacing: AppSpacing.sm) {

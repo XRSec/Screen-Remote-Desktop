@@ -6,36 +6,34 @@ from pathlib import Path
 import re
 import sys
 
-source = Path("Screen-Remote/Features/Messages/MessagesView.swift").read_text(encoding="utf-8")
+source = Path("Screen-Remote/Features/Management/Utilities/DeviceUtilitiesView.swift").read_text(encoding="utf-8")
 
-# Product gap: ConversationRow is already a native Button, but its combined
-# children do not provide an explicit label/value split for sender, preview,
-# time, and read state. A coherent card summary improves VoiceOver scanning.
+# Product gap: utility success feedback is a green label visually, but it has no
+# explicit status semantics. VoiceOver users should encounter one coherent
+# confirmation whose label is the localized result message.
 checks = {
-    "row_label_is_name": r'ConversationRow.*?\.accessibilityLabel\(Text\(conversation\.name\)\)',
-    "row_metadata_summary": r'conversationAccessibilitySummary.*?conversation\.preview.*?conversation\.time',
-    "row_value_combines_metadata_and_state": r'ConversationRow.*?\.accessibilityValue\(Text\(conversationAccessibilitySummary\)\)',
+    "success_icon_hidden": r'if let resultMessage.*?Label\(resultMessage, systemImage: "checkmark\.circle\.fill"\).*?\.accessibilityElement\(children: \.ignore\)',
+    "success_message_label": r'if let resultMessage.*?\.accessibilityLabel\(Text\(resultMessage\)\)',
 }
 gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
 
-# Preserve native button activation, selection, read state, visible metadata,
-# compact navigation callback, and existing hint.
+# Preserve real localized result writes, visual success treatment, errors,
+# progress, action execution, and result reset behavior.
 required = [
-    "Button(action: action)",
-    "Text(conversation.name)",
-    "Text(conversation.preview)",
-    "Text(conversation.time)",
-    "conversation.unread",
-    ".accessibilityHint(Text(\"messagesOpenConversationHint\"))",
-    ".accessibilityAddTraits(isSelected ? .isSelected : [])",
+    "@State private var resultMessage: String?",
+    'Label(resultMessage, systemImage: "checkmark.circle.fill")',
+    "resultMessage = nil",
+    "resultMessage = String.localizedKey",
+    "ManagementErrorBanner",
+    "runShellAction",
 ]
 missing = [item for item in required if item not in source]
 if missing:
-    print("Measurement invalid: conversation row behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: utility feedback behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC conversation_row_semantic_gaps={len(gaps)}")
-print(f"METRIC conversation_row_metadata_fields={4 if not gaps else 2}")
+print(f"METRIC utility_success_feedback_gaps={len(gaps)}")
+print(f"METRIC utility_success_coherent_states={1 if not gaps else 0}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY
