@@ -46,31 +46,24 @@ struct AppsView: View {
     }
 
     private var filteredManagedApps: [ManagedAndroidApp] {
-        let visibleApps: [ManagedAndroidApp]
-        switch appFilter {
-        case .user:
-            visibleApps = appManager.apps.filter { !$0.isSystem }
-        case .system:
-            visibleApps = appManager.apps.filter(\.isSystem)
-        case .all:
-            visibleApps = appManager.apps
-        }
-        let stateFilteredApps: [ManagedAndroidApp]
-        switch enabledFilter {
-        case .enabled:
-            stateFilteredApps = visibleApps.filter(\.isEnabled)
-        case .disabled:
-            stateFilteredApps = visibleApps.filter { !$0.isEnabled }
-        case .all:
-            stateFilteredApps = visibleApps
-        }
-        guard !searchTerms.isEmpty else { return stateFilteredApps }
-        return stateFilteredApps.filter { app in
-            searchTerms.allSatisfy { term in
-                app.name.localizedCaseInsensitiveContains(term)
-                    || app.packageName.localizedCaseInsensitiveContains(term)
-            }
-        }
+        ManagedAppFiltering.filter(
+            appManager.apps,
+            systemState: {
+                switch appFilter {
+                case .user: return false
+                case .system: return true
+                case .all: return nil
+                }
+            }(),
+            enabledState: {
+                switch enabledFilter {
+                case .enabled: return true
+                case .disabled: return false
+                case .all: return nil
+                }
+            }(),
+            searchTerms: searchTerms
+        )
     }
 
     private var currentDevice: Device? {

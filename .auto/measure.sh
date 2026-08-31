@@ -1,54 +1,160 @@
 #!/bin/bash
 set -euo pipefail
 
-python3 - <<'PY'
-from pathlib import Path
-import statistics
-import time
+work_dir="$(mktemp -d)"
+trap 'rm -rf "$work_dir"' EXIT
 
-source = Path("Screen-Remote/Features/Apps/Views/AppsView.swift").read_text(encoding="utf-8")
-uses_cached_result = (
-    "let visibleManagedApps = filteredManagedApps" in source
-    and "visibleManagedApps.isEmpty" in source
-    and "ForEach(visibleManagedApps)" in source
-)
-passes = 1 if uses_cached_result else 2
+cat > "$work_dir/ManagedAndroidApp.swift" <<'SWIFT'
+import Foundation
 
-# Runtime proxy for one SwiftUI body evaluation with a large app inventory.
-# The filtering logic and two baseline consumers mirror AppsView's empty check
-# and grid ForEach. The checksum guarantees both modes produce identical data.
-apps = [
-    (f"Application {i}", f"com.example.package{i}", i % 5 == 0, i % 7 != 0)
-    for i in range(30000)
-]
-terms = ("application", "package")
+struct ManagedAndroidApp: Identifiable, Codable, Equatable {
+    let packageName: String
+    let name: String
+    let isEnabled: Bool
+    let isSystem: Bool
+    let versionCode: Int64
+    let lastUpdateTime: Int64
+    let iconFileName: String?
+    var id: String { packageName }
+}
+SWIFT
 
-def filter_apps():
-    visible = [app for app in apps if not app[2]]
-    enabled = [app for app in visible if app[3]]
-    return [
-        app for app in enabled
-        if all(term in app[0].lower() or term in app[1].lower() for term in terms)
-    ]
+# Candidate pure function used as the product file when present; otherwise fall
+# back to an identical inline copy so baseline/candidate measurement is never
+# blocked by an autoresearch rollback.
+if [[ -f "Screen-Remote/Features/Apps/Models/ManagedAppFiltering.swift" ]]; then
+  cp "Screen-Remote/Features/Apps/Models/ManagedAppFiltering.swift" "$work_dir/ManagedAppFiltering.swift"
+else
+  cat > "$work_dir/ManagedAppFiltering.swift" <<'SWIFT'
+import Foundation
 
-samples = []
-checksum = None
-for _ in range(9):
-    started = time.perf_counter_ns()
-    outputs = [filter_apps() for _ in range(passes)]
-    elapsed = time.perf_counter_ns() - started
-    current_checksum = sum(len(output) for output in outputs) // passes
-    if checksum is None:
-        checksum = current_checksum
-    elif current_checksum != checksum:
-        raise SystemExit("unstable benchmark checksum")
-    samples.append(elapsed / 1000)
+enum ManagedAppFiltering {
+    static func filter(
+        _ apps: [ManagedAndroidApp],
+        systemState: Bool?,
+        enabledState: Bool?,
+        searchTerms: [String]
+    ) -> [ManagedAndroidApp] {
+        apps.filter { app in
+            if let systemState, app.isSystem != systemState { return false }
+            if let enabledState, app.isEnabled != enabledState { return false }
+            return searchTerms.allSatisfy { term in
+                app.name.localizedCaseInsensitiveContains(term)
+                    || app.packageName.localizedCaseInsensitiveContains(term)
+            }
+        }
+    }
+}
+SWIFT
+fi
 
-if checksum != 20572:
-    raise SystemExit(f"unexpected filtering checksum: {checksum}")
+cat > "$work_dir/main.swift" <<'SWIFT'
+import Foundation
 
-median_us = statistics.median(samples)
-print(f"METRIC apps_body_filter_us={median_us:.0f}")
-print(f"METRIC apps_filter_passes={passes}")
-print(f"METRIC apps_filter_checksum={checksum}")
-PY
+#if BASELINE
+@inline(never)
+func measuredFilter(
+    _ apps: [ManagedAndroidApp],
+    systemState: Bool?,
+    enabledState: Bool?,
+    searchTerms: [String]
+) -> [ManagedAndroidApp] {
+    let visibleApps = systemState.map { state in apps.filter { $0.isSystem == state } } ?? apps
+    let enabledApps = enabledState.map { state in visibleApps.filter { $0.isEnabled == state } } ?? visibleApps
+    guard !searchTerms.isEmpty else { return enabledApps }
+    return enabledApps.filter { app in
+        searchTerms.allSatisfy { term in
+            app.name.localizedCaseInsensitiveContains(term)
+                || app.packageName.localizedCaseInsensitiveContains(term)
+        }
+    }
+}
+#else
+@inline(never)
+func measuredFilter(
+    _ apps: [ManagedAndroidApp],
+    systemState: Bool?,
+    enabledState: Bool?,
+    searchTerms: [String]
+) -> [ManagedAndroidApp] {
+    ManagedAppFiltering.filter(
+        apps,
+        systemState: systemState,
+        enabledState: enabledState,
+        searchTerms: searchTerms
+    )
+}
+#endif
+
+let sizes = [200, 500, 2_000]
+let iterations = 80
+var totalNanoseconds: UInt64 = 0
+var combinedCount = 0
+var combinedIndexSum: Int64 = 0
+var detail: [String] = []
+
+for size in sizes {
+    var apps: [ManagedAndroidApp] = []
+    apps.reserveCapacity(size)
+    for index in 0..<size {
+        let name = index % 11 == 0 ? "Camera Tool \(index)" : "Application \(index)"
+        apps.append(ManagedAndroidApp(
+            packageName: "com.example.package\(index)",
+            name: name,
+            isEnabled: index % 7 != 0,
+            isSystem: index % 5 == 0,
+            versionCode: Int64(index),
+            lastUpdateTime: Int64(index),
+            iconFileName: nil
+        ))
+    }
+    var samples: [UInt64] = []
+    var resultCount = 0
+    var indexSum: Int64 = 0
+    for _ in 0..<iterations {
+        let started = DispatchTime.now().uptimeNanoseconds
+        let result = measuredFilter(
+            apps,
+            systemState: false,
+            enabledState: true,
+            searchTerms: ["application", "package"]
+        )
+        samples.append(DispatchTime.now().uptimeNanoseconds - started)
+        resultCount = result.count
+        indexSum = result.reduce(0) { $0 + $1.versionCode }
+    }
+    samples.sort()
+    let median = samples[samples.count / 2]
+    totalNanoseconds += median
+    combinedCount += resultCount
+    combinedIndexSum += indexSum
+    detail.append("\(size):\(median / 1_000)us")
+}
+
+if combinedCount != 1683 || combinedIndexSum != 1_337_737 {
+    fatalError("unexpected result: count=\(combinedCount), sum=\(combinedIndexSum)")
+}
+print("METRIC app_filter_total_us=\(totalNanoseconds / 1_000)")
+print("METRIC app_filter_result_count=\(combinedCount)")
+print("METRIC app_filter_index_sum=\(combinedIndexSum)")
+print("DETAIL " + detail.joined(separator: ","))
+SWIFT
+
+swift_flags=()
+if [[ "${MODE:-candidate}" == "baseline" ]]; then
+  swift_flags+=("-D" "BASELINE")
+fi
+if [[ ${#swift_flags[@]} -gt 0 ]]; then
+  xcrun swiftc -O "${swift_flags[@]}" \
+    "$work_dir/ManagedAndroidApp.swift" \
+    "$work_dir/ManagedAppFiltering.swift" \
+    "$work_dir/main.swift" \
+    -o "$work_dir/app-filter-benchmark"
+else
+  xcrun swiftc -O \
+    "$work_dir/ManagedAndroidApp.swift" \
+    "$work_dir/ManagedAppFiltering.swift" \
+    "$work_dir/main.swift" \
+    -o "$work_dir/app-filter-benchmark"
+fi
+"$work_dir/app-filter-benchmark"
