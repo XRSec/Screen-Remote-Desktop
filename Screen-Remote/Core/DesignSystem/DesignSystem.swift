@@ -63,6 +63,7 @@ struct StatusBadge: View {
             Circle()
                 .fill(color)
                 .frame(width: 6, height: 6)
+                .accessibilityHidden(true)
             Text(text)
                 .font(AppTypography.caption)
         }
