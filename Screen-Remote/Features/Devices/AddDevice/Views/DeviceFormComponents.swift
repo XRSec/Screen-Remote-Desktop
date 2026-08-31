@@ -437,6 +437,7 @@ struct SessionGroupSelector: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.vertical, 5)
+                .accessibilityAddTraits(selection.isEmpty ? .isSelected : [])
 
                 OutlineGroup(appState.groupTree(), children: \.children) { node in
                     groupRow(group: node.group)
@@ -465,5 +466,6 @@ struct SessionGroupSelector: View {
         }
         .buttonStyle(.plain)
         .padding(.vertical, 5)
+        .accessibilityAddTraits(selection.contains(group.id) ? .isSelected : [])
     }
 }
