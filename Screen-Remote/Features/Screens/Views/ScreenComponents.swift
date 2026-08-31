@@ -250,9 +250,7 @@ struct ScrcpyParentContainer: View {
                                     .foregroundColor(.secondary)
                             }
                             .accessibilityElement(children: .ignore)
-                            .accessibilityLabel(
-                                Text(String.localizedKey(session.phase.localizationKey))
-                            )
+                            .accessibilityLabel(Text(screenStatusText))
                             .accessibilityValue(
                                 session.batteryLevel.map { Text("\($0)%") } ?? Text("")
                             )

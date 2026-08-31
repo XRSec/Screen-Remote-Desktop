@@ -6,41 +6,37 @@ from pathlib import Path
 import re
 import sys
 
-source = Path("Screen-Remote/Features/Apps/Views/AppViewComponents.swift").read_text(encoding="utf-8")
+source = Path("Screen-Remote/Features/Screens/Views/ScreenComponents.swift").read_text(encoding="utf-8")
 
-# Product gap: app cards are disabled while busy/launching, but their seven
-# named management actions remain attached by a modifier that knows only
-# enabled state. Disabled cards should not advertise actions they cannot run.
+# Product gap: the visible status text reports working phases, battery, or
+# Connected, but its VoiceOver label always uses session.phase.localizationKey.
+# Connected sessions can therefore announce a stale phase name instead of the
+# same honest status shown on screen.
 checks = {
-    "modifier_accepts_availability": r'ManagedAppAccessibilityActions.*?let actionsAvailable: Bool',
-    "card_passes_availability": r'ManagedAppAccessibilityActions\(.*?actionsAvailable: !isBusy && !isLaunchingApp',
-    "actions_conditionally_exposed": r'func body\(content: Content\).*?if actionsAvailable.*?accessibilityAction\(named:',
-    "disabled_state_preserved": r'\.disabled\(isBusy \|\| isLaunchingApp\)',
+    "shared_status_text_used_as_label": r'Text\(screenStatusText\).*?\.accessibilityLabel\(Text\(screenStatusText\)\)',
+    "battery_remains_value": r'\.accessibilityValue\(\s*session\.batteryLevel\.map \{ Text\("\\\(\$0\)%"\) \} \?\? Text\(""\)\s*\)',
+    "status_text_covers_working_and_connected": r'screenStatusText.*?session\.phase\.isWorking.*?session\.batteryLevel.*?sidebarDeviceConnected',
 }
 gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
 
-# Preserve all seven real actions, default open action, state values, and the
-# busy/launching overlay. Passing cannot remove functionality to hide the gap.
+# Preserve connected-only visibility, green indicator, visible text, battery,
+# phase localization for working states, and stream metric semantics.
 required = [
-    'Text("appsManageDetails")',
-    'Text("appsManageLaunchOnDevice")',
-    "toggleEnabled()",
-    "forceStop()",
-    "clearData()",
-    "exportAPK()",
-    "uninstall()",
-    ".accessibilityAction { openApp() }",
-    "isBusy || isLaunchingApp",
-    'Text("appsManageLaunching")',
-    'Text("commonLoading")',
+    "if session.isConnected",
+    ".fill(Color.green)",
+    "Text(screenStatusText)",
+    "session.phase.localizationKey",
+    "session.batteryLevel",
+    'String.localizedKey("sidebarDeviceConnected")',
+    'Text("screensStreamMetrics")',
 ]
 missing = [item for item in required if item not in source]
 if missing:
-    print("Measurement invalid: app-card state/actions are missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: ScreenTile status behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC app_card_action_availability_gaps={len(gaps)}")
-print(f"METRIC app_card_action_availability_states={2 if not gaps else 1}")
+print(f"METRIC screen_status_semantic_gaps={len(gaps)}")
+print(f"METRIC screen_status_consistent_states={2 if not gaps else 1}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY
