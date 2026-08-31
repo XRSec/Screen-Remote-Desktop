@@ -212,10 +212,12 @@ struct VirtualDeviceView: View {
                                 .help(device.isRunning ? "virtualDeviceActionStop" : "virtualDeviceActionStart")
                                 .disabled(viewModel.isWorking)
                                 Button {
-                                    viewModel.delete(device, configuration: configuration)
+                                    confirmDelete(device)
                                 } label: {
                                     Image(systemName: "trash").foregroundColor(.red)
                                 }
+                                .help("commonDelete")
+                                .accessibilityLabel(Text("commonDelete"))
                                 .disabled(device.isRunning || viewModel.isWorking)
                             }
                             .padding(AppSpacing.cardPadding)
@@ -228,5 +230,21 @@ struct VirtualDeviceView: View {
                 }
             }
         }
+    }
+
+    private func confirmDelete(_ device: AndroidVirtualDevice) {
+        let alert = NSAlert()
+        alert.messageText = String(
+            format: String.localizedKey("virtualDeviceDeleteConfirmationTitle"),
+            device.name
+        )
+        alert.informativeText = String.localizedKey("virtualDeviceDeleteConfirmationDetail")
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: String.localizedKey("commonDelete"))
+        alert.addButton(withTitle: String.localizedKey("commonCancel"))
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+
+        viewModel.delete(device, configuration: configuration)
     }
 }

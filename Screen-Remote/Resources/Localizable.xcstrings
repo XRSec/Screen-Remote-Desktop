@@ -12574,6 +12574,40 @@
         }
       }
     },
+    "virtualDeviceDeleteConfirmationDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The virtual device and its data will be permanently deleted. This action can't be undone."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此虚拟设备及其数据将被永久删除。此操作无法撤销。"
+          }
+        }
+      }
+    },
+    "virtualDeviceDeleteConfirmationTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete “%@”?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除“%@”？"
+          }
+        }
+      }
+    },
     "virtualDeviceDeleteFailed" : {
       "extractionState" : "manual",
       "localizations" : {
