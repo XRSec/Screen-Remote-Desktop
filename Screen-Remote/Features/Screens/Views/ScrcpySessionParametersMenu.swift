@@ -44,6 +44,7 @@ private struct ScrcpySessionParametersMenuButton: NSViewRepresentable {
         button.isBordered = false
         button.imagePosition = .imageOnly
         button.imageScaling = .scaleProportionallyDown
+        button.setAccessibilityLabel(String.localizedKey("screensSessionParameters"))
         button.target = context.coordinator
         button.action = #selector(ScrcpySessionParametersMenuCoordinator.showMenu(_:))
         context.coordinator.update(button, options: options, isDisabled: isDisabled)
@@ -51,6 +52,7 @@ private struct ScrcpySessionParametersMenuButton: NSViewRepresentable {
     }
 
     func updateNSView(_ button: NSButton, context: Context) {
+        button.setAccessibilityLabel(String.localizedKey("screensSessionParameters"))
         context.coordinator.deviceID = deviceID
         context.coordinator.remoteSerial = remoteSerial
         context.coordinator.update(button, options: options, isDisabled: isDisabled)
