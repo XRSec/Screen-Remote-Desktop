@@ -4951,7 +4951,21 @@
       }
     },
     "managementDownloadSelected" : {
-
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download Selected"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下载所选项目"
+          }
+        }
+      }
     },
     "managementFastboot" : {
       "extractionState" : "manual",
