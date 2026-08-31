@@ -147,7 +147,11 @@ struct ConnectionDiscoveryPicker: View {
                                     Text(device.state)
                                         .font(.caption)
                                         .foregroundColor(.secondary)
-                                    if device.address.caseInsensitiveCompare(currentAddress) == .orderedSame {
+                                    if device.requiresPairing {
+                                        Label("deviceDiscoveryPairingRequired", systemImage: "lock.fill")
+                                            .font(AppTypography.caption)
+                                            .foregroundColor(.secondary)
+                                    } else if device.address.caseInsensitiveCompare(currentAddress) == .orderedSame {
                                         Image(systemName: "checkmark.circle.fill")
                                             .foregroundColor(AppTheme.accent)
                                     } else {
@@ -160,6 +164,8 @@ struct ConnectionDiscoveryPicker: View {
                                 .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
+                            .disabled(device.requiresPairing)
+                            .help(device.requiresPairing ? "deviceDiscoveryPairingRequiredDetail" : "")
                             .appCard(radius: 10)
                         }
                     }
