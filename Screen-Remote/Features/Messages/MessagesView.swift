@@ -194,6 +194,14 @@ private struct ConversationRow: View {
     let isSelected: Bool
     let action: () -> Void
 
+    private var conversationAccessibilitySummary: String {
+        [
+            conversation.preview,
+            conversation.time,
+            String.localizedKey(conversation.unread ? "messagesUnread" : "messagesRead"),
+        ].joined(separator: ", ")
+    }
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: 11) {
@@ -219,9 +227,10 @@ private struct ConversationRow: View {
             .accessibilityElement(children: .combine)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(Text(conversation.name))
         .accessibilityHint(Text("messagesOpenConversationHint"))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .accessibilityValue(conversation.unread ? Text("messagesUnread") : Text("messagesRead"))
+        .accessibilityValue(Text(conversationAccessibilitySummary))
     }
 }
 
