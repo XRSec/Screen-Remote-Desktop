@@ -6480,6 +6480,23 @@
         }
       }
     },
+    "messagesSyncUnavailableTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Message sync unavailable"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "消息同步不可用"
+          }
+        }
+      }
+    },
     "messagesSyncUnavailableDetail" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6642,6 +6659,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "全部清除"
+          }
+        }
+      }
+    },
+    "notificationsSyncUnavailableTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notification sync unavailable"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知同步不可用"
           }
         }
       }

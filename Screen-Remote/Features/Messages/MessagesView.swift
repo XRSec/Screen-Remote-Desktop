@@ -175,7 +175,7 @@ struct MessagesView: View {
     private var emptyState: some View {
         ContentUnavailableViewCompat(
             icon: "message",
-            title: "messagesEmptyTitle",
+            title: "messagesSyncUnavailableTitle",
             detail: "messagesSyncUnavailableDetail"
         )
     }

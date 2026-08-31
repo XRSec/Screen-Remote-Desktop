@@ -3,39 +3,43 @@ set -euo pipefail
 
 python3 - <<'PY'
 from pathlib import Path
+import json
 import re
 import sys
 
-source = Path("Screen-Remote/App/Root/SidebarView.swift").read_text(encoding="utf-8")
+notifications = Path("Screen-Remote/Features/Notifications/NotificationsView.swift").read_text(encoding="utf-8")
+messages = Path("Screen-Remote/Features/Messages/MessagesView.swift").read_text(encoding="utf-8")
+catalog = json.loads(Path("Screen-Remote/Resources/Localizable.xcstrings").read_text(encoding="utf-8"))["strings"]
 
-# Product gap: expanded device rows show working/failed/connected/disconnected
-# state visually, but collapsed sidebar glyphs use only the device accent color.
-# A compact status overlay should preserve the same glanceable state hierarchy.
+# Product gap: these pages intentionally have no sync channel, yet their titles
+# say merely "No notifications/messages", which reads like a temporary empty
+# inbox. Titles should state the unavailable capability immediately; details
+# retain the explicit no-collection privacy promise.
 checks = {
-    "status_overlay_attached": r'PhoneGlyph\(color: device\.accent, compact: true\).*?\.overlay\(.*?CollapsedSessionStatusIndicator\(session: session\).*?alignment: \.bottomTrailing',
-    "working_progress_visible": r'struct CollapsedSessionStatusIndicator.*?session\.phase\.isWorking.*?ProgressView\(',
-    "failed_state_visible": r'struct CollapsedSessionStatusIndicator.*?session\.phase == \.failed.*?Color\.red',
-    "connected_and_idle_states_visible": r'struct CollapsedSessionStatusIndicator.*?supportsBatteryInformation.*?Color\.green.*?Color\.secondary',
+    "notifications_unavailable_title_used": r'title: "notificationsSyncUnavailableTitle"',
+    "messages_unavailable_title_used": r'title: "messagesSyncUnavailableTitle"',
 }
+gaps = [name for name, pattern in checks.items() if re.search(pattern, notifications + "\n" + messages) is None]
 
-gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
+for key in ("notificationsSyncUnavailableTitle", "messagesSyncUnavailableTitle"):
+    entry = catalog.get(key, {})
+    localizations = entry.get("localizations", {})
+    if not all(localizations.get(lang, {}).get("stringUnit", {}).get("value") for lang in ("en", "zh-Hans")):
+        gaps.append(f"{key}_localized")
 
-# Preserve the compact glyph's existing selection, double-click launch, status
-# accessibility value, and named session action. Passing cannot trade semantics
-# for decoration.
+# Preserve honest privacy details and the fact that there is no fabricated sync
+# action. Passing cannot replace the unavailable state with fake controls.
 required = [
-    "appState.selectDevice(at: index)",
-    "appState.startScreenSession(deviceID: device.id)",
-    ".accessibilityValue(Text(collapsedSessionStatusText(session)))",
-    ".accessibilityAction(named: Text(collapsedSessionActionKey(session)))",
+    (notifications, 'detail: "notificationsSyncUnavailableDetail"'),
+    (messages, 'detail: "messagesSyncUnavailableDetail"'),
 ]
-missing = [item for item in required if item not in source]
+missing = [item for source, item in required if item not in source]
 if missing:
-    print("Measurement invalid: collapsed-sidebar behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: privacy/unavailable details are missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC collapsed_sidebar_visual_status_gaps={len(gaps)}")
-print(f"METRIC collapsed_sidebar_visual_states={4 - len(gaps)}")
+print(f"METRIC unavailable_sync_title_gaps={len(gaps)}")
+print(f"METRIC unavailable_sync_honest_pages={2 - sum(name.endswith('_used') for name in gaps)}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY

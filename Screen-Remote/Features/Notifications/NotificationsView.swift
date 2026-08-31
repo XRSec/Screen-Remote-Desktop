@@ -20,7 +20,7 @@ struct NotificationsView: View {
             if appState.notifications.isEmpty {
                 ContentUnavailableViewCompat(
                     icon: "bell.slash",
-                    title: "notificationsEmptyTitle",
+                    title: "notificationsSyncUnavailableTitle",
                     detail: "notificationsSyncUnavailableDetail"
                 )
                 .padding(isCompact ? AppSpacing.lg : AppSpacing.xxl)
