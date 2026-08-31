@@ -95,11 +95,7 @@ private struct NotificationCard: View {
                     Text(notification.app).font(AppTypography.caption.weight(.semibold)).foregroundColor(.secondary)
                     Text(verbatim: "· \(notification.time)").font(AppTypography.caption).foregroundColor(Color.secondary.opacity(0.65))
                     Spacer()
-                    Button {
-                        if let index = appState.notifications.firstIndex(where: { $0.id == notification.id }) {
-                            appState.notifications.remove(at: index)
-                        }
-                    } label: {
+                    Button(action: dismissNotification) {
                         Image(systemName: "xmark")
                     }
                     .buttonStyle(.plain)
@@ -121,5 +117,12 @@ private struct NotificationCard: View {
         }
         .padding(AppSpacing.lg)
         .appCard()
+        .accessibilityAction(named: Text("notificationsDismiss"), dismissNotification)
+    }
+
+    private func dismissNotification() {
+        if let index = appState.notifications.firstIndex(where: { $0.id == notification.id }) {
+            appState.notifications.remove(at: index)
+        }
     }
 }
