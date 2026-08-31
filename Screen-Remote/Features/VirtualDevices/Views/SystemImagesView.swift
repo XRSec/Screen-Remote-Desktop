@@ -33,7 +33,9 @@ struct SystemImagesView: View {
         VStack(spacing: 0) {
             VStack(spacing: 10) {
                 HStack(spacing: 8) {
-                    Image(systemName: "magnifyingglass").foregroundColor(.secondary)
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.secondary)
+                        .accessibilityHidden(true)
                     TextField("virtualDeviceImageSearch", text: $searchText)
                         .textFieldStyle(.plain)
                     if !searchText.isEmpty {
@@ -41,6 +43,8 @@ struct SystemImagesView: View {
                             Image(systemName: "xmark.circle.fill").foregroundColor(.secondary)
                         }
                         .buttonStyle(.plain)
+                        .help("commonClear")
+                        .accessibilityLabel(Text("commonClear"))
                     }
                 }
                 .padding(.horizontal, 11)
@@ -76,7 +80,9 @@ struct SystemImagesView: View {
             if filteredImages.isEmpty && !viewModel.isWorking {
                 VStack(spacing: AppSpacing.md) {
                     Image(systemName: "externaldrive.badge.questionmark")
-                        .font(AppTypography.largeTitle).foregroundColor(.secondary)
+                        .font(AppTypography.largeTitle)
+                        .foregroundColor(.secondary)
+                        .accessibilityHidden(true)
                     Text("virtualDeviceNoMatchingImages").font(AppTypography.headline)
                     Text("virtualDeviceNoMatchingImagesDetail")
                         .font(AppTypography.subheadline).foregroundColor(.secondary)
@@ -186,6 +192,7 @@ struct SystemImageRow: View {
                 .foregroundColor(image.isInstalled ? .green : AppTheme.accent)
                 .frame(width: 30, height: 30)
                 .background(Circle().fill(Color.primary.opacity(0.055)))
+                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 3) {
                 Text(image.displayName).font(AppTypography.body.weight(.medium))
                 Text(image.description).font(AppTypography.caption2).foregroundColor(.secondary).lineLimit(1)
@@ -201,6 +208,7 @@ struct SystemImageRow: View {
                     .font(AppTypography.caption)
                     .foregroundColor(.secondary)
                     .help(usageDescription)
+                    .accessibilityLabel(Text(usageDescription))
             }
             if isWorking {
                 ProgressView().scaleEffect(0.7).frame(width: 48)
