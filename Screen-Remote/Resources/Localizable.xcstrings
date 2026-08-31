@@ -5449,6 +5449,23 @@
         }
       }
     },
+    "managementRebootConfirmation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This will interrupt the active session with “%@”. Continue?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这会中断与“%@”的当前会话。是否继续？"
+          }
+        }
+      }
+    },
     "managementRestart" : {
       "extractionState" : "manual",
       "localizations" : {

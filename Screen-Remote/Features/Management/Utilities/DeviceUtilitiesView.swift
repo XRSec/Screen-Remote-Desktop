@@ -322,12 +322,23 @@ struct DeviceUtilitiesView: View {
         }
     }
 
+}
+
+extension DeviceUtilitiesView {
     private var rebootSheet: some View {
         UtilityOptionList(detail: "managementAdvancedRebootWarning") {
-            UtilityOptionButton(title: "managementRestart", icon: "restart") { runReboot(mode: "normal") }
-            UtilityOptionButton(title: "managementPowerOff", icon: "power", isDestructive: true) { runReboot(mode: "powerOff") }
-            UtilityOptionButton(title: "managementRecovery", icon: "cross.case", isDestructive: true) { runReboot(mode: "recovery") }
-            UtilityOptionButton(title: "managementFastboot", icon: "terminal", isDestructive: true) { runReboot(mode: "fastboot") }
+            UtilityOptionButton(title: "managementRestart", icon: "restart") {
+                confirmReboot(mode: "normal")
+            }
+            UtilityOptionButton(title: "managementPowerOff", icon: "power", isDestructive: true) {
+                confirmReboot(mode: "powerOff")
+            }
+            UtilityOptionButton(title: "managementRecovery", icon: "cross.case", isDestructive: true) {
+                confirmReboot(mode: "recovery")
+            }
+            UtilityOptionButton(title: "managementFastboot", icon: "terminal", isDestructive: true) {
+                confirmReboot(mode: "fastboot")
+            }
         }
     }
 
@@ -532,6 +543,32 @@ struct DeviceUtilitiesView: View {
                 appState.appendSDLLog("Failed to change wireless debugging port: \(target.device.name), \(error.localizedDescription)")
             }
             isBusy = false
+        }
+    }
+
+    private func confirmReboot(mode: String) {
+        guard let target = managementTarget(from: appState) else { return }
+        let actionTitle = rebootActionTitle(for: mode)
+        let alert = NSAlert()
+        alert.messageText = actionTitle
+        alert.informativeText = String(
+            format: String.localizedKey("managementRebootConfirmation"),
+            target.device.name
+        )
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: actionTitle)
+        alert.addButton(withTitle: String.localizedKey("commonCancel"))
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        runReboot(mode: mode)
+    }
+
+    private func rebootActionTitle(for mode: String) -> String {
+        switch mode {
+        case "powerOff": String.localizedKey("managementPowerOff")
+        case "recovery": String.localizedKey("managementRecovery")
+        case "fastboot": String.localizedKey("managementFastboot")
+        default: String.localizedKey("managementRestart")
         }
     }
 
