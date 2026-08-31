@@ -150,15 +150,16 @@ struct ManagedAppGridItem: View {
                     : (app.isEnabled ? Text("appsEnabledAppsFilter") : Text("appsDisabledAppsFilter")))
         )
         .accessibilityAction { openApp() }
-        .accessibilityAction(named: Text("appsManageDetails")) { showDetails() }
-        .accessibilityAction(named: Text("appsManageLaunchOnDevice")) { launchOnDevice() }
-        .accessibilityAction(named: Text(app.isEnabled ? "appsManageDisable" : "appsManageEnable")) {
-            toggleEnabled()
-        }
-        .accessibilityAction(named: Text("appsManageForceStop")) { forceStop() }
-        .accessibilityAction(named: Text("appsManageClearData")) { clearData() }
-        .accessibilityAction(named: Text("appsManageExportAPK")) { exportAPK() }
-        .accessibilityAction(named: Text("appsManageUninstall")) { uninstall() }
+        .modifier(ManagedAppAccessibilityActions(
+            isEnabled: app.isEnabled,
+            showDetails: showDetails,
+            launchOnDevice: launchOnDevice,
+            toggleEnabled: toggleEnabled,
+            forceStop: forceStop,
+            clearData: clearData,
+            exportAPK: exportAPK,
+            uninstall: uninstall
+        ))
     }
 
     private func highlightedText(_ value: String, terms: [String]) -> Text {
@@ -196,5 +197,29 @@ struct ManagedAppGridItem: View {
             let text = Text(String(value[segment.range]))
             return result + (segment.highlighted ? text.foregroundColor(AppTheme.accent).bold() : text)
         }
+    }
+}
+
+private struct ManagedAppAccessibilityActions: ViewModifier {
+    let isEnabled: Bool
+    let showDetails: () -> Void
+    let launchOnDevice: () -> Void
+    let toggleEnabled: () -> Void
+    let forceStop: () -> Void
+    let clearData: () -> Void
+    let exportAPK: () -> Void
+    let uninstall: () -> Void
+
+    func body(content: Content) -> some View {
+        content
+            .accessibilityAction(named: Text("appsManageDetails")) { showDetails() }
+            .accessibilityAction(named: Text("appsManageLaunchOnDevice")) { launchOnDevice() }
+            .accessibilityAction(named: Text(isEnabled ? "appsManageDisable" : "appsManageEnable")) {
+                toggleEnabled()
+            }
+            .accessibilityAction(named: Text("appsManageForceStop")) { forceStop() }
+            .accessibilityAction(named: Text("appsManageClearData")) { clearData() }
+            .accessibilityAction(named: Text("appsManageExportAPK")) { exportAPK() }
+            .accessibilityAction(named: Text("appsManageUninstall")) { uninstall() }
     }
 }
