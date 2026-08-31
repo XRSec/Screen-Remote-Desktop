@@ -450,18 +450,23 @@ private func color(for tag: SDLLogTag) -> NSColor {
     }
 }
 
+private let logHighlightPatterns: [(String, NSColor)] = [
+    ("\\b(ERROR|FATAL|FAILED|EXCEPTION)\\b", .systemRed),
+    ("\\b(WARN|WARNING)\\b", .systemOrange),
+    ("\\b(READY|CONNECTED|STARTED|COMPLETED|SUCCESS)\\b", .systemGreen)
+]
+
+private let logHighlightRegexes: [(NSRegularExpression, NSColor)] = logHighlightPatterns.compactMap { pattern, color in
+    guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { return nil }
+    return (regex, color)
+}
+
 private func highlightKeywords(
     in text: NSMutableAttributedString,
     range: NSRange
 ) {
     let message = text.attributedSubstring(from: range).string
-    let patterns: [(String, NSColor)] = [
-        ("\\b(ERROR|FATAL|FAILED|EXCEPTION)\\b", .systemRed),
-        ("\\b(WARN|WARNING)\\b", .systemOrange),
-        ("\\b(READY|CONNECTED|STARTED|COMPLETED|SUCCESS)\\b", .systemGreen)
-    ]
-    for (pattern, color) in patterns {
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { continue }
+    for (regex, color) in logHighlightRegexes {
         regex.enumerateMatches(in: message, range: NSRange(location: 0, length: (message as NSString).length)) { match, _, _ in
             guard let match else { return }
             let absoluteRange = NSRange(

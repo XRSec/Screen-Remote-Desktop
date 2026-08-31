@@ -4,106 +4,138 @@ set -euo pipefail
 work_dir="$(mktemp -d)"
 trap 'rm -rf "$work_dir"' EXIT
 
-# 产品过滤逻辑提取(与 PhotosView.filteredPhotos 相同)
-cat > "$work_dir/PhotosFilter.swift" <<'SWIFT'
+# 基线:SDLLogView.highlightKeywords 当前逻辑(每次调用新建 3 个 NSRegularExpression)
+cat > "$work_dir/LogHighlight.swift" <<'SWIFT'
+import AppKit
 import Foundation
 
-struct FilterItem: Identifiable, Equatable {
-    let name: String
-    var id: String { name }
-}
+enum LogHighlight {
+    static let patterns: [(String, NSColor)] = [
+        ("\\b(ERROR|FATAL|FAILED|EXCEPTION)\\b", .systemRed),
+        ("\\b(WARN|WARNING)\\b", .systemOrange),
+        ("\\b(READY|CONNECTED|STARTED|COMPLETED|SUCCESS)\\b", .systemGreen),
+    ]
 
-enum PhotosFiltering {
-    static func filtered(_ photos: [FilterItem], query: String) -> [FilterItem] {
-        let normalized = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !normalized.isEmpty else { return photos }
-        return photos.filter { $0.name.localizedCaseInsensitiveContains(normalized) }
+    static func apply(to text: NSMutableAttributedString, range: NSRange) {
+        let message = text.attributedSubstring(from: range).string
+        for (pattern, color) in patterns {
+            guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { continue }
+            regex.enumerateMatches(in: message, range: NSRange(location: 0, length: (message as NSString).length)) { match, _, _ in
+                guard let match else { return }
+                let absoluteRange = NSRange(
+                    location: range.location + match.range.location,
+                    length: match.range.length
+                )
+                text.addAttribute(.foregroundColor, value: color, range: absoluteRange)
+                text.addAttribute(.font, value: NSFont.monospacedSystemFont(ofSize: 11, weight: .bold), range: absoluteRange)
+            }
+        }
+    }
+
+    static func build(_ entries: [String]) -> NSAttributedString {
+        let result = NSMutableAttributedString()
+        let base: [NSAttributedString.Key: Any] = [
+            .font: NSFont.monospacedSystemFont(ofSize: 11, weight: .regular),
+            .foregroundColor: NSColor.textColor,
+        ]
+        for (idx, line) in entries.enumerated() {
+            let lineStart = result.length
+            result.append(NSAttributedString(string: line + "\n", attributes: base))
+            // 模拟产品的时间戳/tag 着色后,对整行做关键字高亮
+            let range = NSRange(location: lineStart, length: (line as NSString).length)
+            apply(to: result, range: range)
+            _ = idx
+        }
+        return result
     }
 }
 SWIFT
 
 cat > "$work_dir/main.swift" <<'SWIFT'
+import AppKit
 import Foundation
 
 #if BASELINE
-// 当前产品行为:单次 body 中 filteredPhotos 被访问 5 次(toolbar count、
-// photosCountSummary×2、contentArea isEmpty、ForEach),每次完整过滤
+// 基线:LogHighlight 每次新建正则(与产品一致)
 @inline(never)
-func bodyEvaluation(_ photos: [FilterItem], query: String) -> Int {
-    let c1 = PhotosFiltering.filtered(photos, query: query).count   // toolbar Text
-    let c2 = PhotosFiltering.filtered(photos, query: query).count   // photosCountSummary(搜索分支)
-    let c3 = PhotosFiltering.filtered(photos, query: query).count   // photosCountSummary(空分支)
-    let empty = PhotosFiltering.filtered(photos, query: query).isEmpty  // contentArea
-    let items = PhotosFiltering.filtered(photos, query: query)      // ForEach
-    return c1 + c2 + c3 + (empty ? 0 : 1) + items.count
+func renderLogs(_ entries: [String]) -> NSAttributedString {
+    LogHighlight.build(entries)
 }
 #else
-// 候选:同一次 body 求值用 let visiblePhotos = filteredPhotos 复用
+// 候选:静态缓存正则
+private let cachedRegex: [(NSRegularExpression, NSColor)] = LogHighlight.patterns.compactMap { pattern, color in
+    guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { return nil }
+    return (regex, color)
+}
+
 @inline(never)
-func bodyEvaluation(_ photos: [FilterItem], query: String) -> Int {
-    let visible = PhotosFiltering.filtered(photos, query: query)
-    let c1 = visible.count
-    let c2 = visible.count
-    let c3 = visible.count
-    let empty = visible.isEmpty
-    let items = visible
-    return c1 + c2 + c3 + (empty ? 0 : 1) + items.count
+func renderLogs(_ entries: [String]) -> NSAttributedString {
+    let result = NSMutableAttributedString()
+    let base: [NSAttributedString.Key: Any] = [
+        .font: NSFont.monospacedSystemFont(ofSize: 11, weight: .regular),
+        .foregroundColor: NSColor.textColor,
+    ]
+    for line in entries {
+        let lineStart = result.length
+        result.append(NSAttributedString(string: line + "\n", attributes: base))
+        let message = line
+        for (regex, color) in cachedRegex {
+            regex.enumerateMatches(in: message, range: NSRange(location: 0, length: (message as NSString).length)) { match, _, _ in
+                guard let match else { return }
+                let absoluteRange = NSRange(location: lineStart + match.range.location, length: match.range.length)
+                result.addAttribute(.foregroundColor, value: color, range: absoluteRange)
+                result.addAttribute(.font, value: NSFont.monospacedSystemFont(ofSize: 11, weight: .bold), range: absoluteRange)
+            }
+        }
+    }
+    return result
 }
 #endif
 
-let sizes = [500, 2_000, 5_000]
-let iterations = 50
-var baselineTotal: UInt64 = 0
-var candidateTotal: UInt64 = 0
-var detail: [String] = []
-
-for size in sizes {
-    let photos = (0..<size).map { FilterItem(name: "IMG_\($0).jpg") }
-    let query = "IMG_12"
-
-    // 正确性守卫:两模式结果必须一致
-    let baseResult = bodyEvaluation(photos, query: query)
-    // 用未编译的候选逻辑验证:候选结果由 #else 分支计算,这里强制两种
-    // 通过内部守卫:基线模式也验证候选等价值
-    #if BASELINE
-    let visible = PhotosFiltering.filtered(photos, query: query)
-    let candCheck = visible.count + visible.count + visible.count + (visible.isEmpty ? 0 : 1) + visible.count
-    guard baseResult == candCheck else {
-        fatalError("baseline/candidate result mismatch: \(baseResult) vs \(candCheck)")
+// 现实:200 条日志(logPageSize),部分含 ERROR/WARN/READY 关键字
+let entries: [String] = (0..<200).map { i in
+    let tag = ["connection", "adb", "scrcpy_server", "video", "audio", "control", "socks", "render", "apps", "files", "device", "other"][i % 12]
+    if i % 5 == 0 {
+        return "01:23:4\(i % 10)  [\(tag)]  ERROR connection failed with status \(i)"
+    } else if i % 7 == 0 {
+        return "01:23:4\(i % 10)  [\(tag)]  READY connected device \(i)"
     }
-    #else
-    // 候选模式:验证单次过滤输出与多次等价
-    let a = PhotosFiltering.filtered(photos, query: query)
-    let b = PhotosFiltering.filtered(photos, query: query)
-    let c = PhotosFiltering.filtered(photos, query: query)
-    guard a == b, b == c, baseResult == a.count * 4 + (a.isEmpty ? 0 : 1) else {
-        fatalError("candidate consistency mismatch")
-    }
-    #endif
-
-    var samples: [UInt64] = []
-    for _ in 0..<iterations {
-        let s = DispatchTime.now().uptimeNanoseconds
-        _ = bodyEvaluation(photos, query: query)
-        samples.append(DispatchTime.now().uptimeNanoseconds - s)
-    }
-    samples.sort()
-    let median = samples[samples.count / 2]
-    #if BASELINE
-    baselineTotal += median
-    #else
-    candidateTotal += median
-    #endif
-    detail.append("\(size):\(median / 1_000)us")
+    return "01:23:4\(i % 10)  [\(tag)]  Message payload \(i) connecting to device"
 }
 
-#if BASELINE
-let total = baselineTotal
-#else
-let total = candidateTotal
-#endif
-print("METRIC photos_search_filter_us=\(total / 1_000)")
-print("DETAIL " + detail.joined(separator: ","))
+// 行为守卫:两模式输出 attributed string 的文本与着色范围一致
+let baseAttr = LogHighlight.build(entries)
+let candAttr = renderLogs(entries)
+guard baseAttr.length == candAttr.length else {
+    fatalError("length mismatch: \(baseAttr.length) vs \(candAttr.length)")
+}
+guard baseAttr.string == candAttr.string else {
+    fatalError("text mismatch")
+}
+// 比较每个字符的 foregroundColor(着色一致性)
+let baseColors = (0..<baseAttr.length).map { baseAttr.attribute(.foregroundColor, at: $0, effectiveRange: nil) as? NSColor }
+let candColors = (0..<candAttr.length).map { candAttr.attribute(.foregroundColor, at: $0, effectiveRange: nil) as? NSColor }
+for i in 0..<baseAttr.length {
+    let b = baseColors[i] ?? .textColor
+    let c = candColors[i] ?? .textColor
+    if b != c {
+        fatalError("color mismatch at \(i): \(b) vs \(c)")
+    }
+}
+
+// 计时:候选模式测候选,基线模式测基线(renderLogs 已按 MODE 分支)
+let sizes = [200]
+let iterations = 30
+var samples: [UInt64] = []
+for _ in 0..<iterations {
+    let s = DispatchTime.now().uptimeNanoseconds
+    _ = renderLogs(entries)
+    samples.append(DispatchTime.now().uptimeNanoseconds - s)
+}
+samples.sort()
+let median = samples[samples.count / 2]
+print("METRIC log_highlight_rebuild_us=\(median / 1_000)")
+print("DETAIL 200entries:\(median / 1_000)us")
 SWIFT
 
 swift_flags=()
@@ -112,13 +144,13 @@ if [[ "${MODE:-candidate}" == "baseline" ]]; then
 fi
 if [[ ${#swift_flags[@]} -gt 0 ]]; then
   xcrun swiftc -O "${swift_flags[@]}" \
-    "$work_dir/PhotosFilter.swift" \
+    "$work_dir/LogHighlight.swift" \
     "$work_dir/main.swift" \
-    -o "$work_dir/photos-filter-benchmark"
+    -o "$work_dir/log-highlight-benchmark"
 else
   xcrun swiftc -O \
-    "$work_dir/PhotosFilter.swift" \
+    "$work_dir/LogHighlight.swift" \
     "$work_dir/main.swift" \
-    -o "$work_dir/photos-filter-benchmark"
+    -o "$work_dir/log-highlight-benchmark"
 fi
-"$work_dir/photos-filter-benchmark"
+"$work_dir/log-highlight-benchmark"

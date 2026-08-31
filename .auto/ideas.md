@@ -14,7 +14,7 @@
 ## P1：已保留提交的性能回归审计
 
 - [x] Apps 搜索高亮审计(2026-09-01):2000 个 app 名×2 terms 全量高亮约 13.4ms,但 LazyVGrid 只渲染可见卡片(20-50 个),每 keystroke 可见卡片高亮 <1ms。非瓶颈,不修改。
-- [x] Photos/Messages/Notifications 搜索审计(2026-09-01):Messages/Notifications 为占位数据(规模 0);Photos 的 filteredPhotos 在 body 中单次访问(标题/网格/空状态共用),无重复大计算。
+- [x] Photos 搜索过滤修复(2026-09-01,keep 072949c):filteredPhotos 单 body 5 次访问→body 顶层 let 复用,搜索 5000 张 15ms→3ms(-78.5%)。Messages/Notifications 为占位数据(规模 0)。
 - [ ] ScreenTile / Sidebar：检查新增状态摘要、overlay 和本地化格式化是否位于高频刷新路径。
 - [ ] DeviceUtilities：仅在测量证明有价值时优化 section 内动作筛选；避免针对 8 个静态动作过度优化。
 
