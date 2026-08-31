@@ -6,35 +6,36 @@ from pathlib import Path
 import re
 import sys
 
-source = Path("Screen-Remote/App/Root/SidebarComponents.swift").read_text(encoding="utf-8")
+source = Path("Screen-Remote/Features/Apps/Views/AppViewComponents.swift").read_text(encoding="utf-8")
 
-# Product gap: SidebarSectionHeader's toggle button has a value but no explicit
-# label or header trait. VoiceOver should identify the section name as a heading
-# and expose its expanded/count summary on the same control.
+# Product gap: PageSearchField visually uses its prompt as the field placeholder,
+# but does not set an explicit accessibility label. This shared component is used
+# across Apps, Diagnostics, Files, Processes, Messages, Notifications, and Photos.
 checks = {
-    "toggle_has_title_label": r'Button\(action: onToggle\).*?\.accessibilityLabel\(Text\(title\)\)',
-    "toggle_has_header_trait": r'Button\(action: onToggle\).*?\.accessibilityAddTraits\(\.isHeader\)',
-    "toggle_keeps_summary_value": r'Button\(action: onToggle\).*?\.accessibilityValue\(Text\(sectionSummary\)\)',
+    "search_field_label": r'TextField\(searchPrompt, text: \$searchText\).*?\.accessibilityLabel\(Text\(searchPrompt\)\)',
+    "clear_button_label_preserved": r'Button \{.*?searchText = "".*?\.accessibilityLabel\(Text\("commonClear"\)\)',
+    "search_icon_hidden": r'Image\(systemName: "magnifyingglass"\).*?\.accessibilityHidden\(true\)',
 }
 gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
 
-# Preserve visual title/chevron, expansion state/count, toggle and add actions,
-# plus the independent add-button label.
+# Preserve binding, placeholder, clear action, compact/wide sizing, visual icon,
+# and shared styling. Passing cannot replace the search component.
 required = [
-    "Text(title)",
-    "isExpanded ? \"chevron.down\" : \"chevron.right\"",
-    "sectionSummary",
-    "Button(action: onToggle)",
-    "Button(action: onAdd)",
-    ".accessibilityLabel(addHelp)",
+    "struct PageSearchField: View",
+    "@Binding var searchText: String",
+    "let searchPrompt: LocalizedStringKey",
+    "TextField(searchPrompt, text: $searchText)",
+    'searchText = ""',
+    "maxWidth: expands ? .infinity : 230",
+    "AppRadius.small",
 ]
 missing = [item for item in required if item not in source]
 if missing:
-    print("Measurement invalid: sidebar section header behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: shared search behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC sidebar_header_navigation_gaps={len(gaps)}")
-print(f"METRIC sidebar_navigable_headers={2 if not gaps else 0}")
+print(f"METRIC shared_search_field_semantic_gaps={len(gaps)}")
+print(f"METRIC shared_search_accessible_surfaces={7 if not gaps else 0}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY

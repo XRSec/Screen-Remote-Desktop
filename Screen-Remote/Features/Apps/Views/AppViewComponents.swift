@@ -7,6 +7,7 @@ struct PageSearchField: View {
 
     var body: some View {
         TextField(searchPrompt, text: $searchText)
+            .accessibilityLabel(Text(searchPrompt))
             .textFieldStyle(.plain)
             .padding(.leading, AppSpacing.md)
             .padding(.trailing, AppSpacing.xl)
