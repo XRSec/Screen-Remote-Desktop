@@ -153,6 +153,7 @@ struct VirtualDeviceView: View {
             Image(systemName: "arrow.clockwise")
         }
         .help("virtualDeviceRefresh")
+        .accessibilityLabel(Text("virtualDeviceRefresh"))
         .disabled(viewModel.isWorking)
         Button("commonDone") { presentationMode.wrappedValue.dismiss() }
     }
@@ -164,6 +165,7 @@ struct VirtualDeviceView: View {
                     Image(systemName: "iphone.gen3.slash")
                         .font(AppTypography.largeTitle)
                         .foregroundColor(.secondary)
+                        .accessibilityHidden(true)
                     Text("virtualDeviceNoDevicesTitle").font(AppTypography.headline)
                     Text("virtualDeviceNoDevicesDetail")
                         .font(AppTypography.subheadline).foregroundColor(.secondary)
@@ -179,6 +181,7 @@ struct VirtualDeviceView: View {
                                     .font(AppTypography.largeTitle)
                                     .foregroundColor(device.isRunning ? .green : AppTheme.accent)
                                     .frame(width: 34)
+                                    .accessibilityHidden(true)
                                 VStack(alignment: .leading, spacing: 4) {
                                     HStack(spacing: 7) {
                                         Text(device.name).font(AppTypography.headline)
