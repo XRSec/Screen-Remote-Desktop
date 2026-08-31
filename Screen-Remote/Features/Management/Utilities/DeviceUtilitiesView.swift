@@ -258,7 +258,7 @@ struct DeviceUtilitiesView: View {
             detail: "managementFixedPortWarning",
             primaryTitle: "managementApply",
             primaryEnabled: validPort != nil && fixedPort != snapshot.wirelessPort,
-            primaryAction: { runFixedPort() }
+            primaryAction: { confirmFixedPort() }
         ) {
             UtilityTextField(title: "managementDevicePort", text: $fixedPort)
         }
@@ -526,6 +526,23 @@ extension DeviceUtilitiesView {
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    private func confirmFixedPort() {
+        guard let target = managementTarget(from: appState), let port = validPort else { return }
+        let alert = NSAlert()
+        alert.messageText = String.localizedKey("managementFixedPort")
+        alert.informativeText = String(
+            format: String.localizedKey("managementFixedPortConfirmation"),
+            target.device.name,
+            port
+        )
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: String.localizedKey("managementApply"))
+        alert.addButton(withTitle: String.localizedKey("commonCancel"))
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        runFixedPort()
     }
 
     private func runFixedPort() {

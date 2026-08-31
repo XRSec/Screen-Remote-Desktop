@@ -4956,6 +4956,23 @@
         }
       }
     },
+    "managementFixedPortConfirmation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change wireless debugging on “%@” to port %d? The current connection may be interrupted."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将“%@”的无线调试端口改为 %d 吗？当前连接可能会中断。"
+          }
+        }
+      }
+    },
     "managementFixedPort" : {
       "extractionState" : "manual",
       "localizations" : {
