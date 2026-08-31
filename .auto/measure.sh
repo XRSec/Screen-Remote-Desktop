@@ -6,37 +6,37 @@ from pathlib import Path
 import re
 import sys
 
-source = Path("Screen-Remote/Features/Screens/Views/ScreenComponents.swift").read_text(encoding="utf-8")
+source = Path("Screen-Remote/App/Root/SidebarComponents.swift").read_text(encoding="utf-8")
 
-# Product gap: the visible status text reports working phases, battery, or
-# Connected, but its VoiceOver label always uses session.phase.localizationKey.
-# Connected sessions can therefore announce a stale phase name instead of the
-# same honest status shown on screen.
+# Product gap: expanded DeviceRow combines name and status implicitly, while
+# collapsed rows now use explicit label/value semantics. Expanded and collapsed
+# sidebar modes should expose the same stable device-name label and status value.
 checks = {
-    "shared_status_text_used_as_label": r'Text\(screenStatusText\).*?\.accessibilityLabel\(Text\(screenStatusText\)\)',
-    "battery_remains_value": r'\.accessibilityValue\(\s*session\.batteryLevel\.map \{ Text\("\\\(\$0\)%"\) \} \?\? Text\(""\)\s*\)',
-    "status_text_covers_working_and_connected": r'screenStatusText.*?session\.phase\.isWorking.*?session\.batteryLevel.*?sidebarDeviceConnected',
+    "expanded_row_name_label": r'DeviceRow.*?\.accessibilityLabel\(Text\(device\.name\)\)',
+    "expanded_row_status_value": r'DeviceRow.*?\.accessibilityValue\(Text\(statusText\)\)',
+    "primary_row_semantics_on_click_target": r'sessionClickGesture.*?\.accessibilityElement\(children: \.ignore\).*?\.accessibilityLabel\(Text\(device\.name\)\).*?\.accessibilityValue\(Text\(statusText\)\)',
 }
 gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
 
-# Preserve connected-only visibility, green indicator, visible text, battery,
-# phase localization for working states, and stream metric semantics.
+# Preserve visible name/status, click gestures, selection, named session/edit
+# actions, hidden hover controls, and all real status branches.
 required = [
-    "if session.isConnected",
-    ".fill(Color.green)",
-    "Text(screenStatusText)",
-    "session.phase.localizationKey",
+    "Text(device.name)",
+    "Text(statusText)",
+    "sessionClickGesture(onSingleClick: action, onDoubleClick: onDoubleClick)",
+    ".accessibilityAction(named: Text(sessionActionLocalizationKey), onToggleSession)",
+    ".accessibilityAction(named: Text(\"sessionEditTitle\"), onEdit)",
+    "session.phase.isWorking",
+    "session.phase == .failed",
     "session.batteryLevel",
-    'String.localizedKey("sidebarDeviceConnected")',
-    'Text("screensStreamMetrics")',
 ]
 missing = [item for item in required if item not in source]
 if missing:
-    print("Measurement invalid: ScreenTile status behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: expanded device-row behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC screen_status_semantic_gaps={len(gaps)}")
-print(f"METRIC screen_status_consistent_states={2 if not gaps else 1}")
+print(f"METRIC expanded_device_row_semantic_gaps={len(gaps)}")
+print(f"METRIC sidebar_device_modes_consistent={2 if not gaps else 1}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY

@@ -310,7 +310,9 @@ struct DeviceRow: View {
             }
             .contentShape(Rectangle())
             .sessionClickGesture(onSingleClick: action, onDoubleClick: onDoubleClick)
-            .accessibilityElement(children: .combine)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(device.name))
+            .accessibilityValue(Text(statusText))
             .accessibilityAddTraits(.isButton)
             .accessibilityAction { action() }
 
