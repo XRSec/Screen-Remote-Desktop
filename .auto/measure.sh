@@ -3,42 +3,38 @@ set -euo pipefail
 
 python3 - <<'PY'
 from pathlib import Path
-import json
 import re
 import sys
 
 source = Path("Screen-Remote/Features/Photos/PhotosView.swift").read_text(encoding="utf-8")
-catalog = json.loads(Path("Screen-Remote/Resources/Localizable.xcstrings").read_text(encoding="utf-8"))["strings"]
 
-# Product gap: while searching, the toolbar badge exposes only the filtered
-# count. Users cannot tell whether that is all media or a subset of a larger
-# collection. The accessibility label should state matching and total counts.
+# Product gap: filtering trims whitespace to decide whether an empty state is a
+# search, but filteredPhotos uses the raw string. A query such as " photo " can
+# incorrectly return no results even when "photo" matches. One normalized query
+# should drive filtering, count context, and empty-state classification.
 checks = {
-    "count_summary_uses_search_state": r'photosCountSummary.*?searchText.*?filteredPhotos\.count.*?photos\.count',
-    "badge_uses_count_summary": r'Text\("\\\(filteredPhotos\.count\)"\).*?\.accessibilityLabel\(Text\(photosCountSummary\)\)',
+    "normalized_query_source": r'private var normalizedSearchQuery: String.*?searchText\.trimmingCharacters\(in: \.whitespacesAndNewlines\)',
+    "filter_uses_normalized_query": r'filteredPhotos.*?guard !normalizedSearchQuery\.isEmpty.*?localizedCaseInsensitiveContains\(normalizedSearchQuery\)',
+    "count_uses_normalized_query": r'photosCountSummary.*?normalizedSearchQuery\.isEmpty',
+    "empty_state_uses_normalized_query": r'let hasSearchQuery = !normalizedSearchQuery\.isEmpty',
 }
 gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
 
-for key in ("photosMediaCount", "photosFilteredMediaCount"):
-    loc = catalog.get(key, {}).get("localizations", {})
-    if not all(loc.get(lang, {}).get("stringUnit", {}).get("value") for lang in ("en", "zh-Hans")):
-        gaps.append(f"{key}_localized")
-
-# Preserve visible filtered count, actual filtering, total collection, and search.
+# Preserve filename filtering, clear action, count summary, and source data.
 required = [
-    'Text("\\(filteredPhotos.count)")',
     "photos.filter",
-    "filteredPhotos.count",
+    "$0.name.localizedCaseInsensitiveContains",
+    'action: { searchText = "" }',
+    "photosCountSummary",
     "@State private var photos: [RemotePhotoItem]",
-    "PageSearchField",
 ]
 missing = [item for item in required if item not in source]
 if missing:
-    print("Measurement invalid: Photos count/search behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: Photos search behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC photos_filter_count_honesty_gaps={len(gaps)}")
-print(f"METRIC photos_filter_count_contexts={2 if not gaps else 1}")
+print(f"METRIC photos_search_normalization_gaps={len(gaps)}")
+print(f"METRIC photos_search_consistent_consumers={4 - len(gaps)}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY

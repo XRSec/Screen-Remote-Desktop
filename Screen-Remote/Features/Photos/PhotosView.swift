@@ -51,14 +51,17 @@ struct PhotosView: View {
     @State private var searchText = ""
     @State private var selectedPhotoID: String?
 
+    private var normalizedSearchQuery: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     private var filteredPhotos: [RemotePhotoItem] {
-        guard !searchText.isEmpty else { return photos }
-        return photos.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        guard !normalizedSearchQuery.isEmpty else { return photos }
+        return photos.filter { $0.name.localizedCaseInsensitiveContains(normalizedSearchQuery) }
     }
 
     private var photosCountSummary: String {
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if query.isEmpty {
+        if normalizedSearchQuery.isEmpty {
             return String(
                 format: String.localizedKey("photosMediaCount"),
                 filteredPhotos.count
@@ -155,7 +158,7 @@ struct PhotosView: View {
             .accessibilityElement(children: .combine)
             .accessibilityLabel(Text("commonLoading"))
         } else if filteredPhotos.isEmpty {
-            let hasSearchQuery = !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            let hasSearchQuery = !normalizedSearchQuery.isEmpty
             Group {
                 if hasSearchQuery {
                     ContentUnavailableViewCompat(
