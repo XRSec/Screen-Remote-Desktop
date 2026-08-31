@@ -56,8 +56,12 @@ struct ManagedAppGridItem: View {
                         .interpolation(.high)
                         .scaledToFit()
                         .frame(width: 48, height: 48)
+                        .accessibilityHidden(true)
+                        .transition(.scale(scale: 0.88).combined(with: .opacity))
                 } else {
                     AppIconTile(symbol: "app.fill", color: .appIndigo, size: 48)
+                        .accessibilityHidden(true)
+                        .transition(.opacity)
                 }
                 if isBusy || isLaunchingApp {
                     RoundedRectangle(cornerRadius: AppRadius.small)
@@ -66,6 +70,7 @@ struct ManagedAppGridItem: View {
                     ProgressView().scaleEffect(0.65)
                 }
             }
+            .animation(.easeOut(duration: 0.18), value: icon != nil)
             Text(app.name)
                 .font(AppTypography.caption.weight(.medium))
                 .lineLimit(1)
