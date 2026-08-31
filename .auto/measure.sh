@@ -6,34 +6,34 @@ from pathlib import Path
 import re
 import sys
 
-source = Path("Screen-Remote/Features/Management/Utilities/DeviceUtilitiesView.swift").read_text(encoding="utf-8")
+source = Path("Screen-Remote/Features/Management/Shared/ManagementSupport.swift").read_text(encoding="utf-8")
 
-# Product gap: utility success feedback is a green label visually, but it has no
-# explicit status semantics. VoiceOver users should encounter one coherent
-# confirmation whose label is the localized result message.
+# Product gap: the shared management error banner is used across seven page
+# families, but VoiceOver currently relies on automatic Label child merging.
+# It should expose one explicit dynamic error message without a duplicate icon.
 checks = {
-    "success_icon_hidden": r'if let resultMessage.*?Label\(resultMessage, systemImage: "checkmark\.circle\.fill"\).*?\.accessibilityElement\(children: \.ignore\)',
-    "success_message_label": r'if let resultMessage.*?\.accessibilityLabel\(Text\(resultMessage\)\)',
+    "error_children_ignored": r'ManagementErrorBanner.*?Label\(message, systemImage: "exclamationmark\.triangle\.fill"\).*?\.accessibilityElement\(children: \.ignore\)',
+    "dynamic_error_label": r'ManagementErrorBanner.*?\.accessibilityLabel\(Text\(message\)\)',
 }
 gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
 
-# Preserve real localized result writes, visual success treatment, errors,
-# progress, action execution, and result reset behavior.
+# Preserve dynamic message, visual warning styling, semantic tokens, and the
+# shared component itself. Passing cannot replace the banner with a marker.
 required = [
-    "@State private var resultMessage: String?",
-    'Label(resultMessage, systemImage: "checkmark.circle.fill")',
-    "resultMessage = nil",
-    "resultMessage = String.localizedKey",
-    "ManagementErrorBanner",
-    "runShellAction",
+    "struct ManagementErrorBanner: View",
+    "let message: String",
+    'Label(message, systemImage: "exclamationmark.triangle.fill")',
+    ".foregroundColor(.red)",
+    "Color.red.opacity(0.08)",
+    "AppRadius.small",
 ]
 missing = [item for item in required if item not in source]
 if missing:
-    print("Measurement invalid: utility feedback behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: shared management error banner is missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC utility_success_feedback_gaps={len(gaps)}")
-print(f"METRIC utility_success_coherent_states={1 if not gaps else 0}")
+print(f"METRIC management_error_feedback_gaps={len(gaps)}")
+print(f"METRIC management_error_coherent_states={1 if not gaps else 0}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY

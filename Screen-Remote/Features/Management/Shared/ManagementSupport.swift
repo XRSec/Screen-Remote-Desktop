@@ -147,6 +147,8 @@ struct ManagementErrorBanner: View {
                 RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
                     .stroke(Color.red.opacity(0.16), lineWidth: 1)
             )
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(message))
     }
 }
 
