@@ -185,13 +185,17 @@ struct SidebarView: View {
                 VStack(spacing: AppSpacing.sm) {
                     if virtualDeviceViewModel.isWorking && virtualDeviceViewModel.devices.isEmpty {
                         HStack(spacing: 7) {
-                            ProgressView().scaleEffect(0.65)
+                            ProgressView()
+                                .scaleEffect(0.65)
+                                .accessibilityHidden(true)
                             Text("virtualDeviceStatusReadingSDK")
                                 .font(AppTypography.caption)
                                 .foregroundColor(.secondary)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(10)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel(Text("virtualDeviceStatusReadingSDK"))
                     } else if virtualDeviceViewModel.devices.isEmpty {
                         Text("virtualDeviceNoDevicesSidebar")
                             .font(AppTypography.caption)

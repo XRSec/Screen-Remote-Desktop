@@ -6,37 +6,33 @@ from pathlib import Path
 import re
 import sys
 
-components = Path("Screen-Remote/App/Root/SidebarComponents.swift").read_text(encoding="utf-8")
-view = Path("Screen-Remote/App/Root/SidebarView.swift").read_text(encoding="utf-8")
-combined = components + "\n" + view
+source = Path("Screen-Remote/App/Root/SidebarView.swift").read_text(encoding="utf-8")
 
-# Product gap: section headers announce only expanded/collapsed. VoiceOver users
-# should also hear how many sessions or virtual devices belong to each section,
-# even while its rows are collapsed.
+# Product gap: while discovering virtual devices, the sidebar exposes a small
+# progress indicator and a separate text node. The compact row should remain
+# visually unchanged but present one coherent localized loading state.
 checks = {
-    "header_accepts_count": r'SidebarSectionHeader.*?let itemCount: Int',
-    "header_exposes_count_value": r'SidebarSectionHeader.*?accessibilityValue\(Text\(sectionSummary\)\)',
-    "session_count_forwarded": r'title: "sidebarSessions".*?itemCount: appState\.visibleDeviceOffsets\(\)\.count',
-    "virtual_count_forwarded": r'title: "sidebarVirtualDevices".*?itemCount: virtualDeviceViewModel\.devices\.count',
+    "spinner_semantics_hidden": r'virtualDeviceViewModel\.isWorking.*?ProgressView\(\).*?\.accessibilityHidden\(true\).*?Text\("virtualDeviceStatusReadingSDK"\)',
+    "loading_row_combined": r'virtualDeviceViewModel\.isWorking.*?HStack.*?\.accessibilityElement\(children: \.combine\).*?\.accessibilityLabel\(Text\("virtualDeviceStatusReadingSDK"\)\)',
 }
-gaps = [name for name, pattern in checks.items() if re.search(pattern, combined, flags=re.S) is None]
+gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
 
-# Guard both section toggles, add actions, and the actual row collections.
+# Preserve the real discovery state, visible progress/text, refresh trigger, and
+# empty-device distinction. Passing cannot remove loading feedback.
 required = [
-    "sessionsExpanded.toggle()",
-    "virtualDevicesExpanded.toggle()",
-    "appState.showingAddDevice = true",
-    "appState.openVirtualDeviceCreator()",
-    "appState.visibleDeviceOffsets()",
-    "virtualDeviceViewModel.devices",
+    "virtualDeviceViewModel.isWorking && virtualDeviceViewModel.devices.isEmpty",
+    "ProgressView()",
+    'Text("virtualDeviceStatusReadingSDK")',
+    "virtualDeviceViewModel.refreshDevices(virtualDeviceConfiguration)",
+    'Text("virtualDeviceNoDevicesSidebar")',
 ]
-missing = [item for item in required if item not in combined]
+missing = [item for item in required if item not in source]
 if missing:
-    print("Measurement invalid: sidebar section behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: virtual-device loading behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC sidebar_section_summary_gaps={len(gaps)}")
-print(f"METRIC sidebar_counted_sections={2 if not gaps else 0}")
+print(f"METRIC virtual_device_loading_accessibility_gaps={len(gaps)}")
+print(f"METRIC virtual_device_loading_coherent_states={1 if not gaps else 0}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY
