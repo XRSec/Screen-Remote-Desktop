@@ -199,11 +199,17 @@ struct DeviceFilesView: View {
             if !selectedEntries.isEmpty {
                 Button(action: downloadSelectedEntries) { Image(systemName: "square.and.arrow.down") }
                     .help("managementDownloadSelected")
+                    .accessibilityLabel(Text("managementDownloadSelected"))
                 Button(action: deleteSelectedEntries) { Image(systemName: "trash") }
                     .help("managementDeleteSelected")
+                    .accessibilityLabel(Text("managementDeleteSelected"))
             }
-            Button(action: createFolder) { Image(systemName: "folder.badge.plus") }.help("managementNewFolder")
-            Button(action: upload) { Image(systemName: "square.and.arrow.up") }.help("managementUpload")
+            Button(action: createFolder) { Image(systemName: "folder.badge.plus") }
+                .help("managementNewFolder")
+                .accessibilityLabel(Text("managementNewFolder"))
+            Button(action: upload) { Image(systemName: "square.and.arrow.up") }
+                .help("managementUpload")
+                .accessibilityLabel(Text("managementUpload"))
         }
     }
 
