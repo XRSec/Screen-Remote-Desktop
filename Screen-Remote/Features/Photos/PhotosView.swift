@@ -110,6 +110,8 @@ struct PhotosView: View {
             }
             .pickerStyle(.segmented)
             .frame(maxWidth: 240)
+            .accessibilityLabel(Text("photosCategory"))
+            .accessibilityValue(Text(selectedCategory.titleKey))
 
             Spacer()
 
