@@ -147,6 +147,24 @@ enum ScrcpyCodecCapabilityCache {
         lock.unlock()
     }
 
+    static func diskUsageBytes() -> Int64 {
+        let attributes = try? FileManager.default.attributesOfItem(atPath: url.path)
+        return (attributes?[.size] as? NSNumber)?.int64Value ?? 0
+    }
+
+    static func clearAll() {
+        lock.lock()
+        defer { lock.unlock() }
+        cache = ScrcpyCodecCapabilityCacheFile()
+        do {
+            if FileManager.default.fileExists(atPath: url.path) {
+                try FileManager.default.removeItem(at: url)
+            }
+        } catch {
+            NSLog("Screen Remote: failed to clear codec cache: %@", error.localizedDescription)
+        }
+    }
+
     static func localVideoDecoders() -> [ScrcpyLocalVideoDecoderCapability]? {
         lock.lock()
         defer { lock.unlock() }

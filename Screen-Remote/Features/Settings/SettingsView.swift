@@ -10,6 +10,7 @@ struct SettingsView: View {
     @State private var emulatorStatus: ToolStatus = .unchecked
     @State private var skinsStatus: ToolStatus = .unchecked
     @State private var downloadKind: ToolDownloadKind?
+    @State private var cacheUsageBytes: Int64 = 0
 
     var body: some View {
         VStack(spacing: 0) {
@@ -18,6 +19,10 @@ struct SettingsView: View {
                     BasicPreferencesCard(
                         language: $appState.appLanguage,
                         theme: $appState.appTheme
+                    )
+                    CacheManagementCard(
+                        cacheSize: formattedCacheSize,
+                        clear: clearCaches
                     )
                     BasicControlToolsCard(
                         adbPath: $appState.adbPath,
@@ -65,6 +70,7 @@ struct SettingsView: View {
         .onAppear {
             detectBasicTools()
             detectSDK()
+            refreshCacheUsage()
         }
         .onChange(of: appState.adbPath) { _ in testPaths() }
         .onChange(of: appState.scrcpyPath) { _ in testPaths() }
@@ -88,6 +94,10 @@ struct SettingsView: View {
                 testPaths()
             }
         }
+    }
+
+    private var formattedCacheSize: String {
+        ByteCountFormatter.string(fromByteCount: cacheUsageBytes, countStyle: .file)
     }
 
     private func chooseTool(binding: Binding<String>) {
@@ -173,6 +183,52 @@ struct SettingsView: View {
         return entries.contains {
             FileManager.default.fileExists(atPath: $0.appendingPathComponent("layout").path)
         }
+    }
+
+    private func refreshCacheUsage() {
+        cacheUsageBytes = DeviceAppCacheStore.diskUsageBytes()
+            + ScrcpyCodecCapabilityCache.diskUsageBytes()
+    }
+
+    private func clearCaches() {
+        let alert = NSAlert()
+        alert.messageText = String.localizedKey("settingsClearCache")
+        alert.informativeText = String.localizedKey("settingsClearCacheConfirmation")
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: String.localizedKey("settingsClearCache"))
+        alert.addButton(withTitle: String.localizedKey("commonCancel"))
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+
+        DeviceAppCacheStore.clearAll()
+        ScrcpyCodecCapabilityCache.clearAll()
+        refreshCacheUsage()
+        appState.appendSDLLog("Application caches cleared", tag: .other)
+    }
+}
+
+private struct CacheManagementCard: View {
+    let cacheSize: String
+    let clear: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.lg) {
+            SettingsSectionHeader(
+                symbol: "internaldrive",
+                title: "settingsCacheSection",
+                detail: "settingsCacheSectionDetail"
+            )
+            HStack {
+                Label("settingsCacheSize", systemImage: "externaldrive")
+                    .foregroundColor(.secondary)
+                Spacer()
+                Text(cacheSize)
+                    .font(AppTypography.monospacedCaption)
+                Button("settingsClearCache", action: clear)
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+            }
+        }
+        .settingsPanel()
     }
 }
 

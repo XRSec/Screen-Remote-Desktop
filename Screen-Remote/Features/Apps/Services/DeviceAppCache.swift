@@ -122,6 +122,45 @@ enum DeviceAppCacheStore {
         persist()
     }
 
+    static func diskUsageBytes() -> Int64 {
+        fileSize(at: url) + directorySize(at: iconsRoot)
+    }
+
+    static func clearAll() {
+        cache = DeviceAppCacheFile()
+        do {
+            if FileManager.default.fileExists(atPath: url.path) {
+                try FileManager.default.removeItem(at: url)
+            }
+            if FileManager.default.fileExists(atPath: iconsRoot.path) {
+                try FileManager.default.removeItem(at: iconsRoot)
+            }
+        } catch {
+            NSLog("Screen Remote: failed to clear app cache: %@", error.localizedDescription)
+        }
+    }
+
+    private static func fileSize(at file: URL) -> Int64 {
+        let attributes = try? FileManager.default.attributesOfItem(atPath: file.path)
+        return (attributes?[.size] as? NSNumber)?.int64Value ?? 0
+    }
+
+    private static func directorySize(at directory: URL) -> Int64 {
+        guard let enumerator = FileManager.default.enumerator(
+            at: directory,
+            includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey],
+            options: [.skipsHiddenFiles]
+        ) else { return 0 }
+
+        var total: Int64 = 0
+        for case let file as URL in enumerator {
+            guard let values = try? file.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey]),
+                  values.isRegularFile == true else { continue }
+            total += Int64(values.fileSize ?? 0)
+        }
+        return total
+    }
+
     private static func persist() {
         do {
             try FileManager.default.createDirectory(
