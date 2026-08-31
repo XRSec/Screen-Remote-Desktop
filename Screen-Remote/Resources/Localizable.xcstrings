@@ -3763,6 +3763,23 @@
         }
       }
     },
+    "managementDisplayChangeConfirmation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changing display settings on “%@” may make the device difficult to use. Continue?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更改“%@”的显示设置可能导致设备难以操作。是否继续？"
+          }
+        }
+      }
+    },
     "managementDensity" : {
       "extractionState" : "manual",
       "localizations" : {

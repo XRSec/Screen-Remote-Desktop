@@ -269,9 +269,21 @@ struct DeviceUtilitiesView: View {
             detail: "managementChangeDensityDetail",
             primaryTitle: "managementApply",
             primaryEnabled: validDensity != nil && density != snapshot.density,
-            primaryAction: { runShellAction("density", command: "wm density \(validDensity!)", refreshAfter: true) },
+            primaryAction: {
+                guard let value = validDensity else { return }
+                confirmDisplayChange(settingKey: "managementChangeDensity") {
+                    runShellAction("density", command: "wm density \(value)", refreshAfter: true)
+                }
+            },
             secondaryTitle: "managementReset",
-            secondaryAction: { runShellAction("densityReset", command: "wm density reset", refreshAfter: true) }
+            secondaryAction: {
+                confirmDisplayChange(
+                    settingKey: "managementChangeDensity",
+                    confirmationTitleKey: "managementReset"
+                ) {
+                    runShellAction("densityReset", command: "wm density reset", refreshAfter: true)
+                }
+            }
         ) {
             UtilityTextField(title: "managementDensityValue", text: $density)
         }
@@ -287,10 +299,19 @@ struct DeviceUtilitiesView: View {
             ),
             primaryAction: {
                 guard let size = validResolution else { return }
-                runShellAction("resolution", command: "wm size \(size.0)x\(size.1)", refreshAfter: true)
+                confirmDisplayChange(settingKey: "managementChangeResolution") {
+                    runShellAction("resolution", command: "wm size \(size.0)x\(size.1)", refreshAfter: true)
+                }
             },
             secondaryTitle: "managementReset",
-            secondaryAction: { runShellAction("resolutionReset", command: "wm size reset", refreshAfter: true) }
+            secondaryAction: {
+                confirmDisplayChange(
+                    settingKey: "managementChangeResolution",
+                    confirmationTitleKey: "managementReset"
+                ) {
+                    runShellAction("resolutionReset", command: "wm size reset", refreshAfter: true)
+                }
+            }
         ) {
             HStack(spacing: 12) {
                 UtilityTextField(title: "managementWidth", text: $resolutionWidth)
@@ -527,6 +548,27 @@ extension DeviceUtilitiesView {
             errorMessage = error.localizedDescription
         }
     }
+
+    private func confirmDisplayChange(
+        settingKey: String,
+        confirmationTitleKey: String = "managementApply",
+        action: @escaping () -> Void
+    ) {
+        guard let target = managementTarget(from: appState) else { return }
+        let alert = NSAlert()
+        alert.messageText = String.localizedKey(settingKey)
+        alert.informativeText = String(
+            format: String.localizedKey("managementDisplayChangeConfirmation"),
+            target.device.name
+        )
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: String.localizedKey(confirmationTitleKey))
+        alert.addButton(withTitle: String.localizedKey("commonCancel"))
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        action()
+    }
+
 
     private func confirmFixedPort() {
         guard let target = managementTarget(from: appState), let port = validPort else { return }
