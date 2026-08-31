@@ -23,6 +23,10 @@ private enum PhotoCategory: String, CaseIterable, Identifiable {
         case .screenshots: "/sdcard/Pictures/Screenshots"
         }
     }
+
+    var searchDepth: Int {
+        self == .recent ? 3 : 1
+    }
 }
 
 private struct RemotePhotoItem: Identifiable, Hashable {
@@ -31,6 +35,7 @@ private struct RemotePhotoItem: Identifiable, Hashable {
     let isVideo: Bool
     let sizeText: String
     let dateText: String
+    let modifiedAt: Date
 
     var id: String { fullPath }
 }
@@ -45,7 +50,6 @@ struct PhotosView: View {
     @State private var errorMessage: String?
     @State private var searchText = ""
     @State private var selectedPhotoID: String?
-    @State private var isDownloading = false
 
     private var filteredPhotos: [RemotePhotoItem] {
         guard !searchText.isEmpty else { return photos }
@@ -213,7 +217,7 @@ struct PhotosView: View {
             }
             Divider()
             Button("commonDelete") {
-                deletePhoto(item)
+                confirmDelete(item)
             }
         }
     }
@@ -225,10 +229,15 @@ struct PhotosView: View {
 
         Task {
             do {
-                let targetDir = selectedCategory.directoryPath
-                let cmd = "ls -la '\(targetDir)' 2>/dev/null"
-                let output = try await ManagementADB.shell(target: target, command: cmd)
-                let parsed = parsePhotoList(output, directory: targetDir)
+                let directory = ManagementADB.quote(selectedCategory.directoryPath)
+                let extensionFilters = supportedExtensions
+                    .map { "-iname \(ManagementADB.quote("*.\($0)"))" }
+                    .joined(separator: " -o ")
+                let command = "[ -d \(directory) ] || exit 0; "
+                    + "find \(directory) -maxdepth \(selectedCategory.searchDepth) -type f "
+                    + "\\( \(extensionFilters) \\) -exec stat -c '%s|%Y|%n' {} \\; 2>/dev/null"
+                let output = try await ManagementADB.shell(target: target, command: command)
+                let parsed = parsePhotoList(output)
 
                 await MainActor.run {
                     self.photos = parsed
@@ -244,39 +253,50 @@ struct PhotosView: View {
         }
     }
 
-    private func parsePhotoList(_ raw: String, directory: String) -> [RemotePhotoItem] {
-        let lines = raw.components(separatedBy: .newlines)
-        var items: [RemotePhotoItem] = []
+    private var supportedExtensions: [String] {
+        imageExtensions + videoExtensions
+    }
 
-        let imageExtensions = ["jpg", "jpeg", "png", "webp", "gif", "heic", "dng"]
-        let videoExtensions = ["mp4", "mkv", "mov", "webm", "3gp"]
+    private var imageExtensions: [String] {
+        ["jpg", "jpeg", "png", "webp", "gif", "heic", "dng"]
+    }
 
-        for line in lines {
-            let parts = line.split(whereSeparator: \.isWhitespace)
-            guard parts.count >= 8 else { continue }
-            let name = parts.suffix(from: 7).joined(separator: " ")
-            guard !name.hasPrefix("."), name != "." && name != ".." else { continue }
+    private var videoExtensions: [String] {
+        ["mp4", "mkv", "mov", "webm", "3gp"]
+    }
 
-            let ext = (name as NSString).pathExtension.lowercased()
-            let isImage = imageExtensions.contains(ext)
-            let isVideo = videoExtensions.contains(ext)
-            guard isImage || isVideo else { continue }
+    private func parsePhotoList(_ raw: String) -> [RemotePhotoItem] {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .short
 
-            let size = parts.count >= 5 ? String(parts[4]) : "0"
-            let sizeFormatted = formatFileSize(Int64(size) ?? 0)
-            let dateFormatted = parts.count >= 7 ? "\(parts[5]) \(parts[6])" : ""
+        return raw.split(whereSeparator: \.isNewline).compactMap { line in
+            let fields = line.split(separator: "|", maxSplits: 2, omittingEmptySubsequences: false)
+            guard fields.count == 3,
+                  let byteCount = Int64(fields[0]),
+                  let timestamp = TimeInterval(fields[1]) else {
+                return nil
+            }
 
-            let fullPath = "\(directory)/\(name)"
-            items.append(RemotePhotoItem(
+            let fullPath = String(fields[2])
+            let name = URL(fileURLWithPath: fullPath).lastPathComponent
+            guard !name.hasPrefix(".") else { return nil }
+
+            let fileExtension = URL(fileURLWithPath: fullPath).pathExtension.lowercased()
+            let isVideo = videoExtensions.contains(fileExtension)
+            guard isVideo || imageExtensions.contains(fileExtension) else { return nil }
+
+            let modifiedAt = Date(timeIntervalSince1970: timestamp)
+            return RemotePhotoItem(
                 name: name,
                 fullPath: fullPath,
                 isVideo: isVideo,
-                sizeText: sizeFormatted,
-                dateText: dateFormatted
-            ))
+                sizeText: formatFileSize(byteCount),
+                dateText: dateFormatter.string(from: modifiedAt),
+                modifiedAt: modifiedAt
+            )
         }
-
-        return items.reversed()
+        .sorted { $0.modifiedAt > $1.modifiedAt }
     }
 
     private func formatFileSize(_ bytes: Int64) -> String {
@@ -306,6 +326,21 @@ struct PhotosView: View {
         }
     }
 
+    private func confirmDelete(_ item: RemotePhotoItem) {
+        let alert = NSAlert()
+        alert.messageText = String(
+            format: String.localizedKey("photosDeleteConfirmationTitle"),
+            item.name
+        )
+        alert.informativeText = String.localizedKey("photosDeleteConfirmationDetail")
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: String.localizedKey("commonDelete"))
+        alert.addButton(withTitle: String.localizedKey("commonCancel"))
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        deletePhoto(item)
+    }
+
     private func deletePhoto(_ item: RemotePhotoItem) {
         guard let target = managementTarget(from: appState) else { return }
 
@@ -313,7 +348,7 @@ struct PhotosView: View {
             do {
                 _ = try await ManagementADB.shell(
                     target: target,
-                    command: "rm -f '\(item.fullPath)'"
+                    command: "rm -f \(ManagementADB.quote(item.fullPath))"
                 )
                 loadPhotos()
             } catch {

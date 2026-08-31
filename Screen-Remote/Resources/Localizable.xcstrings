@@ -6273,6 +6273,40 @@
         }
       }
     },
+    "photosDeleteConfirmationDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This permanently deletes the item from the connected device. This action cannot be undone."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这会从已连接设备中永久删除该项目，且无法撤销。"
+          }
+        }
+      }
+    },
+    "photosDeleteConfirmationTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete “%@”?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除“%@”吗？"
+          }
+        }
+      }
+    },
     "photosEmptyDetail" : {
       "extractionState" : "manual",
       "localizations" : {
