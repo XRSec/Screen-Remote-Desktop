@@ -11,13 +11,16 @@ struct MessagesView: View {
         appState.conversations.map(\.id)
     }
 
+    private var normalizedSearchQuery: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     private var filteredConversations: [(offset: Int, element: Conversation)] {
         let indexedConversations = Array(appState.conversations.enumerated())
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !query.isEmpty else { return indexedConversations }
+        guard !normalizedSearchQuery.isEmpty else { return indexedConversations }
         return indexedConversations.filter { _, conversation in
-            conversation.name.localizedCaseInsensitiveContains(query)
-                || conversation.preview.localizedCaseInsensitiveContains(query)
+            conversation.name.localizedCaseInsensitiveContains(normalizedSearchQuery)
+                || conversation.preview.localizedCaseInsensitiveContains(normalizedSearchQuery)
         }
     }
 
@@ -60,14 +63,19 @@ struct MessagesView: View {
                 format: String.localizedKey("messagesConversationCount"),
                 filteredConversations.count
             )
+        let countSummary = normalizedSearchQuery.isEmpty ? listCount : String(
+            format: String.localizedKey("messagesFilteredConversationCount"),
+            filteredConversations.count,
+            appState.conversations.count
+        )
         let unreadConversationCount = filteredConversations.filter(\.element.unread).count
         let unreadCount = String(
             format: String.localizedKey("messagesUnreadConversationCount"),
             unreadConversationCount
         )
-        let listSummary = unreadConversationCount == 0 ? listCount : String(
+        let listSummary = unreadConversationCount == 0 ? countSummary : String(
             format: String.localizedKey("messagesConversationSummary"),
-            listCount,
+            countSummary,
             unreadCount
         )
         return VStack(spacing: 0) {
@@ -108,7 +116,7 @@ struct MessagesView: View {
         .onAppear {
             synchronizeSelectionWithFilteredConversations()
         }
-        .onChange(of: searchText) { _ in
+        .onChange(of: normalizedSearchQuery) { _ in
             synchronizeSelectionWithFilteredConversations()
         }
     }

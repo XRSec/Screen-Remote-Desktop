@@ -6395,6 +6395,23 @@
         }
       }
     },
+    "messagesFilteredConversationCount" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld conversations match"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld / %lld 个会话匹配"
+          }
+        }
+      }
+    },
     "messagesConversationCountOne" : {
       "extractionState" : "manual",
       "localizations" : {
