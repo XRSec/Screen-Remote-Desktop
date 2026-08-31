@@ -6,33 +6,37 @@ from pathlib import Path
 import re
 import sys
 
-source = Path("Screen-Remote/Features/Notifications/NotificationsView.swift").read_text(encoding="utf-8")
+components = Path("Screen-Remote/App/Root/SidebarComponents.swift").read_text(encoding="utf-8")
+view = Path("Screen-Remote/App/Root/SidebarView.swift").read_text(encoding="utf-8")
+combined = components + "\n" + view
 
-# Product gap: dismiss is available only through the small trailing x button.
-# Exposing the same existing operation as a named card action gives VoiceOver
-# users a reliable action without navigating into card internals.
+# Product gap: section headers announce only expanded/collapsed. VoiceOver users
+# should also hear how many sessions or virtual devices belong to each section,
+# even while its rows are collapsed.
 checks = {
-    "shared_dismiss_function": r'private func dismissNotification\(\).*?firstIndex.*?notification\.id.*?remove\(at: index\)',
-    "button_uses_shared_dismiss": r'Button\(action: dismissNotification\)',
-    "card_named_dismiss_action": r'\.accessibilityAction\(named: Text\("notificationsDismiss"\), dismissNotification\)',
+    "header_accepts_count": r'SidebarSectionHeader.*?let itemCount: Int',
+    "header_exposes_count_value": r'SidebarSectionHeader.*?accessibilityValue\(Text\(sectionSummary\)\)',
+    "session_count_forwarded": r'title: "sidebarSessions".*?itemCount: appState\.visibleDeviceOffsets\(\)\.count',
+    "virtual_count_forwarded": r'title: "sidebarVirtualDevices".*?itemCount: virtualDeviceViewModel\.devices\.count',
 }
+gaps = [name for name, pattern in checks.items() if re.search(pattern, combined, flags=re.S) is None]
 
-gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
-
-# Preserve the real identity-based single-card removal, visible button, and list.
+# Guard both section toggles, add actions, and the actual row collections.
 required = [
-    "appState.notifications.firstIndex",
-    "appState.notifications.remove(at: index)",
-    'Image(systemName: "xmark")',
-    "ForEach(filteredNotifications)",
+    "sessionsExpanded.toggle()",
+    "virtualDevicesExpanded.toggle()",
+    "appState.showingAddDevice = true",
+    "appState.openVirtualDeviceCreator()",
+    "appState.visibleDeviceOffsets()",
+    "virtualDeviceViewModel.devices",
 ]
-missing = [item for item in required if item not in source]
+missing = [item for item in required if item not in combined]
 if missing:
-    print("Measurement invalid: notification dismiss behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: sidebar section behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC notification_card_action_gaps={len(gaps)}")
-print(f"METRIC notification_card_named_actions={1 if not gaps else 0}")
+print(f"METRIC sidebar_section_summary_gaps={len(gaps)}")
+print(f"METRIC sidebar_counted_sections={2 if not gaps else 0}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY

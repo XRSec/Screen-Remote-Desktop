@@ -3,12 +3,17 @@ import SwiftUI
 struct SidebarSectionHeader: View {
     let title: LocalizedStringKey
     let isExpanded: Bool
+    let itemCount: Int
     let addHelp: Text
     let onToggle: () -> Void
     let onAdd: () -> Void
 
-    private var expansionStateLabel: LocalizedStringKey {
-        isExpanded ? "commonExpanded" : "commonCollapsed"
+    private var sectionSummary: String {
+        String(
+            format: String.localizedKey("sidebarSectionSummary"),
+            String.localizedKey(isExpanded ? "commonExpanded" : "commonCollapsed"),
+            itemCount
+        )
     }
 
     var body: some View {
@@ -25,7 +30,7 @@ struct SidebarSectionHeader: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .accessibilityValue(Text(expansionStateLabel))
+            .accessibilityValue(Text(sectionSummary))
 
             Spacer()
 

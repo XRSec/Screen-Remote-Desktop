@@ -96,6 +96,7 @@ struct SidebarView: View {
             SidebarSectionHeader(
                 title: "sidebarSessions",
                 isExpanded: sessionsExpanded,
+                itemCount: appState.visibleDeviceOffsets().count,
                 addHelp: Text("addDeviceTitle"),
                 onToggle: {
                     withAnimation(.easeOut(duration: 0.16)) {
@@ -167,6 +168,7 @@ struct SidebarView: View {
             SidebarSectionHeader(
                 title: "sidebarVirtualDevices",
                 isExpanded: virtualDevicesExpanded,
+                itemCount: virtualDeviceViewModel.devices.count,
                 addHelp: Text("virtualDeviceCreateAction"),
                 onToggle: {
                     withAnimation(.easeOut(duration: 0.16)) {
