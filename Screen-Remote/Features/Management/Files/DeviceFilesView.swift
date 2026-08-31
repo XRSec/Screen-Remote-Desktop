@@ -505,10 +505,18 @@ private struct RemoteFileRow: View {
             )
             .labelsHidden()
             .toggleStyle(.checkbox)
-            Image(systemName: entry.isDirectory ? "folder.fill" : "doc.fill").foregroundColor(entry.isDirectory ? .blue : .secondary).frame(width: 24)
+            .accessibilityLabel(Text(entry.name))
+            Image(systemName: entry.isDirectory ? "folder.fill" : "doc.fill")
+                .foregroundColor(entry.isDirectory ? .blue : .secondary)
+                .frame(width: 24)
+                .accessibilityHidden(true)
             Text(entry.name).lineLimit(1).truncationMode(.middle)
             Spacer()
-            Button(action: open) { Image(systemName: entry.isDirectory ? "chevron.right" : "square.and.arrow.down") }.buttonStyle(.plain)
+            Button(action: open) {
+                Image(systemName: entry.isDirectory ? "chevron.right" : "square.and.arrow.down")
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(entry.isDirectory ? Text("managementOpen") : Text("managementDownload"))
         }
         .padding(.horizontal, 12).padding(.vertical, 10)
         .background(RoundedRectangle(cornerRadius: AppRadius.small).fill((isSelected || isBatchSelected) ? AppTheme.accent.opacity(0.1) : Color.clear))
