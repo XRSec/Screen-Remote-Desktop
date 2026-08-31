@@ -39,7 +39,9 @@ struct SidebarSectionHeader: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(Text(title))
             .accessibilityValue(Text(sectionSummary))
+            .accessibilityAddTraits(.isHeader)
 
             Spacer()
 

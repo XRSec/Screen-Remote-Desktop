@@ -6,36 +6,35 @@ from pathlib import Path
 import re
 import sys
 
-source = Path("Screen-Remote/Features/Screens/Views/ScreenComponents.swift").read_text(encoding="utf-8")
+source = Path("Screen-Remote/App/Root/SidebarComponents.swift").read_text(encoding="utf-8")
 
-# Product gap: when battery is available, screenStatusText becomes "80%" and is
-# used as both accessibility label and value, duplicating battery while losing
-# the Connected state. Keep visual battery text, but separate semantic status.
+# Product gap: SidebarSectionHeader's toggle button has a value but no explicit
+# label or header trait. VoiceOver should identify the section name as a heading
+# and expose its expanded/count summary on the same control.
 checks = {
-    "separate_accessibility_status": r'screenAccessibilityStatusText.*?session\.phase\.isWorking.*?sidebarDeviceConnected',
-    "status_label_uses_semantic_text": r'\.accessibilityLabel\(Text\(screenAccessibilityStatusText\)\)',
-    "battery_only_in_value": r'\.accessibilityValue\(\s*session\.batteryLevel\.map \{ Text\("\\\(\$0\)%"\) \} \?\? Text\(""\)\s*\)',
-    "visual_battery_preserved": r'screenStatusText.*?session\.batteryLevel\.map \{ "\\\(\$0\)%" \}',
+    "toggle_has_title_label": r'Button\(action: onToggle\).*?\.accessibilityLabel\(Text\(title\)\)',
+    "toggle_has_header_trait": r'Button\(action: onToggle\).*?\.accessibilityAddTraits\(\.isHeader\)',
+    "toggle_keeps_summary_value": r'Button\(action: onToggle\).*?\.accessibilityValue\(Text\(sectionSummary\)\)',
 }
 gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
 
-# Preserve working phase semantics, visible battery, connected fallback, and
-# connected-only rendering. Passing cannot remove useful status information.
+# Preserve visual title/chevron, expansion state/count, toggle and add actions,
+# plus the independent add-button label.
 required = [
-    "if session.isConnected",
-    "Text(screenStatusText)",
-    "session.phase.isWorking",
-    "session.phase.localizationKey",
-    "session.batteryLevel",
-    'String.localizedKey("sidebarDeviceConnected")',
+    "Text(title)",
+    "isExpanded ? \"chevron.down\" : \"chevron.right\"",
+    "sectionSummary",
+    "Button(action: onToggle)",
+    "Button(action: onAdd)",
+    ".accessibilityLabel(addHelp)",
 ]
 missing = [item for item in required if item not in source]
 if missing:
-    print("Measurement invalid: ScreenTile status information is missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: sidebar section header behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC screen_status_battery_semantic_gaps={len(gaps)}")
-print(f"METRIC screen_status_distinct_fields={2 if not gaps else 1}")
+print(f"METRIC sidebar_header_navigation_gaps={len(gaps)}")
+print(f"METRIC sidebar_navigable_headers={2 if not gaps else 0}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY
