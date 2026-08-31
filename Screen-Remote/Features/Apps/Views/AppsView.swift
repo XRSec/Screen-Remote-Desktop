@@ -322,6 +322,7 @@ struct AppsView: View {
                 }
             }
             .labelsHidden()
+            .accessibilityLabel(Text("appsTypeFilterTitle"))
             .pickerStyle(.menu)
             .fixedSize()
             Picker("appsStateFilterTitle", selection: $enabledFilter) {
@@ -330,6 +331,7 @@ struct AppsView: View {
                 }
             }
             .labelsHidden()
+            .accessibilityLabel(Text("appsStateFilterTitle"))
             .pickerStyle(.menu)
             .fixedSize()
         }
