@@ -137,6 +137,8 @@ struct PhotosView: View {
                     .foregroundColor(.secondary)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(Text("commonLoading"))
         } else if filteredPhotos.isEmpty {
             let hasSearchQuery = !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             Group {
