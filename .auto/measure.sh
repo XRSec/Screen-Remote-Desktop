@@ -6,48 +6,37 @@ from pathlib import Path
 import re
 import sys
 
-root = Path("Screen-Remote/App/Root/RootView.swift").read_text(encoding="utf-8")
-catalog = Path("Screen-Remote/Resources/Localizable.xcstrings").read_text(encoding="utf-8")
-combined = root + "\n" + catalog
+sidebar = Path("Screen-Remote/App/Root/SidebarView.swift").read_text(encoding="utf-8")
+components = Path("Screen-Remote/App/Root/SidebarComponents.swift").read_text(encoding="utf-8")
+combined = sidebar + "\n" + components
 
-# Product gap: the global refresh button is currently enabled in Screens,
-# Notifications, and Messages even though none of those workspaces subscribes
-# to its refresh event. A visible enabled no-op is misleading; refresh should
-# be available only where a real reload path exists.
+# Product gap: collapsing the sidebar removes the visible and VoiceOver session
+# status that expanded rows provide. The compact device control should retain
+# connection/working/failure/battery context and the start/stop named action.
 checks = {
-    "explicit_refreshable_workspaces": r'refreshableSections.*?\.deviceInfo.*?\.utilities.*?\.files.*?\.apps.*?\.processes.*?\.portForward.*?\.photos',
-    "unsupported_workspaces_disabled": r'isWorkspaceRefreshable.*?refreshableSections\.contains\(appState\.selection\).*?isRefreshEnabled\s*=\s*isWorkspaceRefreshable',
-    "dispatch_matches_capability": r'switch appState\.selection.*?case \.apps:.*?refreshSelectedDeviceApps.*?case \.deviceInfo, \.utilities, \.files, \.processes, \.portForward, \.photos:.*?screenRemoteRefreshManagement.*?default:',
-    "localized_unavailable_hint": r'topBarRefreshUnavailable.*?Refresh isn.*?available.*?当前工作区.*?刷新',
+    "snapshot_forwarded_to_collapsed_glyph": r'collapsedDeviceGlyph\(.*?let session = appState\.screenSessions\.session\(for: device\.id\)',
+    "collapsed_status_value": r'collapsedDeviceGlyph.*?accessibilityValue\(Text\(collapsedSessionStatusText\(session\)\)\)',
+    "collapsed_named_session_action": r'collapsedDeviceGlyph.*?accessibilityAction\(named: Text\(collapsedSessionActionKey\(session\)\)\)',
+    "status_semantics_cover_real_states": r'collapsedSessionStatusText.*?phase\.isWorking.*?phase == \.failed.*?supportsBatteryInformation.*?batteryLevel',
 }
 
 gaps = [name for name, pattern in checks.items() if re.search(pattern, combined, flags=re.S) is None]
 
-# Preserve each real receiver and the apps-specific reload. Passing cannot
-# disable refresh globally or remove working reload paths.
+# Guard the existing compact selection/double-click behavior and expanded-row
+# state source. A passing result cannot replace or remove session controls.
 required = [
-    "appState.refreshSelectedDeviceApps()",
-    "NotificationCenter.default.post(name: .screenRemoteRefreshManagement, object: nil)",
+    "appState.selectDevice(at: index)",
+    "appState.startScreenSession(deviceID: device.id)",
+    "sessionManager.session(for: device.id)",
+    "onToggleSession",
 ]
-receivers = [
-    "DeviceInformationView.swift",
-    "DeviceUtilitiesView.swift",
-    "DeviceFilesView.swift",
-    "DeviceProcessesView.swift",
-    "PortForwardView.swift",
-    "PhotosView.swift",
-]
-missing = [item for item in required if item not in root]
-for filename in receivers:
-    matches = list(Path("Screen-Remote").rglob(filename))
-    if not matches or ".screenRemoteRefreshManagement" not in matches[0].read_text(encoding="utf-8"):
-        missing.append(filename)
+missing = [item for item in required if item not in combined]
 if missing:
-    print("Measurement invalid: real refresh behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: sidebar session behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC topbar_refresh_honesty_gaps={len(gaps)}")
-print(f"METRIC topbar_refresh_supported_workspaces={7 if not gaps else 0}")
+print(f"METRIC collapsed_sidebar_session_gaps={len(gaps)}")
+print(f"METRIC collapsed_sidebar_session_semantics={4 - len(gaps)}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY

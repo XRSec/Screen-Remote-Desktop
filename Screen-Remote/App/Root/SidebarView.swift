@@ -291,7 +291,8 @@ struct SidebarView: View {
     }
 
     private func collapsedDeviceGlyph(index: Int, device: Device) -> some View {
-        PhoneGlyph(color: device.accent, compact: true)
+        let session = appState.screenSessions.session(for: device.id)
+        return PhoneGlyph(color: device.accent, compact: true)
             .padding(7)
             .background(RoundedRectangle(cornerRadius: AppRadius.card).fill(appState.selectedDevice == index ? Color.primary.opacity(0.09) : .clear))
             .contentShape(Rectangle())
@@ -304,8 +305,16 @@ struct SidebarView: View {
             )
             .accessibilityElement(children: .combine)
             .accessibilityLabel(Text(device.name))
+            .accessibilityValue(Text(collapsedSessionStatusText(session)))
             .accessibilityAddTraits(.isButton)
             .accessibilityAction { appState.selectDevice(at: index) }
+            .accessibilityAction(named: Text(collapsedSessionActionKey(session))) {
+                if session.isConnected || session.phase.isWorking {
+                    appState.stopScreenSession(deviceID: device.id)
+                } else {
+                    appState.connectScreenSession(deviceID: device.id)
+                }
+            }
             .help(device.name)
             .contextMenu {
                 Button("sessionEditTitle") {
@@ -316,5 +325,28 @@ struct SidebarView: View {
                     sessionPendingDeletion = device
                 }
             }
+    }
+
+    private func collapsedSessionStatusText(_ session: ScreenSessionSnapshot) -> String {
+        if session.phase.isWorking {
+            return String.localizedKey(session.phase.localizationKey)
+        }
+        if session.phase == .failed {
+            return String.localizedKey("screenSessionFailed")
+        }
+        if session.phase.supportsBatteryInformation {
+            guard let batteryLevel = session.batteryLevel else {
+                return String.localizedKey("sidebarDeviceConnected")
+            }
+            return String(
+                format: String.localizedKey("sidebarDeviceConnectedBattery %@"),
+                String(batteryLevel)
+            )
+        }
+        return String.localizedKey("sidebarDeviceNotConnected")
+    }
+
+    private func collapsedSessionActionKey(_ session: ScreenSessionSnapshot) -> LocalizedStringKey {
+        session.isConnected || session.phase.isWorking ? "sessionStopAction" : "sessionStartAction"
     }
 }
