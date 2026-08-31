@@ -186,7 +186,10 @@ struct DeviceFilesView: View {
 
     private var addressControls: some View {
         HStack(spacing: 10) {
-            Button(action: navigateUp) { Image(systemName: "chevron.up") }.disabled(activeDirectoryPath == "/")
+            Button(action: navigateUp) { Image(systemName: "chevron.up") }
+                .help("managementParentFolder")
+                .accessibilityLabel(Text("managementParentFolder"))
+                .disabled(activeDirectoryPath == "/")
             Text(activeDirectoryPath)
                 .font(.system(.subheadline, design: .monospaced))
                 .lineLimit(1)
