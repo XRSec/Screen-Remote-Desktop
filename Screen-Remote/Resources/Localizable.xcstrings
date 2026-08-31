@@ -2556,18 +2556,19 @@
         }
       }
     },
-    "deviceDiscoveryPortScanAction" : {
+    "deviceDiscoveryPortScanUnavailable" : {
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Coming soon"
+            "value" : "Unavailable in this version"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "即将推出"
+            "value" : "当前版本不可用"
           }
         }
       }

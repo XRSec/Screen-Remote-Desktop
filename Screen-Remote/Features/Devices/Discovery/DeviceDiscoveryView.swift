@@ -15,6 +15,18 @@ struct DiscoveredADBDevice: Identifiable, Hashable {
     let transport: DeviceTransport
 }
 
+struct DeviceDiscoveryEmptyView: View {
+    let icon: String
+
+    var body: some View {
+        ContentUnavailableViewCompat(
+            icon: icon,
+            title: "deviceDiscoveryEmptyTitle",
+            detail: "deviceDiscoveryEmptyDetail"
+        )
+    }
+}
+
 private final class ADBMDNSBrowser: ObservableObject {
     @Published private(set) var devices: [DiscoveredADBDevice] = []
     @Published private(set) var isReady = false
@@ -135,12 +147,8 @@ struct DeviceDiscoveryView: View {
                 ScrollView {
                     LazyVStack(spacing: 9) {
                         if devices.isEmpty && !isRefreshing {
-                            ContentUnavailableViewCompat(
-                                icon: "dot.radiowaves.left.and.right",
-                                title: "deviceDiscoveryEmptyTitle",
-                                detail: "deviceDiscoveryEmptyDetail"
-                            )
-                            .frame(height: 220)
+                            DeviceDiscoveryEmptyView(icon: "dot.radiowaves.left.and.right")
+                                .frame(height: 220)
                         }
 
                         ForEach(devices) { device in
@@ -167,8 +175,9 @@ struct DeviceDiscoveryView: View {
                         Text("deviceDiscoveryPortScanDetail").font(.caption).foregroundColor(.secondary)
                     }
                     Spacer()
-                    Button("deviceDiscoveryPortScanAction") { }
-                        .disabled(true)
+                    Label("deviceDiscoveryPortScanUnavailable", systemImage: "info.circle")
+                        .font(AppTypography.caption)
+                        .foregroundColor(.secondary)
                 }
                 .padding(13)
                 .appCard(radius: 10)
