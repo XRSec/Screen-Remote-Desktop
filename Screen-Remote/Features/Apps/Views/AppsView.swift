@@ -326,6 +326,7 @@ struct AppsView: View {
             }
             .labelsHidden()
             .accessibilityLabel(Text("appsTypeFilterTitle"))
+            .accessibilityValue(Text(appFilter.title))
             .pickerStyle(.segmented)
             .fixedSize()
             Picker("appsStateFilterTitle", selection: $enabledFilter) {
@@ -335,6 +336,7 @@ struct AppsView: View {
             }
             .labelsHidden()
             .accessibilityLabel(Text("appsStateFilterTitle"))
+            .accessibilityValue(Text(enabledFilter.title))
             .pickerStyle(.segmented)
             .fixedSize()
         }
