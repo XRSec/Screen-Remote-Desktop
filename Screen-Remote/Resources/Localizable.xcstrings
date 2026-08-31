@@ -6697,6 +6697,40 @@
         }
       }
     },
+    "notificationsCount" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld notifications"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 条通知"
+          }
+        }
+      }
+    },
+    "notificationsCountOne" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 notification"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 条通知"
+          }
+        }
+      }
+    },
     "notificationsDismiss" : {
       "extractionState" : "manual",
       "localizations" : {

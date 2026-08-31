@@ -5,6 +5,14 @@ struct NotificationsView: View {
     let isCompact: Bool
     @State private var searchText = ""
 
+    private var notificationsCountText: String {
+        let count = appState.notifications.count
+        if count == 1 {
+            return String.localizedKey("notificationsCountOne")
+        }
+        return String(format: String.localizedKey("notificationsCount"), count)
+    }
+
     private var filteredNotifications: [PhoneNotification] {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else { return appState.notifications }
@@ -34,9 +42,14 @@ struct NotificationsView: View {
                     )
 
                     HStack {
-                        Label("notificationsNewCount", systemImage: "bell.badge.fill")
-                            .font(AppTypography.subheadline)
-                            .foregroundColor(AppTheme.accent)
+                        HStack(spacing: AppSpacing.sm) {
+                            Image(systemName: "bell.badge.fill")
+                                .accessibilityHidden(true)
+                            Text(notificationsCountText)
+                                .accessibilityAddTraits(.isHeader)
+                        }
+                        .font(AppTypography.subheadline)
+                        .foregroundColor(AppTheme.accent)
                         Spacer()
                         Button("notificationsClearAll") {
                             appState.notifications.removeAll()
