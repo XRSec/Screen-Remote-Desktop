@@ -75,6 +75,7 @@ struct FormSecureTextRow: View {
                 .buttonStyle(.borderless)
                 .foregroundColor(.red)
                 .help("commonClear")
+                .accessibilityLabel(Text("commonClear"))
             }
         }
         .padding(14)
@@ -207,6 +208,7 @@ struct PresetCustomRow: View {
                     }
                     .buttonStyle(.plain)
                     .help("sessionBackToPresets")
+                    .accessibilityLabel(Text("sessionBackToPresets"))
                 }
             } else {
                 Picker(title, selection: pickerSelection) {
@@ -303,6 +305,7 @@ struct HelpPopoverButton: View {
         }
         .buttonStyle(.plain)
         .help("sessionHelpButton")
+        .accessibilityLabel(Text("sessionHelpButton"))
         .popover(isPresented: $presented, arrowEdge: .trailing) {
             Text(String.localizedKey(textKey))
                 .font(AppTypography.caption)
@@ -376,11 +379,13 @@ struct DisplaySizeRow: View {
                 .buttonStyle(.borderless)
                 .foregroundColor(.red)
                 .help("commonClear")
+                .accessibilityLabel(Text("commonClear"))
                 Button(action: synchronizeLocalDisplay) {
                     Image(systemName: "arrow.clockwise")
                 }
                 .buttonStyle(.borderless)
                 .help("sessionSyncLocalDisplaySize")
+                .accessibilityLabel(Text("sessionSyncLocalDisplaySize"))
             }
         }
         .padding(14)
