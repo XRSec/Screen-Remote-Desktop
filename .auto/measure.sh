@@ -8,35 +8,36 @@ import sys
 
 source = Path("Screen-Remote/App/Root/SidebarComponents.swift").read_text(encoding="utf-8")
 
-# Product gap: expanded DeviceRow combines name and status implicitly, while
-# collapsed rows now use explicit label/value semantics. Expanded and collapsed
-# sidebar modes should expose the same stable device-name label and status value.
+# Product gap: VirtualDeviceRow combines name and target automatically, then
+# adds a state value. Use explicit label/value semantics so the device name is
+# stable and the value contains target plus working/running/stopped state.
 checks = {
-    "expanded_row_name_label": r'DeviceRow.*?\.accessibilityLabel\(Text\(device\.name\)\)',
-    "expanded_row_status_value": r'DeviceRow.*?\.accessibilityValue\(Text\(statusText\)\)',
-    "primary_row_semantics_on_click_target": r'sessionClickGesture.*?\.accessibilityElement\(children: \.ignore\).*?\.accessibilityLabel\(Text\(device\.name\)\).*?\.accessibilityValue\(Text\(statusText\)\)',
+    "virtual_name_label": r'VirtualDeviceRow.*?\.accessibilityLabel\(Text\(device\.name\)\)',
+    "virtual_summary_function": r'virtualDeviceAccessibilitySummary.*?device\.target.*?isWorking.*?device\.isRunning',
+    "virtual_summary_value": r'VirtualDeviceRow.*?\.accessibilityValue\(Text\(virtualDeviceAccessibilitySummary\)\)',
+    "primary_children_ignored": r'VirtualDeviceRow.*?\.accessibilityElement\(children: \.ignore\).*?\.accessibilityLabel',
 }
 gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
 
-# Preserve visible name/status, click gestures, selection, named session/edit
-# actions, hidden hover controls, and all real status branches.
+# Preserve visible name/target, start/stop and edit actions, working guards,
+# visual status, hover behavior, and real state sources.
 required = [
     "Text(device.name)",
-    "Text(statusText)",
-    "sessionClickGesture(onSingleClick: action, onDoubleClick: onDoubleClick)",
-    ".accessibilityAction(named: Text(sessionActionLocalizationKey), onToggleSession)",
-    ".accessibilityAction(named: Text(\"sessionEditTitle\"), onEdit)",
-    "session.phase.isWorking",
-    "session.phase == .failed",
-    "session.batteryLevel",
+    "Text(device.target)",
+    "device.isRunning",
+    "isWorking",
+    ".accessibilityAction(named: Text(actionLocalizationKey))",
+    '.accessibilityAction(named: Text("virtualDeviceEditTitle"))',
+    "if !isWorking { action() }",
+    "if !device.isRunning && !isWorking { onEdit() }",
 ]
 missing = [item for item in required if item not in source]
 if missing:
-    print("Measurement invalid: expanded device-row behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: virtual-device row behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC expanded_device_row_semantic_gaps={len(gaps)}")
-print(f"METRIC sidebar_device_modes_consistent={2 if not gaps else 1}")
+print(f"METRIC virtual_device_row_semantic_gaps={len(gaps)}")
+print(f"METRIC virtual_device_row_metadata_fields={3 if not gaps else 2}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY

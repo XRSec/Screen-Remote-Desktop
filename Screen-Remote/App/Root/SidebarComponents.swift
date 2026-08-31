@@ -383,6 +383,15 @@ struct VirtualDeviceRow: View {
         isHovered && !device.isRunning && !isWorking
     }
 
+    private var virtualDeviceAccessibilitySummary: String {
+        let status = String.localizedKey(
+            isWorking
+                ? "commonLoading"
+                : (device.isRunning ? "virtualDeviceRunning" : "screenSessionStopped")
+        )
+        return "\(device.target), \(status)"
+    }
+
     @ViewBuilder
     private var statusIndicator: some View {
         if isWorking {
@@ -416,12 +425,9 @@ struct VirtualDeviceRow: View {
 
                 Spacer(minLength: AppSpacing.xs)
             }
-            .accessibilityElement(children: .combine)
-            .accessibilityValue(
-                isWorking
-                    ? Text("commonLoading")
-                    : (device.isRunning ? Text("virtualDeviceRunning") : Text("screenSessionStopped"))
-            )
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(device.name))
+            .accessibilityValue(Text(virtualDeviceAccessibilitySummary))
 
             Button(action: action) {
                 Image(systemName: device.isRunning ? "stop.fill" : "play.fill")
