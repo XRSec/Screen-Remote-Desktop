@@ -7,6 +7,10 @@ struct SidebarSectionHeader: View {
     let onToggle: () -> Void
     let onAdd: () -> Void
 
+    private var expansionStateLabel: LocalizedStringKey {
+        isExpanded ? "commonExpanded" : "commonCollapsed"
+    }
+
     var body: some View {
         HStack {
             Button(action: onToggle) {
@@ -14,12 +18,14 @@ struct SidebarSectionHeader: View {
                     Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
                         .font(AppTypography.caption2.weight(.semibold))
                         .foregroundColor(.secondary)
+                        .accessibilityHidden(true)
                     Text(title)
                         .font(AppTypography.subheadline.weight(.semibold))
                 }
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .accessibilityValue(Text(expansionStateLabel))
 
             Spacer()
 
