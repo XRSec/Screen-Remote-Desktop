@@ -2556,6 +2556,40 @@
         }
       }
     },
+    "deviceDiscoveryPairingRequired" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pair First"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请先配对"
+          }
+        }
+      }
+    },
+    "deviceDiscoveryPairingRequiredDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete Wireless Debugging pairing on the Android device before adding this session."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请先在 Android 设备上完成无线调试配对，再添加此会话。"
+          }
+        }
+      }
+    },
     "deviceDiscoveryPortScanUnavailable" : {
       "extractionState" : "manual",
       "localizations" : {

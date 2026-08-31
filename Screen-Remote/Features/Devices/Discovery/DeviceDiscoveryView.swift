@@ -13,6 +13,7 @@ struct DiscoveredADBDevice: Identifiable, Hashable {
     let state: String
     let source: Source
     let transport: DeviceTransport
+    let requiresPairing: Bool
 }
 
 struct DeviceDiscoveryEmptyView: View {
@@ -69,7 +70,8 @@ private final class ADBMDNSBrowser: ObservableObject {
                     address: address,
                     state: String.localizedKey(stateKey),
                     source: .mdns,
-                    transport: .mdns
+                    transport: .mdns,
+                    requiresPairing: serviceType.localizedCaseInsensitiveContains("pairing")
                 )
             }
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
@@ -221,6 +223,10 @@ struct DeviceDiscoveryView: View {
     }
 
     private func add(_ discovered: DiscoveredADBDevice) {
+        guard !discovered.requiresPairing else {
+            errorText = String.localizedKey("deviceDiscoveryPairingRequiredDetail")
+            return
+        }
         guard !appState.devices.contains(where: { device in
             device.connections.contains { $0.displayAddress.caseInsensitiveCompare(discovered.address) == .orderedSame }
         }) else {
@@ -268,7 +274,14 @@ private struct DiscoveredDeviceRow: View {
             Spacer()
             Text(device.source.rawValue).font(.caption2.weight(.semibold)).foregroundColor(.secondary)
             Text(device.state).font(.caption).foregroundColor(device.state == "device" ? .green : .orange)
-            Button("commonAdd", action: onAdd)
+            if device.requiresPairing {
+                Label("deviceDiscoveryPairingRequired", systemImage: "lock.fill")
+                    .font(AppTypography.caption)
+                    .foregroundColor(.secondary)
+                    .help("deviceDiscoveryPairingRequiredDetail")
+            } else {
+                Button("commonAdd", action: onAdd)
+            }
         }
         .padding(13)
         .appCard(radius: 11)
@@ -300,7 +313,8 @@ func parseADBDevices(_ output: String) -> [DiscoveredADBDevice] {
             address: address,
             state: state,
             source: .devices,
-            transport: transport
+            transport: transport,
+            requiresPairing: false
         )
     }
 }
@@ -315,15 +329,17 @@ func parseMDNSServices(_ output: String) -> [DiscoveredADBDevice] {
         let isLegacyTCP = serviceType.localizedCaseInsensitiveContains("_adb._tcp")
         let transport: DeviceTransport = isLegacyTCP ? .tcp : .mdns
         let address = isLegacyTCP ? (endpoint ?? serviceName) : mdnsDeviceSerial(serviceName)
+        let requiresPairing = serviceType.localizedCaseInsensitiveContains("pairing")
         return DiscoveredADBDevice(
             id: "mdns:\(transport.rawValue):\(serviceName):\(address)",
             name: serviceName,
             address: address,
-            state: serviceType.localizedCaseInsensitiveContains("pairing")
+            state: requiresPairing
                 ? String.localizedKey("deviceDiscoveryPairable")
                 : String.localizedKey("deviceDiscoveryConnectable"),
             source: .mdns,
-            transport: transport
+            transport: transport,
+            requiresPairing: requiresPairing
         )
     }
 }
