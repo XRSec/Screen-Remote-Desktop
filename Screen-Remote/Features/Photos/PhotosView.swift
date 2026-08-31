@@ -56,6 +56,21 @@ struct PhotosView: View {
         return photos.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
     }
 
+    private var photosCountSummary: String {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if query.isEmpty {
+            return String(
+                format: String.localizedKey("photosMediaCount"),
+                filteredPhotos.count
+            )
+        }
+        return String(
+            format: String.localizedKey("photosFilteredMediaCount"),
+            filteredPhotos.count,
+            photos.count
+        )
+    }
+
     var body: some View {
         Group {
             if managementTarget(from: appState) == nil {
@@ -108,7 +123,7 @@ struct PhotosView: View {
                     .padding(.horizontal, AppSpacing.sm)
                     .padding(.vertical, 2)
                     .background(Capsule().fill(Color.primary.opacity(0.06)))
-                    .accessibilityLabel(Text(String(format: String.localizedKey("photosMediaCount"), filteredPhotos.count)))
+                    .accessibilityLabel(Text(photosCountSummary))
             }
 
             Button(action: loadPhotos) {

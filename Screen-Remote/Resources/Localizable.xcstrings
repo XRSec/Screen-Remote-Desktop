@@ -6966,6 +6966,23 @@
         }
       }
     },
+    "photosFilteredMediaCount" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld items match"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld / %lld 项匹配"
+          }
+        }
+      }
+    },
     "photosMediaCount" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -3,37 +3,42 @@ set -euo pipefail
 
 python3 - <<'PY'
 from pathlib import Path
+import json
 import re
 import sys
 
 source = Path("Screen-Remote/Features/Photos/PhotosView.swift").read_text(encoding="utf-8")
+catalog = json.loads(Path("Screen-Remote/Resources/Localizable.xcstrings").read_text(encoding="utf-8"))["strings"]
 
-# Product gap: Photos loading visually shows a spinner plus Loading text, but
-# unlike the already-fixed Apps state, its container is not a single coherent
-# VoiceOver status. Keep visual feedback while eliminating fragmented semantics.
+# Product gap: while searching, the toolbar badge exposes only the filtered
+# count. Users cannot tell whether that is all media or a subset of a larger
+# collection. The accessibility label should state matching and total counts.
 checks = {
-    "spinner_hidden": r'if isLoading.*?ProgressView\(\).*?\.accessibilityHidden\(true\)',
-    "loading_group_combined": r'if isLoading.*?VStack.*?\.accessibilityElement\(children: \.combine\).*?\.accessibilityLabel\(Text\("commonLoading"\)\)',
+    "count_summary_uses_search_state": r'photosCountSummary.*?searchText.*?filteredPhotos\.count.*?photos\.count',
+    "badge_uses_count_summary": r'Text\("\\\(filteredPhotos\.count\)"\).*?\.accessibilityLabel\(Text\(photosCountSummary\)\)',
 }
 gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
 
-# Preserve actual load state, visible feedback, async scan, and error handling.
+for key in ("photosMediaCount", "photosFilteredMediaCount"):
+    loc = catalog.get(key, {}).get("localizations", {})
+    if not all(loc.get(lang, {}).get("stringUnit", {}).get("value") for lang in ("en", "zh-Hans")):
+        gaps.append(f"{key}_localized")
+
+# Preserve visible filtered count, actual filtering, total collection, and search.
 required = [
-    "if isLoading",
-    "ProgressView()",
-    'Text("commonLoading")',
-    "isLoading = true",
-    "isLoading = false",
-    "ManagementADB.shell",
-    "errorMessage = error.localizedDescription",
+    'Text("\\(filteredPhotos.count)")',
+    "photos.filter",
+    "filteredPhotos.count",
+    "@State private var photos: [RemotePhotoItem]",
+    "PageSearchField",
 ]
 missing = [item for item in required if item not in source]
 if missing:
-    print("Measurement invalid: Photos loading behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: Photos count/search behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC photos_loading_accessibility_gaps={len(gaps)}")
-print(f"METRIC photos_loading_coherent_states={1 if not gaps else 0}")
+print(f"METRIC photos_filter_count_honesty_gaps={len(gaps)}")
+print(f"METRIC photos_filter_count_contexts={2 if not gaps else 1}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY
