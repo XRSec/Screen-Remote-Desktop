@@ -6224,6 +6224,23 @@
         }
       }
     },
+    "notificationsSearchNoResults" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No matching notifications"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有匹配的通知"
+          }
+        }
+      }
+    },
     "notificationsSearchPrompt" : {
       "localizations" : {
         "en" : {

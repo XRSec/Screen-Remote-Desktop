@@ -5,6 +5,16 @@ struct NotificationsView: View {
     let isCompact: Bool
     @State private var searchText = ""
 
+    private var filteredNotifications: [PhoneNotification] {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return appState.notifications }
+        return appState.notifications.filter { notification in
+            notification.app.localizedCaseInsensitiveContains(query)
+                || notification.title.localizedCaseInsensitiveContains(query)
+                || notification.body.localizedCaseInsensitiveContains(query)
+        }
+    }
+
     var body: some View {
         ScrollView {
             if appState.notifications.isEmpty {
@@ -35,9 +45,20 @@ struct NotificationsView: View {
                         .foregroundColor(.secondary)
                     }
 
-                    VStack(spacing: AppSpacing.md) {
-                        ForEach(appState.notifications) { notification in
-                            NotificationCard(notification: notification)
+                    if filteredNotifications.isEmpty {
+                        ContentUnavailableViewCompat(
+                            icon: "magnifyingglass",
+                            title: "notificationsSearchNoResults",
+                            detail: "notificationsSearchPrompt",
+                            actionTitle: "commonClear",
+                            action: { searchText = "" }
+                        )
+                        .padding(AppSpacing.lg)
+                    } else {
+                        VStack(spacing: AppSpacing.md) {
+                            ForEach(filteredNotifications) { notification in
+                                NotificationCard(notification: notification)
+                            }
                         }
                     }
                 }
