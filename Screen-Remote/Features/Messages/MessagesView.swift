@@ -3,9 +3,13 @@ import SwiftUI
 struct MessagesView: View {
     @EnvironmentObject private var appState: AppState
     let isCompact: Bool
-    @State private var selectedConversation = 0
+    @State private var selectedConversationID: UUID?
     @State private var isShowingConversation = false
     @State private var searchText = ""
+
+    private var conversationIDs: [UUID] {
+        appState.conversations.map(\.id)
+    }
 
     private var filteredConversations: [(offset: Int, element: Conversation)] {
         let indexedConversations = Array(appState.conversations.enumerated())
@@ -18,34 +22,55 @@ struct MessagesView: View {
     }
 
     var body: some View {
-        if appState.conversations.isEmpty {
-            emptyState
-                .padding(isCompact ? 20 : 28)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else {
-            Group {
-                if isCompact {
-                    if isShowingConversation {
-                        conversationDetail(showsBackButton: true)
+        Group {
+            if appState.conversations.isEmpty {
+                emptyState
+                    .padding(isCompact ? 20 : 28)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                Group {
+                    if isCompact {
+                        if isShowingConversation {
+                            conversationDetail(showsBackButton: true)
+                        } else {
+                            conversationList
+                        }
                     } else {
-                        conversationList
-                    }
-                } else {
-                    HStack(spacing: 0) {
-                        conversationList
-                            .frame(width: 290)
+                        HStack(spacing: 0) {
+                            conversationList
+                                .frame(width: 290)
 
-                        Divider()
+                            Divider()
 
-                        conversationDetail(showsBackButton: false)
+                            conversationDetail(showsBackButton: false)
+                        }
                     }
                 }
             }
         }
+        .onChange(of: conversationIDs) { _ in
+            synchronizeSelectionWithFilteredConversations()
+        }
     }
 
     private var conversationList: some View {
-        VStack(spacing: 0) {
+        let listCount = filteredConversations.count == 1
+            ? String.localizedKey("messagesConversationCountOne")
+            : String(
+                format: String.localizedKey("messagesConversationCount"),
+                filteredConversations.count
+            )
+        let unreadConversationCount = filteredConversations.filter(\.element.unread).count
+        let unreadCount = String(
+            format: String.localizedKey("messagesUnreadConversationCount"),
+            unreadConversationCount
+        )
+        let listSummary = unreadConversationCount == 0 ? listCount : String(
+            format: String.localizedKey("messagesConversationSummary"),
+            listCount,
+            unreadCount
+        )
+        return VStack(spacing: 0) {
             PageSearchField(searchText: $searchText, searchPrompt: "messagesSearchPrompt", expands: true)
                 .padding(AppSpacing.md)
 
@@ -63,9 +88,9 @@ struct MessagesView: View {
                     .padding(AppSpacing.lg)
                 } else {
                     LazyVStack(spacing: 3) {
-                        ForEach(filteredConversations, id: \.element.id) { index, conversation in
-                            ConversationRow(conversation: conversation, isSelected: selectedConversation == index) {
-                                selectedConversation = index
+                        ForEach(filteredConversations, id: \.element.id) { _, conversation in
+                            ConversationRow(conversation: conversation, isSelected: selectedConversationID == conversation.id) {
+                                selectedConversationID = conversation.id
                                 if isCompact {
                                     isShowingConversation = true
                                 }
@@ -77,12 +102,32 @@ struct MessagesView: View {
             }
         }
         .background(AppTheme.surface.opacity(0.65))
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Text("messagesConversationList"))
+        .accessibilityValue(Text(listSummary))
+        .onAppear {
+            synchronizeSelectionWithFilteredConversations()
+        }
+        .onChange(of: searchText) { _ in
+            synchronizeSelectionWithFilteredConversations()
+        }
+    }
+
+    private func synchronizeSelectionWithFilteredConversations() {
+        guard !filteredConversations.contains(where: { $0.element.id == selectedConversationID }) else { return }
+        selectedConversationID = filteredConversations.first?.element.id
+        if selectedConversationID == nil {
+            isShowingConversation = false
+        }
     }
 
     @ViewBuilder
     private func conversationDetail(showsBackButton: Bool) -> some View {
-        if appState.conversations.indices.contains(selectedConversation) {
-            let conversation = appState.conversations[selectedConversation]
+        if let conversation = appState.conversations.first(where: { $0.id == selectedConversationID }) {
+            let detailLabel = String(
+                format: String.localizedKey("messagesConversationDetail"),
+                conversation.name
+            )
             VStack(spacing: 0) {
                 HStack(spacing: 11) {
                     if showsBackButton {
@@ -93,6 +138,9 @@ struct MessagesView: View {
                                 .labelStyle(.iconOnly)
                         }
                         .buttonStyle(.plain)
+                        .keyboardShortcut(.cancelAction)
+                        .help("messagesBackToList")
+                        .accessibilityLabel(Text("messagesBackToList"))
                     }
 
                     Avatar(initials: conversation.initials, color: conversation.color, size: 36)
@@ -100,6 +148,9 @@ struct MessagesView: View {
                         Text(conversation.name).font(AppTypography.headline)
                         Text("messagesSMS").font(AppTypography.caption).foregroundColor(.secondary)
                     }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityAddTraits(.isHeader)
+                    .accessibilityValue(conversation.unread ? Text("messagesUnread") : Text("messagesRead"))
                     Spacer()
                 }
                 .padding(.horizontal, isCompact ? AppSpacing.lg : AppSpacing.xl)
@@ -111,9 +162,13 @@ struct MessagesView: View {
                 emptyState
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel(Text(detailLabel))
         } else {
             emptyState
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel(Text("messagesEmptyConversationDetail"))
         }
     }
 
@@ -143,13 +198,22 @@ private struct ConversationRow: View {
                     }
                     Text(conversation.preview).font(AppTypography.caption).foregroundColor(.secondary).lineLimit(1)
                 }
-                if conversation.unread { Circle().fill(AppTheme.accent).frame(width: 7, height: 7) }
+                if conversation.unread {
+                    Circle()
+                        .fill(AppTheme.accent)
+                        .frame(width: 7, height: 7)
+                        .accessibilityHidden(true)
+                }
             }
             .padding(AppSpacing.sm)
             .appBackground(isSelected ? AppTheme.accent.opacity(0.12) : .clear, in: RoundedRectangle(cornerRadius: AppRadius.small))
             .contentShape(Rectangle())
+            .accessibilityElement(children: .combine)
         }
         .buttonStyle(.plain)
+        .accessibilityHint(Text("messagesOpenConversationHint"))
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityValue(conversation.unread ? Text("messagesUnread") : Text("messagesRead"))
     }
 }
 
@@ -164,5 +228,6 @@ private struct Avatar: View {
             .foregroundColor(.white)
             .frame(width: size, height: size)
             .appBackground(LinearGradient(colors: [color.opacity(0.7), color], startPoint: .topLeading, endPoint: .bottomTrailing), in: Circle())
+            .accessibilityHidden(true)
     }
 }

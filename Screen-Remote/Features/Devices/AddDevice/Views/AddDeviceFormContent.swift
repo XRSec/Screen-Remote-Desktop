@@ -579,6 +579,7 @@ private struct StartAppFormRow: View {
                 .textFieldStyle(.roundedBorder)
                 .multilineTextAlignment(.trailing)
                 .frame(maxWidth: 360)
+                .accessibilityLabel(Text("sessionStartApp"))
             if !text.isEmpty {
                 Button {
                     text = ""
@@ -588,6 +589,7 @@ private struct StartAppFormRow: View {
                 .buttonStyle(.borderless)
                 .foregroundColor(.red)
                 .help("commonClear")
+                .accessibilityLabel(Text("commonClear"))
             }
             Button(action: onSearch) {
                 Image(systemName: "magnifyingglass")
@@ -595,6 +597,7 @@ private struct StartAppFormRow: View {
             .buttonStyle(.borderless)
             .disabled(!isSearchEnabled)
             .help("sessionSelectRemoteApp")
+            .accessibilityLabel(Text("sessionSelectRemoteApp"))
         }
         .padding(14)
     }
@@ -683,16 +686,10 @@ struct RemoteAppSelector: View {
                         .padding(.horizontal, AppSpacing.lg)
                 }
                 .frame(maxWidth: .infinity)
-            } else if !hasSearched {
+            } else if !hasSearched || filteredApps.isEmpty {
                 ContentUnavailableViewCompat(
                     icon: "magnifyingglass",
-                    title: "sessionSelectRemoteApp",
-                    detail: "appsSearchPrompt"
-                )
-            } else if filteredApps.isEmpty {
-                ContentUnavailableViewCompat(
-                    icon: "magnifyingglass",
-                    title: "appsManageNoSearchResults",
+                    title: hasSearched ? "appsManageNoSearchResults" : "sessionSelectRemoteApp",
                     detail: "appsSearchPrompt"
                 )
             } else {

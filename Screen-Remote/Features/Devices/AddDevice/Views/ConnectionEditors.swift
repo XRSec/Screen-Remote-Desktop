@@ -116,10 +116,8 @@ struct ConnectionDiscoveryPicker: View {
                 ScrollView {
                     LazyVStack(spacing: 8) {
                         if devices.isEmpty && !isRefreshing {
-                            ContentUnavailableViewCompat(
-                                icon: transport == .usb ? "cable.connector" : "dot.radiowaves.left.and.right",
-                                title: "deviceDiscoveryEmptyTitle",
-                                detail: "deviceDiscoveryEmptyDetail"
+                            DeviceDiscoveryEmptyView(
+                                icon: transport == .usb ? "cable.connector" : "dot.radiowaves.left.and.right"
                             )
                             .frame(height: 230)
                         }
