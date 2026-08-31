@@ -323,7 +323,7 @@ struct AppsView: View {
             }
             .labelsHidden()
             .accessibilityLabel(Text("appsTypeFilterTitle"))
-            .pickerStyle(.menu)
+            .pickerStyle(.segmented)
             .fixedSize()
             Picker("appsStateFilterTitle", selection: $enabledFilter) {
                 ForEach(AppEnabledFilter.allCases) { filter in
@@ -332,7 +332,7 @@ struct AppsView: View {
             }
             .labelsHidden()
             .accessibilityLabel(Text("appsStateFilterTitle"))
-            .pickerStyle(.menu)
+            .pickerStyle(.segmented)
             .fixedSize()
         }
     }
