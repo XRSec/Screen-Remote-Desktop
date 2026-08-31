@@ -1767,6 +1767,23 @@
         }
       }
     },
+    "appsNoDeviceTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No device selected"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未选择设备"
+          }
+        }
+      }
+    },
     "appsManageNoDevice" : {
       "extractionState" : "manual",
       "localizations" : {

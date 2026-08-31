@@ -240,14 +240,13 @@ struct AppsView: View {
                 }
             }
         } else if currentDevice == nil {
-            VStack(spacing: AppSpacing.md) {
-                Image(systemName: "iphone.slash")
-                    .font(AppTypography.largeTitle)
-                    .foregroundColor(.secondary)
-                Text("appsManageNoDevice")
-                    .font(AppTypography.section)
-                    .multilineTextAlignment(.center)
-            }
+            ContentUnavailableViewCompat(
+                icon: "iphone.slash",
+                title: "appsNoDeviceTitle",
+                detail: "appsManageNoDevice",
+                actionTitle: "addDeviceTitle",
+                action: { appState.showingAddDevice = true }
+            )
             .padding(AppSpacing.xl)
             .frame(maxWidth: .infinity, minHeight: 260)
         } else {
