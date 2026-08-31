@@ -146,10 +146,12 @@ struct UtilityOptionButton: View {
                         .appBackground(Color.primary.opacity(0.06), in: Capsule())
                 }
                 Image(systemName: "chevron.right").font(.caption2).foregroundColor(.secondary)
+                    .accessibilityHidden(true)
             }
             .padding(12)
             .contentShape(Rectangle())
             .appCard(radius: 12)
+            .accessibilityElement(children: .combine)
         }
         .buttonStyle(.plain)
         .foregroundColor(isDestructive ? .red : .primary)
