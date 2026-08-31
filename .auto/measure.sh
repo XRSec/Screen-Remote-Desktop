@@ -6,38 +6,37 @@ from pathlib import Path
 import re
 import sys
 
-apps_view = Path("Screen-Remote/Features/Apps/Views/AppsView.swift").read_text(encoding="utf-8")
-components = Path("Screen-Remote/Features/Apps/Views/AppViewComponents.swift").read_text(encoding="utf-8")
+path = Path("Screen-Remote/Features/Screens/Views/ScrcpySessionParametersMenu.swift")
+source = path.read_text(encoding="utf-8")
 
-# Product gap: when users enter multiple search terms, every visible app card
-# should reveal why it matched in both searchable fields. Filtering alone makes
-# package-name matches especially hard to locate in a dense adaptive grid.
+# Product gap: the Auxiliary Menu button exposes only a generic label to
+# VoiceOver. Users should hear the currently configured quality, FPS, and video
+# bitrate before opening a menu whose purpose is to change those exact values.
 checks = {
-    "terms_forwarded_to_cards": r'ManagedAppGridItem\(.*?searchTerms:\s*searchTerms',
-    "app_name_highlighted": r'highlightedText\(app\.name,\s*terms:\s*searchTerms\)',
-    "package_name_highlighted": r'highlightedText\(app\.packageName,\s*terms:\s*searchTerms\)',
+    "quality_in_accessibility_summary": r'accessibilitySummary\(options: options\).*?ScreenQualityPreset',
+    "fps_in_accessibility_summary": r'accessibilitySummary\(options: options\).*?options\.maxFPS',
+    "bitrate_in_accessibility_summary": r'accessibilitySummary\(options: options\).*?options\.videoBitrate',
+    "summary_applied_to_button": r'button\.setAccessibilityValue\(accessibilitySummary\(options: options\)\)',
 }
 
-gaps = []
-combined = apps_view + "\n" + components
-for name, pattern in checks.items():
-    if re.search(pattern, combined, flags=re.S) is None:
-        gaps.append(name)
+gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
 
-# Preserve actual search semantics and guard against a benchmark-only marker.
+# Guard the native menu and its real settings. A passing result must retain the
+# interactive parameter menu rather than replacing it with benchmark markers.
 required = [
-    "searchText.split(whereSeparator: \\.isWhitespace)",
-    "allSatisfy { term in",
-    "localizedCaseInsensitiveContains",
+    "ScrcpySessionParametersMenuButton: NSViewRepresentable",
+    "button.action = #selector(ScrcpySessionParametersMenuCoordinator.showMenu(_:))",
+    "makeImageQualityMenu()",
+    "makeFrameRateMenu()",
+    "makeVideoBitrateMenu()",
 ]
-missing = [item for item in required if item not in combined]
+missing = [item for item in required if item not in source]
 if missing:
-    print("Measurement invalid: searchable/highlight behavior is incomplete:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: native parameter-menu behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC apps_search_highlight_gaps={len(gaps)}")
-highlighted_fields = sum(name not in gaps for name in ("app_name_highlighted", "package_name_highlighted"))
-print(f"METRIC apps_search_highlighted_fields={highlighted_fields}")
+print(f"METRIC screen_parameter_summary_gaps={len(gaps)}")
+print(f"METRIC screen_parameter_summary_fields={3 - sum(name != 'summary_applied_to_button' for name in gaps)}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY

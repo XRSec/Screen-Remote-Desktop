@@ -45,6 +45,7 @@ private struct ScrcpySessionParametersMenuButton: NSViewRepresentable {
         button.imagePosition = .imageOnly
         button.imageScaling = .scaleProportionallyDown
         button.setAccessibilityLabel(String.localizedKey("screensSessionParameters"))
+        button.setAccessibilityValue(accessibilitySummary(options: options))
         button.target = context.coordinator
         button.action = #selector(ScrcpySessionParametersMenuCoordinator.showMenu(_:))
         context.coordinator.update(button, options: options, isDisabled: isDisabled)
@@ -53,9 +54,27 @@ private struct ScrcpySessionParametersMenuButton: NSViewRepresentable {
 
     func updateNSView(_ button: NSButton, context: Context) {
         button.setAccessibilityLabel(String.localizedKey("screensSessionParameters"))
+        button.setAccessibilityValue(accessibilitySummary(options: options))
         context.coordinator.deviceID = deviceID
         context.coordinator.remoteSerial = remoteSerial
         context.coordinator.update(button, options: options, isDisabled: isDisabled)
+    }
+
+    private func accessibilitySummary(options: ScrcpyDeviceOptions) -> String {
+        let quality = ScreenQualityPreset.allCases.first(where: { $0.maxSize == options.maxSize })
+            .map { String.localizedKey($0.localizationKey) }
+            ?? "\(options.maxSize)P"
+        let frameRate = options.maxFPS > 0
+            ? "\(options.maxFPS) FPS"
+            : String.localizedKey("sessionDefault")
+        let bitrate = options.videoBitrate.isEmpty
+            ? String.localizedKey("sessionDefault")
+            : options.videoBitrate
+        return [
+            "\(String.localizedKey("screensImageQuality")): \(quality)",
+            "\(String.localizedKey("addDeviceMaxFrameRate")): \(frameRate)",
+            "\(String.localizedKey("addDeviceVideoBitrate")): \(bitrate)",
+        ].joined(separator: ", ")
     }
 }
 
