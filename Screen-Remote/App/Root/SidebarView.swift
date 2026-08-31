@@ -268,6 +268,7 @@ struct SidebarView: View {
             }
             .buttonStyle(.plain)
             .help("sidebarVirtualDevices")
+            .accessibilityLabel(Text("sidebarVirtualDevices"))
             Button { appState.showingDeviceDiscovery = true } label: {
                 Image(systemName: "dot.radiowaves.left.and.right")
                     .frame(width: 32, height: 32)
@@ -275,6 +276,7 @@ struct SidebarView: View {
             }
             .buttonStyle(.plain)
             .help("deviceDiscoveryTitle")
+            .accessibilityLabel(Text("deviceDiscoveryTitle"))
             Button { appState.openSDLLogsWindow() } label: {
                 Image(systemName: "text.alignleft")
                     .frame(width: 32, height: 32)
@@ -282,6 +284,7 @@ struct SidebarView: View {
             }
             .buttonStyle(.plain)
             .help("diagnosticsSDLLogs")
+            .accessibilityLabel(Text("diagnosticsSDLLogs"))
             .padding(.bottom, 16)
         }
         .frame(maxWidth: .infinity)
@@ -300,6 +303,7 @@ struct SidebarView: View {
                 }
             )
             .accessibilityElement(children: .combine)
+            .accessibilityLabel(Text(device.name))
             .accessibilityAddTraits(.isButton)
             .accessibilityAction { appState.selectDevice(at: index) }
             .help(device.name)

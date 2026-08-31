@@ -30,6 +30,7 @@ struct SidebarSectionHeader: View {
             }
             .buttonStyle(.plain)
             .help(addHelp)
+            .accessibilityLabel(addHelp)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 2)
