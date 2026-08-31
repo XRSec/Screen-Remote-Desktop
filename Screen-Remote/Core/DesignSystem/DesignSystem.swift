@@ -105,6 +105,7 @@ struct AppIconTile: View {
             Image(systemName: symbol)
                 .font(.system(size: size * 0.43, weight: .semibold))
                 .foregroundColor(.white)
+                .accessibilityHidden(true)
         }
         .frame(width: size, height: size)
         .shadow(color: color.opacity(0.2), radius: 4, y: 2)
