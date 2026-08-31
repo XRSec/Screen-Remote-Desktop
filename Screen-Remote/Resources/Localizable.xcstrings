@@ -7141,6 +7141,23 @@
         }
       }
     },
+    "screensDeviceScreen" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ screen"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 的屏幕"
+          }
+        }
+      }
+    },
     "screensDeviceInformation" : {
       "extractionState" : "manual",
       "localizations" : {

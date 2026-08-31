@@ -278,6 +278,10 @@ private extension ScrcpyParentContainer {
     @ViewBuilder
     private func leadingControls(isCompact: Bool) -> some View {
         let controlSize: CGFloat = isCompact ? 22 : 28
+        let selectionLabel = String(
+            format: String.localizedKey("screensDeviceScreen"),
+            device.name
+        )
         if mode == .embedded {
             HStack(spacing: isCompact ? 1 : 2) {
                 Button(action: onSelect) {
@@ -288,6 +292,9 @@ private extension ScrcpyParentContainer {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(selectionLabel)
+                .accessibilityLabel(Text(selectionLabel))
+                .accessibilityAddTraits(isSelected ? .isSelected : [])
 
                 ScrcpyContainerControlButton(
                     icon: "stop.fill",
