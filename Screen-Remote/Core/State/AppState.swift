@@ -674,7 +674,6 @@ final class AppState: ObservableObject {
         sdlLogWindowController?.showWindowAndActivate()
     }
 
-    @Published var apps: [PhoneApp] = []
     @Published var notifications: [PhoneNotification] = []
     @Published var conversations: [Conversation] = []
 }

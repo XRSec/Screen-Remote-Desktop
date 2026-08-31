@@ -36,20 +36,6 @@ struct PageSearchField: View {
     }
 }
 
-struct SectionTitle: View {
-    let title: LocalizedStringKey
-    let actionTitle: LocalizedStringKey
-    var action: () -> Void = {}
-
-    var body: some View {
-        HStack {
-            Text(title).font(AppTypography.headline)
-            Spacer()
-            Button(actionTitle, action: action).buttonStyle(.plain).font(AppTypography.caption).foregroundColor(AppTheme.accent)
-        }
-    }
-}
-
 struct ManagedAppGridItem: View {
     let app: ManagedAndroidApp
     let icon: NSImage?

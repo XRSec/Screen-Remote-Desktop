@@ -1,14 +1,4 @@
-import AppKit
-import Combine
 import SwiftUI
-
-struct PhoneApp: Identifiable {
-    let id = UUID()
-    let name: String
-    let icon: String
-    let color: Color
-    var badge: Int = 0
-}
 
 struct PhoneNotification: Identifiable {
     let id = UUID()
