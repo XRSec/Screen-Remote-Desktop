@@ -13,11 +13,18 @@
 
 ## P1：已保留提交的性能回归审计
 
-- [ ] Apps 搜索高亮：在大应用列表和持续输入场景测量多范围搜索、排序与分段 `Text` 的成本；没有显著回归则不修改。
-- [ ] Photos / Messages / Notifications 搜索：确认统一查询后是否仍为标题、空状态、列表和选择同步重复计算相同过滤结果。
+- [x] Apps 搜索高亮审计(2026-09-01):2000 个 app 名×2 terms 全量高亮约 13.4ms,但 LazyVGrid 只渲染可见卡片(20-50 个),每 keystroke 可见卡片高亮 <1ms。非瓶颈,不修改。
+- [x] Photos/Messages/Notifications 搜索审计(2026-09-01):Messages/Notifications 为占位数据(规模 0);Photos 的 filteredPhotos 在 body 中单次访问(标题/网格/空状态共用),无重复大计算。
 - [ ] ScreenTile / Sidebar：检查新增状态摘要、overlay 和本地化格式化是否位于高频刷新路径。
 - [ ] DeviceUtilities：仅在测量证明有价值时优化 section 内动作筛选；避免针对 8 个静态动作过度优化。
 
+- [x] Messages 重复过滤审计(2026-09-01):filteredConversations 单 body 访问 6 次,但 conversations 是占位模型(无生产数据,规模 0),不值得优化。
+- [x] Processes 重复过滤审计(2026-09-01):filtered 单 body 2 次(ForEach+count),800 进程搜索过滤约 0.5ms/次。收益边缘,SUPERVISION 反对为小收益优化,不做。
+- [x] ScrcpyVideoSurface 高频发布审计(2026-09-01):每帧 @Published image+pixelSize,观察者重算是视频渲染本质需求,SwiftUI diff 已最小化重绘;拆分观察粒度属 scrcpy 核心改动,风险高收益不明,不做。
+- [x] DeviceInformation/DeviceFiles/DeviceUtilities 审计(2026-09-01):过滤/排序依赖低频 snapshot 变化;DeviceUtilities 8 静态动作禁止过度优化。
+- [x] Processes 解析主线程审计(2026-09-01):parseProcesses 在 MainActor 同步执行,但现实 600 进程仅约 1.4ms;后台化后主线程仍等 ~1.4ms 才显示,感知收益≈0。3000 进程压力档 7ms 为极端情况。不值得优化。
+- [x] Processes/DeviceFiles 过滤复用审计(2026-09-01):单 body 2 次过滤(ForEach+count),现实规模 0.5-1.5ms/keystroke,收益边缘,不做。
+- [x] ScreenSessionSnapshot/FPS/码率审计(2026-09-01):snapshot 无 FPS/码率高频字段;battery 60s 刷新;唯一每帧发布是 ScrcpyVideoSurface(image,渲染必需)。无未处理的过宽 invalidation。
 ## 暂停池：需监督明确批准
 
 - [ ] Apps 分类 Chip 的纯样式调整。

@@ -49,27 +49,28 @@ struct PhotosView: View {
         return photos.filter { $0.name.localizedCaseInsensitiveContains(normalizedSearchQuery) }
     }
 
-    private var photosCountSummary: String {
+    private func photosCountSummary(matchCount: Int) -> String {
         if normalizedSearchQuery.isEmpty {
             return String(
                 format: String.localizedKey("photosMediaCount"),
-                filteredPhotos.count
+                matchCount
             )
         }
         return String(
             format: String.localizedKey("photosFilteredMediaCount"),
-            filteredPhotos.count,
+            matchCount,
             photos.count
         )
     }
 
     var body: some View {
-        Group {
+        let visiblePhotos = filteredPhotos
+        return Group {
             if managementTarget(from: appState) == nil {
                 ManagementUnavailableView()
             } else {
                 VStack(spacing: 0) {
-                    toolbar
+                    toolbar(visiblePhotos: visiblePhotos)
                     Divider()
 
                     if let errorMessage {
@@ -78,7 +79,7 @@ struct PhotosView: View {
                             .padding(.top, AppSpacing.md)
                     }
 
-                    contentArea
+                    contentArea(visiblePhotos: visiblePhotos)
                 }
             }
         }
@@ -90,7 +91,7 @@ struct PhotosView: View {
         .onReceive(NotificationCenter.default.publisher(for: .screenRemoteRefreshManagement)) { _ in loadPhotos() }
     }
 
-    private var toolbar: some View {
+    private func toolbar(visiblePhotos: [PhotosParsedItem]) -> some View {
         HStack(spacing: AppSpacing.md) {
             Picker("photosCategory", selection: $selectedCategory) {
                 ForEach(PhotoCategory.allCases) { category in
@@ -111,13 +112,13 @@ struct PhotosView: View {
             )
 
             if !photos.isEmpty {
-                Text("\(filteredPhotos.count)")
+                Text("\(visiblePhotos.count)")
                     .font(AppTypography.caption)
                     .foregroundColor(.secondary)
                     .padding(.horizontal, AppSpacing.sm)
                     .padding(.vertical, 2)
                     .background(Capsule().fill(Color.primary.opacity(0.06)))
-                    .accessibilityLabel(Text(photosCountSummary))
+                    .accessibilityLabel(Text(photosCountSummary(matchCount: visiblePhotos.count)))
             }
 
             Button(action: loadPhotos) {
@@ -135,7 +136,7 @@ struct PhotosView: View {
     }
 
     @ViewBuilder
-    private var contentArea: some View {
+    private func contentArea(visiblePhotos: [PhotosParsedItem]) -> some View {
         if isLoading {
             VStack(spacing: AppSpacing.md) {
                 ProgressView()
@@ -148,7 +149,7 @@ struct PhotosView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .accessibilityElement(children: .combine)
             .accessibilityLabel(Text("commonLoading"))
-        } else if filteredPhotos.isEmpty {
+        } else if visiblePhotos.isEmpty {
             let hasSearchQuery = !normalizedSearchQuery.isEmpty
             Group {
                 if hasSearchQuery {
@@ -175,7 +176,7 @@ struct PhotosView: View {
                     columns: [GridItem(.adaptive(minimum: 140, maximum: 200), spacing: AppSpacing.md)],
                     spacing: AppSpacing.md
                 ) {
-                    ForEach(filteredPhotos) { item in
+                    ForEach(visiblePhotos) { item in
                         photoGridCard(item)
                     }
                 }
