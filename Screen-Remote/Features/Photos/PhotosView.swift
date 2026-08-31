@@ -29,23 +29,12 @@ private enum PhotoCategory: String, CaseIterable, Identifiable {
     }
 }
 
-private struct RemotePhotoItem: Identifiable, Hashable {
-    let name: String
-    let fullPath: String
-    let isVideo: Bool
-    let sizeText: String
-    let dateText: String
-    let modifiedAt: Date
-
-    var id: String { fullPath }
-}
-
 struct PhotosView: View {
     @EnvironmentObject private var appState: AppState
     let isCompact: Bool
 
     @State private var selectedCategory: PhotoCategory = .recent
-    @State private var photos: [RemotePhotoItem] = []
+    @State private var photos: [PhotosParsedItem] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var searchText = ""
@@ -55,7 +44,7 @@ struct PhotosView: View {
         searchText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private var filteredPhotos: [RemotePhotoItem] {
+    private var filteredPhotos: [PhotosParsedItem] {
         guard !normalizedSearchQuery.isEmpty else { return photos }
         return photos.filter { $0.name.localizedCaseInsensitiveContains(normalizedSearchQuery) }
     }
@@ -195,7 +184,7 @@ struct PhotosView: View {
         }
     }
 
-    private func photoGridCard(_ item: RemotePhotoItem) -> some View {
+    private func photoGridCard(_ item: PhotosParsedItem) -> some View {
         let isSelected = selectedPhotoID == item.id
 
         return VStack(alignment: .leading, spacing: AppSpacing.xs) {
@@ -273,7 +262,7 @@ struct PhotosView: View {
         }
     }
 
-    private func photoAccessibilitySummary(_ item: RemotePhotoItem) -> String {
+    private func photoAccessibilitySummary(_ item: PhotosParsedItem) -> String {
         let mediaType = String.localizedKey(
             item.isVideo ? "photosMediaTypeVideo" : "photosMediaTypeImage"
         )
@@ -293,14 +282,17 @@ struct PhotosView: View {
         Task {
             do {
                 let directory = ManagementADB.quote(selectedCategory.directoryPath)
-                let extensionFilters = supportedExtensions
+                let extensionFilters = PhotosListParsing.supportedExtensions
                     .map { "-iname \(ManagementADB.quote("*.\($0)"))" }
                     .joined(separator: " -o ")
                 let command = "[ -d \(directory) ] || exit 0; "
                     + "find \(directory) -maxdepth \(selectedCategory.searchDepth) -type f "
                     + "\\( \(extensionFilters) \\) -exec stat -c '%s|%Y|%n' {} \\; 2>/dev/null"
                 let output = try await ManagementADB.shell(target: target, command: command)
-                let parsed = parsePhotoList(output)
+                // 解析在后台执行者运行,避免数千行 find/stat 输出阻塞主线程。
+                let parsed = await Task.detached(priority: .userInitiated) {
+                    PhotosListParsing.parse(output)
+                }.value
 
                 await MainActor.run {
                     self.photos = parsed
@@ -316,60 +308,7 @@ struct PhotosView: View {
         }
     }
 
-    private var supportedExtensions: [String] {
-        imageExtensions + videoExtensions
-    }
-
-    private var imageExtensions: [String] {
-        ["jpg", "jpeg", "png", "webp", "gif", "heic", "dng"]
-    }
-
-    private var videoExtensions: [String] {
-        ["mp4", "mkv", "mov", "webm", "3gp"]
-    }
-
-    private func parsePhotoList(_ raw: String) -> [RemotePhotoItem] {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .medium
-        dateFormatter.timeStyle = .short
-
-        return raw.split(whereSeparator: \.isNewline).compactMap { line in
-            let fields = line.split(separator: "|", maxSplits: 2, omittingEmptySubsequences: false)
-            guard fields.count == 3,
-                  let byteCount = Int64(fields[0]),
-                  let timestamp = TimeInterval(fields[1]) else {
-                return nil
-            }
-
-            let fullPath = String(fields[2])
-            let name = URL(fileURLWithPath: fullPath).lastPathComponent
-            guard !name.hasPrefix(".") else { return nil }
-
-            let fileExtension = URL(fileURLWithPath: fullPath).pathExtension.lowercased()
-            let isVideo = videoExtensions.contains(fileExtension)
-            guard isVideo || imageExtensions.contains(fileExtension) else { return nil }
-
-            let modifiedAt = Date(timeIntervalSince1970: timestamp)
-            return RemotePhotoItem(
-                name: name,
-                fullPath: fullPath,
-                isVideo: isVideo,
-                sizeText: formatFileSize(byteCount),
-                dateText: dateFormatter.string(from: modifiedAt),
-                modifiedAt: modifiedAt
-            )
-        }
-        .sorted { $0.modifiedAt > $1.modifiedAt }
-    }
-
-    private func formatFileSize(_ bytes: Int64) -> String {
-        let formatter = ByteCountFormatter()
-        formatter.allowedUnits = [.useKB, .useMB, .useGB]
-        formatter.countStyle = .file
-        return formatter.string(fromByteCount: bytes)
-    }
-
-    private func downloadPhoto(_ item: RemotePhotoItem) {
+    private func downloadPhoto(_ item: PhotosParsedItem) {
         guard let target = managementTarget(from: appState) else { return }
         let panel = NSSavePanel()
         panel.nameFieldStringValue = item.name
@@ -393,7 +332,7 @@ struct PhotosView: View {
         }
     }
 
-    private func confirmDelete(_ item: RemotePhotoItem) {
+    private func confirmDelete(_ item: PhotosParsedItem) {
         let alert = NSAlert()
         alert.messageText = String(
             format: String.localizedKey("photosDeleteConfirmationTitle"),
@@ -408,7 +347,7 @@ struct PhotosView: View {
         deletePhoto(item)
     }
 
-    private func deletePhoto(_ item: RemotePhotoItem) {
+    private func deletePhoto(_ item: PhotosParsedItem) {
         guard let target = managementTarget(from: appState) else { return }
 
         Task {

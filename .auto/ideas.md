@@ -4,7 +4,9 @@
 
 ## P0：可感知 UI 卡顿
 
-- [ ] Photos：测量网格预览的远程传输字节、原图/缩略图尺寸、重复请求和解码线程；确认瓶颈后，通过现有 dadb helper 生成受控尺寸缩略图。
+- [x] Photos P0 审计(2026-09-01):网格**不拉取、不解码任何图片**,卡片仅渲染 systemName 图标 + find/stat 元数据;原图拉取假设不成立,不实现 helper 缩略图。
+  - 真实替代热点:parsePhotoList 在 MainActor 同步解析数千行 find/stat 输出,每行新建 ByteCountFormatter/DateFormatter/URL×2 + 全量 sorted。探测:500 张≈5.5ms、2000 张≈13.8ms、10000 张≈70ms。
+  - 候选方向:解析逻辑提取为纯函数并在后台 Task.detached 执行,主线程仅赋值;把 imageExtensions/videoExtensions 改为 static let。待 harness 证实后再改产品。
 - [ ] Apps / Photos / Notifications / Messages：建立可重复的大数据量过滤、排序和摘要生成基线，定位 `body` 重算或重复遍历热点。
 - [ ] Root / Sidebar / ScreenTile：测量高频 session、电量、FPS、码率状态是否导致过宽 SwiftUI invalidation，确认后缩小观察或节流纯展示状态。
 - [ ] 图片与图标：审计缓存、in-flight 去重、取消和后台解码，优先处理滚动/刷新中重复工作。
