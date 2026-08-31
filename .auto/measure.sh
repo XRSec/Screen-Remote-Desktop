@@ -3,41 +3,43 @@ set -euo pipefail
 
 python3 - <<'PY'
 from pathlib import Path
+import json
 import re
 import sys
 
 source = Path("Screen-Remote/App/Root/SidebarComponents.swift").read_text(encoding="utf-8")
+catalog = json.loads(Path("Screen-Remote/Resources/Localizable.xcstrings").read_text(encoding="utf-8"))["strings"]
 
-# Product gap: VirtualDeviceRow combines name and target automatically, then
-# adds a state value. Use explicit label/value semantics so the device name is
-# stable and the value contains target plus working/running/stopped state.
+# Product gap: Sidebar section summaries always say "items", including a count
+# of one. Use a dedicated singular summary so VoiceOver receives natural,
+# grammatically correct expanded/collapsed counts.
 checks = {
-    "virtual_name_label": r'VirtualDeviceRow.*?\.accessibilityLabel\(Text\(device\.name\)\)',
-    "virtual_summary_function": r'virtualDeviceAccessibilitySummary.*?device\.target.*?isWorking.*?device\.isRunning',
-    "virtual_summary_value": r'VirtualDeviceRow.*?\.accessibilityValue\(Text\(virtualDeviceAccessibilitySummary\)\)',
-    "primary_children_ignored": r'VirtualDeviceRow.*?\.accessibilityElement\(children: \.ignore\).*?\.accessibilityLabel',
+    "singular_branch": r'sectionSummary.*?itemCount == 1.*?sidebarSectionSummaryOne.*?sidebarSectionSummary',
+    "state_preserved_in_singular": r'let expansionState = String\.localizedKey\(.*?isExpanded \? "commonExpanded" : "commonCollapsed".*?sidebarSectionSummaryOne.*?expansionState',
 }
 gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
 
-# Preserve visible name/target, start/stop and edit actions, working guards,
-# visual status, hover behavior, and real state sources.
+for key in ("sidebarSectionSummaryOne", "sidebarSectionSummary"):
+    loc = catalog.get(key, {}).get("localizations", {})
+    if not all(loc.get(lang, {}).get("stringUnit", {}).get("value") for lang in ("en", "zh-Hans")):
+        gaps.append(f"{key}_localized")
+
+# Preserve the dynamic expansion state, real item count, header button, add
+# action, and both existing section call sites.
 required = [
-    "Text(device.name)",
-    "Text(device.target)",
-    "device.isRunning",
-    "isWorking",
-    ".accessibilityAction(named: Text(actionLocalizationKey))",
-    '.accessibilityAction(named: Text("virtualDeviceEditTitle"))',
-    "if !isWorking { action() }",
-    "if !device.isRunning && !isWorking { onEdit() }",
+    "let isExpanded: Bool",
+    "let itemCount: Int",
+    "Button(action: onToggle)",
+    "Button(action: onAdd)",
+    ".accessibilityValue(Text(sectionSummary))",
 ]
 missing = [item for item in required if item not in source]
 if missing:
-    print("Measurement invalid: virtual-device row behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: sidebar section semantics are missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC virtual_device_row_semantic_gaps={len(gaps)}")
-print(f"METRIC virtual_device_row_metadata_fields={3 if not gaps else 2}")
+print(f"METRIC sidebar_section_plural_gaps={len(gaps)}")
+print(f"METRIC sidebar_section_count_forms={2 if not gaps else 1}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY

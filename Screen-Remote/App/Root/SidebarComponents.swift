@@ -9,9 +9,18 @@ struct SidebarSectionHeader: View {
     let onAdd: () -> Void
 
     private var sectionSummary: String {
-        String(
+        let expansionState = String.localizedKey(
+            isExpanded ? "commonExpanded" : "commonCollapsed"
+        )
+        if itemCount == 1 {
+            return String(
+                format: String.localizedKey("sidebarSectionSummaryOne"),
+                expansionState
+            )
+        }
+        return String(
             format: String.localizedKey("sidebarSectionSummary"),
-            String.localizedKey(isExpanded ? "commonExpanded" : "commonCollapsed"),
+            expansionState,
             itemCount
         )
     }

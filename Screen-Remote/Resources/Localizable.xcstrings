@@ -11927,6 +11927,23 @@
         }
       }
     },
+    "sidebarSectionSummaryOne" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, 1 item"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@，1 项"
+          }
+        }
+      }
+    },
     "sidebarSectionSummary" : {
       "extractionState" : "manual",
       "localizations" : {
