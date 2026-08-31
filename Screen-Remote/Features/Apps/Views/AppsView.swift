@@ -175,12 +175,15 @@ struct AppsView: View {
                 VStack(spacing: AppSpacing.md) {
                     ProgressView()
                         .scaleEffect(0.8)
+                        .accessibilityHidden(true)
                     Text("appsManageLoading")
                         .font(AppTypography.body)
                         .foregroundColor(.secondary)
                 }
                 .padding(AppSpacing.xl)
                 .frame(maxWidth: .infinity, minHeight: 220)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(Text("appsManageLoading"))
             } else if filteredManagedApps.isEmpty {
                 VStack(spacing: AppSpacing.md) {
                     Image(systemName: appManager.apps.isEmpty ? "apps.iphone" : "magnifyingglass")

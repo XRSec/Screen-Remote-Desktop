@@ -3,43 +3,36 @@ set -euo pipefail
 
 python3 - <<'PY'
 from pathlib import Path
-import json
 import re
 import sys
 
-notifications = Path("Screen-Remote/Features/Notifications/NotificationsView.swift").read_text(encoding="utf-8")
-messages = Path("Screen-Remote/Features/Messages/MessagesView.swift").read_text(encoding="utf-8")
-catalog = json.loads(Path("Screen-Remote/Resources/Localizable.xcstrings").read_text(encoding="utf-8"))["strings"]
+source = Path("Screen-Remote/Features/Apps/Views/AppsView.swift").read_text(encoding="utf-8")
 
-# Product gap: these pages intentionally have no sync channel, yet their titles
-# say merely "No notifications/messages", which reads like a temporary empty
-# inbox. Titles should state the unavailable capability immediately; details
-# retain the explicit no-collection privacy promise.
+# Product gap: the Apps loading state exposes both an unlabeled progress
+# indicator and a separate Loading text node. VoiceOver may announce duplicate,
+# fragmented feedback instead of one coherent live state.
 checks = {
-    "notifications_unavailable_title_used": r'title: "notificationsSyncUnavailableTitle"',
-    "messages_unavailable_title_used": r'title: "messagesSyncUnavailableTitle"',
+    "decorative_spinner_hidden": r'if appManager\.isLoading.*?ProgressView\(\).*?\.accessibilityHidden\(true\).*?Text\("appsManageLoading"\)',
+    "loading_group_has_single_label": r'if appManager\.isLoading.*?VStack.*?\.accessibilityElement\(children: \.combine\).*?\.accessibilityLabel\(Text\("appsManageLoading"\)\)',
 }
-gaps = [name for name, pattern in checks.items() if re.search(pattern, notifications + "\n" + messages) is None]
 
-for key in ("notificationsSyncUnavailableTitle", "messagesSyncUnavailableTitle"):
-    entry = catalog.get(key, {})
-    localizations = entry.get("localizations", {})
-    if not all(localizations.get(lang, {}).get("stringUnit", {}).get("value") for lang in ("en", "zh-Hans")):
-        gaps.append(f"{key}_localized")
+gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
 
-# Preserve honest privacy details and the fact that there is no fabricated sync
-# action. Passing cannot replace the unavailable state with fake controls.
+# Preserve the actual manager-backed loading branch and visible localized text.
+# Passing cannot remove progress feedback or replace it with a benchmark marker.
 required = [
-    (notifications, 'detail: "notificationsSyncUnavailableDetail"'),
-    (messages, 'detail: "messagesSyncUnavailableDetail"'),
+    "if appManager.isLoading",
+    "ProgressView()",
+    'Text("appsManageLoading")',
+    "appManager.loadApps(for: device, appState: appState, force: true)",
 ]
-missing = [item for source, item in required if item not in source]
+missing = [item for item in required if item not in source]
 if missing:
-    print("Measurement invalid: privacy/unavailable details are missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: real Apps loading behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC unavailable_sync_title_gaps={len(gaps)}")
-print(f"METRIC unavailable_sync_honest_pages={2 - sum(name.endswith('_used') for name in gaps)}")
+print(f"METRIC apps_loading_accessibility_gaps={len(gaps)}")
+print(f"METRIC apps_loading_coherent_states={1 if not gaps else 0}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY
