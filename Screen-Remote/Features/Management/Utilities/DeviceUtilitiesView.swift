@@ -17,8 +17,25 @@ private enum DeviceUtilitySheet: String, Identifiable {
     var id: String { rawValue }
 }
 
+private enum DeviceUtilitySection: CaseIterable, Identifiable {
+    case systemOptimization
+    case displayControls
+    case quickActions
+
+    var id: Self { self }
+
+    var title: LocalizedStringKey {
+        switch self {
+        case .systemOptimization: "managementSystemOptimizationSection"
+        case .displayControls: "managementDisplayControlsSection"
+        case .quickActions: "managementQuickActionsSection"
+        }
+    }
+}
+
 private struct DeviceUtilityItem: Identifiable {
     let sheet: DeviceUtilitySheet
+    let section: DeviceUtilitySection
     let title: LocalizedStringKey
     let icon: String
     let detail: String
@@ -65,6 +82,7 @@ struct DeviceUtilitiesView: View {
         [
             DeviceUtilityItem(
                 sheet: .fixedPort,
+                section: .systemOptimization,
                 title: "managementFixedPort",
                 icon: "wifi",
                 detail: snapshot.wirelessPort.isEmpty
@@ -73,24 +91,28 @@ struct DeviceUtilitiesView: View {
             ),
             DeviceUtilityItem(
                 sheet: .screenshot,
+                section: .quickActions,
                 title: "managementScreenshot",
                 icon: "camera",
                 detail: String.localizedKey("managementScreenshotPreviewDetail")
             ),
             DeviceUtilityItem(
                 sheet: .reboot,
+                section: .quickActions,
                 title: "managementAdvancedReboot",
                 icon: "restart",
                 detail: String.localizedKey("managementAdvancedRebootDetail")
             ),
             DeviceUtilityItem(
                 sheet: .activation,
+                section: .systemOptimization,
                 title: "managementActivateApp",
                 icon: "checkmark.shield",
                 detail: String.localizedKey("managementActivateAppDetail")
             ),
             DeviceUtilityItem(
                 sheet: .density,
+                section: .displayControls,
                 title: "managementChangeDensity",
                 icon: "textformat.size",
                 detail: snapshot.density.isEmpty
@@ -99,6 +121,7 @@ struct DeviceUtilitiesView: View {
             ),
             DeviceUtilityItem(
                 sheet: .resolution,
+                section: .displayControls,
                 title: "managementChangeResolution",
                 icon: "rectangle.arrowtriangle.2.outward",
                 detail: snapshot.resolutionWidth.isEmpty
@@ -107,12 +130,14 @@ struct DeviceUtilitiesView: View {
             ),
             DeviceUtilityItem(
                 sheet: .animation,
+                section: .systemOptimization,
                 title: "managementAnimationScale",
                 icon: "slider.horizontal.3",
                 detail: String.localizedKey("managementAnimationScaleDetail")
             ),
             DeviceUtilityItem(
                 sheet: .standby,
+                section: .quickActions,
                 title: "managementStandby",
                 icon: "moon.zzz",
                 detail: String.localizedKey("managementStandbyActionsDetail")
@@ -142,46 +167,53 @@ struct DeviceUtilitiesView: View {
                                 in: RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
                             )
                     }
-                    LazyVGrid(columns: managementCardColumns, alignment: .center, spacing: AppSpacing.md) {
-                        ForEach(actions) { action in
-                            Button { present(action.sheet) } label: {
-                                HStack(spacing: AppSpacing.sm) {
-                                    Image(systemName: action.icon)
-                                        .font(AppTypography.section)
-                                        .foregroundColor(AppTheme.accent)
-                                        .frame(width: 24, height: 24)
-                                        .accessibilityHidden(true)
-                                    VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                                        Text(action.title)
-                                            .font(AppTypography.subheadline.weight(.semibold))
-                                        Text(action.detail)
-                                            .font(AppTypography.caption)
-                                            .foregroundColor(.secondary)
-                                            .multilineTextAlignment(.leading)
-                                            .lineLimit(2)
-                                    }
-                                    Spacer()
-                                    Image(systemName: "chevron.right")
-                                        .font(AppTypography.caption2.weight(.semibold))
-                                        .foregroundColor(Color.secondary.opacity(0.7))
-                                        .accessibilityHidden(true)
+                    ForEach(DeviceUtilitySection.allCases) { section in
+                        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                            Text(section.title)
+                                .font(AppTypography.section)
+                                .accessibilityAddTraits(.isHeader)
+                            LazyVGrid(columns: managementCardColumns, alignment: .center, spacing: AppSpacing.md) {
+                                ForEach(actions.filter { $0.section == section }) { action in
+                                    Button { present(action.sheet) } label: {
+                                        HStack(spacing: AppSpacing.sm) {
+                                            Image(systemName: action.icon)
+                                                .font(AppTypography.section)
+                                                .foregroundColor(AppTheme.accent)
+                                                .frame(width: 24, height: 24)
+                                                .accessibilityHidden(true)
+                                            VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                                                Text(action.title)
+                                                    .font(AppTypography.subheadline.weight(.semibold))
+                                                Text(action.detail)
+                                                    .font(AppTypography.caption)
+                                                    .foregroundColor(.secondary)
+                                                    .multilineTextAlignment(.leading)
+                                                    .lineLimit(2)
+                                            }
+                                            Spacer()
+                                            Image(systemName: "chevron.right")
+                                                .font(AppTypography.caption2.weight(.semibold))
+                                                .foregroundColor(Color.secondary.opacity(0.7))
+                                                .accessibilityHidden(true)
+                                        }
+                                        .padding(.horizontal, AppSpacing.md)
+                                        .padding(.vertical, AppSpacing.md)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
+                                                .fill(Color.primary.opacity(0.025))
+                                        )
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
+                                                .stroke(AppTheme.line, lineWidth: 1)
+                                        )
+                                        .accessibilityElement(children: .combine)
+                                    }.buttonStyle(.plain).disabled(isBusy)
                                 }
-                                .padding(.horizontal, AppSpacing.md)
-                                .padding(.vertical, AppSpacing.md)
-                                .background(
-                                    RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
-                                        .fill(Color.primary.opacity(0.025))
-                                )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: AppRadius.small, style: .continuous)
-                                        .stroke(AppTheme.line, lineWidth: 1)
-                                )
-                                .accessibilityElement(children: .combine)
-                            }.buttonStyle(.plain).disabled(isBusy)
+                            }
                         }
+                        .frame(maxWidth: managementCardGridMaxWidth, alignment: .leading)
+                        .frame(maxWidth: .infinity, alignment: .center)
                     }
-                    .frame(maxWidth: managementCardGridMaxWidth)
-                    .frame(maxWidth: .infinity, alignment: .center)
                 }.padding(isCompact ? AppSpacing.lg : AppSpacing.xxl)
             }
         }

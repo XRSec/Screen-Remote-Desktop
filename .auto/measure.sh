@@ -6,37 +6,36 @@ from pathlib import Path
 import re
 import sys
 
-path = Path("Screen-Remote/Features/Screens/Views/ScrcpySessionParametersMenu.swift")
-source = path.read_text(encoding="utf-8")
+source = Path("Screen-Remote/Features/Management/Utilities/DeviceUtilitiesView.swift").read_text(encoding="utf-8")
+catalog = Path("Screen-Remote/Resources/Localizable.xcstrings").read_text(encoding="utf-8")
+combined = source + "\n" + catalog
 
-# Product gap: the Auxiliary Menu button exposes only a generic label to
-# VoiceOver. Users should hear the currently configured quality, FPS, and video
-# bitrate before opening a menu whose purpose is to change those exact values.
+# Product gap: eight unrelated device utilities currently appear as one flat
+# grid. Grouping them into system, display, and quick-action sections improves
+# scanning and makes high-impact reboot/display controls easier to distinguish.
 checks = {
-    "quality_in_accessibility_summary": r'accessibilitySummary\(options: options\).*?ScreenQualityPreset',
-    "fps_in_accessibility_summary": r'accessibilitySummary\(options: options\).*?options\.maxFPS',
-    "bitrate_in_accessibility_summary": r'accessibilitySummary\(options: options\).*?options\.videoBitrate',
-    "summary_applied_to_button": r'button\.setAccessibilityValue\(accessibilitySummary\(options: options\)\)',
+    "system_optimization_section": r'managementSystemOptimizationSection.*?\.fixedPort.*?\.activation.*?\.animation',
+    "display_controls_section": r'managementDisplayControlsSection.*?\.density.*?\.resolution',
+    "quick_actions_section": r'managementQuickActionsSection.*?\.screenshot.*?\.reboot.*?\.standby',
+    "localized_section_headers": r'"managementSystemOptimizationSection".*?"managementDisplayControlsSection".*?"managementQuickActionsSection"',
 }
 
-gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
+gaps = [name for name, pattern in checks.items() if re.search(pattern, combined, flags=re.S) is None]
 
-# Guard the native menu and its real settings. A passing result must retain the
-# interactive parameter menu rather than replacing it with benchmark markers.
-required = [
-    "ScrcpySessionParametersMenuButton: NSViewRepresentable",
-    "button.action = #selector(ScrcpySessionParametersMenuCoordinator.showMenu(_:))",
-    "makeImageQualityMenu()",
-    "makeFrameRateMenu()",
-    "makeVideoBitrateMenu()",
-]
-missing = [item for item in required if item not in source]
-if missing:
-    print("Measurement invalid: native parameter-menu behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
+# Guard all eight real utility destinations and their existing presentation
+# path. Passing cannot drop an action or bypass present(_:).
+required_cases = ["fixedPort", "screenshot", "reboot", "activation", "density", "resolution", "animation", "standby"]
+missing_cases = [case for case in required_cases if f"sheet: .{case}" not in source]
+required_behavior = ["Button { present(action.sheet) }", "LazyVGrid", "ForEach"]
+missing_behavior = [item for item in required_behavior if item not in source]
+if missing_cases or missing_behavior:
+    print("Measurement invalid: utility behavior is incomplete:", file=sys.stderr)
+    for item in missing_cases + missing_behavior:
+        print(f"- {item}", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC screen_parameter_summary_gaps={len(gaps)}")
-print(f"METRIC screen_parameter_summary_fields={3 - sum(name != 'summary_applied_to_button' for name in gaps)}")
+print(f"METRIC utility_information_architecture_gaps={len(gaps)}")
+print(f"METRIC utility_named_sections={3 - sum(name != 'localized_section_headers' for name in gaps)}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY
