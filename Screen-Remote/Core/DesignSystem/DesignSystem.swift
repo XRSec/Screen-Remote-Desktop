@@ -124,6 +124,7 @@ struct ContentUnavailableViewCompat: View {
                 .font(AppTypography.largeTitle)
                 .foregroundColor(.secondary.opacity(0.85))
                 .frame(width: 44, height: 44)
+                .accessibilityHidden(true)
             VStack(spacing: AppSpacing.xs) {
                 Text(title)
                     .font(AppTypography.section)
