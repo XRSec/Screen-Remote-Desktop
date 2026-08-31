@@ -5,21 +5,38 @@ struct NotificationsView: View {
     let isCompact: Bool
     @State private var searchText = ""
 
+    private var normalizedSearchQuery: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     private var notificationsCountText: String {
-        let count = appState.notifications.count
-        if count == 1 {
-            return String.localizedKey("notificationsCountOne")
+        let totalCount = appState.notifications.count
+        guard !normalizedSearchQuery.isEmpty else {
+            if totalCount == 1 {
+                return String.localizedKey("notificationsCountOne")
+            }
+            return String(format: String.localizedKey("notificationsCount"), totalCount)
         }
-        return String(format: String.localizedKey("notificationsCount"), count)
+        let matchCount = filteredNotifications.count
+        if matchCount == 1 {
+            return String(
+                format: String.localizedKey("notificationsFilteredCountOne"),
+                totalCount
+            )
+        }
+        return String(
+            format: String.localizedKey("notificationsFilteredCount"),
+            matchCount,
+            totalCount
+        )
     }
 
     private var filteredNotifications: [PhoneNotification] {
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !query.isEmpty else { return appState.notifications }
+        guard !normalizedSearchQuery.isEmpty else { return appState.notifications }
         return appState.notifications.filter { notification in
-            notification.app.localizedCaseInsensitiveContains(query)
-                || notification.title.localizedCaseInsensitiveContains(query)
-                || notification.body.localizedCaseInsensitiveContains(query)
+            notification.app.localizedCaseInsensitiveContains(normalizedSearchQuery)
+                || notification.title.localizedCaseInsensitiveContains(normalizedSearchQuery)
+                || notification.body.localizedCaseInsensitiveContains(normalizedSearchQuery)
         }
     }
 

@@ -6714,6 +6714,40 @@
         }
       }
     },
+    "notificationsFilteredCount" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld notifications match"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld / %lld 条通知匹配"
+          }
+        }
+      }
+    },
+    "notificationsFilteredCountOne" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 of %lld notifications matches"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 / %lld 条通知匹配"
+          }
+        }
+      }
+    },
     "notificationsCountOne" : {
       "extractionState" : "manual",
       "localizations" : {

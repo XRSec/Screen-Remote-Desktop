@@ -3,38 +3,44 @@ set -euo pipefail
 
 python3 - <<'PY'
 from pathlib import Path
+import json
 import re
 import sys
 
-source = Path("Screen-Remote/Features/Photos/PhotosView.swift").read_text(encoding="utf-8")
+source = Path("Screen-Remote/Features/Notifications/NotificationsView.swift").read_text(encoding="utf-8")
+catalog = json.loads(Path("Screen-Remote/Resources/Localizable.xcstrings").read_text(encoding="utf-8"))["strings"]
 
-# Product gap: filtering trims whitespace to decide whether an empty state is a
-# search, but filteredPhotos uses the raw string. A query such as " photo " can
-# incorrectly return no results even when "photo" matches. One normalized query
-# should drive filtering, count context, and empty-state classification.
+# Product gap: after searching notifications, the header still announces the
+# total count as though every item were visible. It should distinguish total
+# content from matching results, using the same normalized query as filtering.
 checks = {
-    "normalized_query_source": r'private var normalizedSearchQuery: String.*?searchText\.trimmingCharacters\(in: \.whitespacesAndNewlines\)',
-    "filter_uses_normalized_query": r'filteredPhotos.*?guard !normalizedSearchQuery\.isEmpty.*?localizedCaseInsensitiveContains\(normalizedSearchQuery\)',
-    "count_uses_normalized_query": r'photosCountSummary.*?normalizedSearchQuery\.isEmpty',
-    "empty_state_uses_normalized_query": r'let hasSearchQuery = !normalizedSearchQuery\.isEmpty',
+    "normalized_query_source": r'normalizedSearchQuery.*?searchText\.trimmingCharacters\(in: \.whitespacesAndNewlines\)',
+    "filter_uses_normalized_query": r'filteredNotifications.*?guard !normalizedSearchQuery\.isEmpty.*?localizedCaseInsensitiveContains\(normalizedSearchQuery\)',
+    "count_uses_filtered_and_total": r'notificationsCountText(?=[\s\S]*?normalizedSearchQuery\.isEmpty)(?=[\s\S]*?filteredNotifications\.count)(?=[\s\S]*?appState\.notifications\.count)',
 }
 gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
 
-# Preserve filename filtering, clear action, count summary, and source data.
+for key in ("notificationsFilteredCountOne", "notificationsFilteredCount"):
+    loc = catalog.get(key, {}).get("localizations", {})
+    if not all(loc.get(lang, {}).get("stringUnit", {}).get("value") for lang in ("en", "zh-Hans")):
+        gaps.append(f"{key}_localized")
+
+# Preserve actual three-field search, cards, total collection, and clear action.
 required = [
-    "photos.filter",
-    "$0.name.localizedCaseInsensitiveContains",
+    "notification.app.localizedCaseInsensitiveContains",
+    "notification.title.localizedCaseInsensitiveContains",
+    "notification.body.localizedCaseInsensitiveContains",
+    "ForEach(filteredNotifications)",
+    "appState.notifications.removeAll()",
     'action: { searchText = "" }',
-    "photosCountSummary",
-    "@State private var photos: [RemotePhotoItem]",
 ]
 missing = [item for item in required if item not in source]
 if missing:
-    print("Measurement invalid: Photos search behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: notification search behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC photos_search_normalization_gaps={len(gaps)}")
-print(f"METRIC photos_search_consistent_consumers={4 - len(gaps)}")
+print(f"METRIC notification_filter_count_gaps={len(gaps)}")
+print(f"METRIC notification_filter_count_contexts={2 if not gaps else 1}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY
