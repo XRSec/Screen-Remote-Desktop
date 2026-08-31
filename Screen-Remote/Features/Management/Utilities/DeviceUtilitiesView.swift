@@ -152,6 +152,7 @@ struct DeviceUtilitiesView: View {
                     if isBusy || isRefreshing {
                         ProgressView()
                             .frame(maxWidth: .infinity)
+                            .accessibilityElement(children: .ignore)
                             .accessibilityLabel(Text("commonLoading"))
                     }
                     if let errorMessage { ManagementErrorBanner(message: errorMessage) }
