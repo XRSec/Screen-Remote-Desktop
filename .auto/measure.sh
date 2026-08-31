@@ -6,37 +6,35 @@ from pathlib import Path
 import re
 import sys
 
-sidebar = Path("Screen-Remote/App/Root/SidebarView.swift").read_text(encoding="utf-8")
-components = Path("Screen-Remote/App/Root/SidebarComponents.swift").read_text(encoding="utf-8")
-combined = sidebar + "\n" + components
+source = Path("Screen-Remote/Features/Screens/Views/ScreenComponents.swift").read_text(encoding="utf-8")
 
-# Product gap: collapsing the sidebar removes the visible and VoiceOver session
-# status that expanded rows provide. The compact device control should retain
-# connection/working/failure/battery context and the start/stop named action.
+# Product gap: the ScreenTile header calls configured limits "stream metrics"
+# but currently omits bitrate, a primary quality/bandwidth setting. The visible
+# compact summary should expose resolution, FPS cap, and bitrate together.
 checks = {
-    "snapshot_forwarded_to_collapsed_glyph": r'collapsedDeviceGlyph\(.*?let session = appState\.screenSessions\.session\(for: device\.id\)',
-    "collapsed_status_value": r'collapsedDeviceGlyph.*?accessibilityValue\(Text\(collapsedSessionStatusText\(session\)\)\)',
-    "collapsed_named_session_action": r'collapsedDeviceGlyph.*?accessibilityAction\(named: Text\(collapsedSessionActionKey\(session\)\)\)',
-    "status_semantics_cover_real_states": r'collapsedSessionStatusText.*?phase\.isWorking.*?phase == \.failed.*?supportsBatteryInformation.*?batteryLevel',
+    "bitrate_read_from_options": r'screenMetricsText.*?let videoBitrate = device\.scrcpyOptions\.videoBitrate',
+    "bitrate_in_visible_summary": r'screenMetricsText.*?metrics\.append\(videoBitrate\).*?joined\(separator: " · "\)',
+    "resolution_preserved": r'screenMetricsText.*?let resolution = "\\\(width\) × \\\(height\)".*?metrics = \[resolution\]',
+    "fps_cap_preserved": r'screenMetricsText.*?maxFPS > 0.*?metrics\.append\("≤\\\(maxFPS\) FPS"\)',
 }
 
-gaps = [name for name, pattern in checks.items() if re.search(pattern, combined, flags=re.S) is None]
+gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
 
-# Guard the existing compact selection/double-click behavior and expanded-row
-# state source. A passing result cannot replace or remove session controls.
+# Guard the real rendered surface and accessible summary. Passing cannot remove
+# pixel-size validation or hide the metrics from users/VoiceOver.
 required = [
-    "appState.selectDevice(at: index)",
-    "appState.startScreenSession(deviceID: device.id)",
-    "sessionManager.session(for: device.id)",
-    "onToggleSession",
+    "guard surface.pixelSize.width > 0, surface.pixelSize.height > 0",
+    "Text(metrics)",
+    '.accessibilityLabel(Text("screensStreamMetrics"))',
+    ".accessibilityValue(Text(metrics))",
 ]
-missing = [item for item in required if item not in combined]
+missing = [item for item in required if item not in source]
 if missing:
-    print("Measurement invalid: sidebar session behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
+    print("Measurement invalid: rendered stream summary is missing:", *missing, sep="\n- ", file=sys.stderr)
     sys.exit(2)
 
-print(f"METRIC collapsed_sidebar_session_gaps={len(gaps)}")
-print(f"METRIC collapsed_sidebar_session_semantics={4 - len(gaps)}")
+print(f"METRIC screen_stream_summary_gaps={len(gaps)}")
+print(f"METRIC screen_stream_summary_fields={3 if not gaps else 2}")
 if gaps:
     print("GAPS " + ",".join(gaps))
 PY

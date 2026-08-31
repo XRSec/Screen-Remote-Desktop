@@ -214,8 +214,16 @@ struct ScrcpyParentContainer: View {
         let width = Int(surface.pixelSize.width.rounded())
         let height = Int(surface.pixelSize.height.rounded())
         let resolution = "\(width) × \(height)"
+        var metrics = [resolution]
         let maxFPS = device.scrcpyOptions.maxFPS
-        return maxFPS > 0 ? "\(resolution) · ≤\(maxFPS) FPS" : resolution
+        if maxFPS > 0 {
+            metrics.append("≤\(maxFPS) FPS")
+        }
+        let videoBitrate = device.scrcpyOptions.videoBitrate
+        if !videoBitrate.isEmpty {
+            metrics.append(videoBitrate)
+        }
+        return metrics.joined(separator: " · ")
     }
 
     private var header: some View {
