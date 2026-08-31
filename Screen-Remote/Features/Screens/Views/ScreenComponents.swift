@@ -209,6 +209,12 @@ struct ScrcpyParentContainer: View {
             ?? String.localizedKey("sidebarDeviceConnected")
     }
 
+    private var screenAccessibilityStatusText: String {
+        session.phase.isWorking
+            ? String.localizedKey(session.phase.localizationKey)
+            : String.localizedKey("sidebarDeviceConnected")
+    }
+
     private var screenMetricsText: String? {
         guard surface.pixelSize.width > 0, surface.pixelSize.height > 0 else { return nil }
         let width = Int(surface.pixelSize.width.rounded())
@@ -250,7 +256,7 @@ struct ScrcpyParentContainer: View {
                                     .foregroundColor(.secondary)
                             }
                             .accessibilityElement(children: .ignore)
-                            .accessibilityLabel(Text(screenStatusText))
+                            .accessibilityLabel(Text(screenAccessibilityStatusText))
                             .accessibilityValue(
                                 session.batteryLevel.map { Text("\($0)%") } ?? Text("")
                             )
