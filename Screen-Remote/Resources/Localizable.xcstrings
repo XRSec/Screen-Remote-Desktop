@@ -1682,6 +1682,23 @@
         }
       }
     },
+    "appsManageLaunching" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Launching"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在启动"
+          }
+        }
+      }
+    },
     "appsManageLaunchOnDevice" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7139,6 +7156,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "旋转屏幕"
+          }
+        }
+      }
+    },
+    "screensControlVolumeDown" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volume down"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "降低音量"
           }
         }
       }

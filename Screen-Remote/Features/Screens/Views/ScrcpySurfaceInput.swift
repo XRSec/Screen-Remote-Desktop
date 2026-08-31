@@ -45,6 +45,14 @@ struct ScrcpyBottomControls: View {
                 sendKeyEvent(keyCode: 24)
             }
             ScrcpyContainerControlButton(
+                icon: "speaker.wave.1",
+                help: "screensControlVolumeDown",
+                controlSize: controlSize,
+                iconSize: iconSize
+            ) {
+                sendKeyEvent(keyCode: 25)
+            }
+            ScrcpyContainerControlButton(
                 icon: "power",
                 help: "screensControlPower",
                 controlSize: controlSize,
