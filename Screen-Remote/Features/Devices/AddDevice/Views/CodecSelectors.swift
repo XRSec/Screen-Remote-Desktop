@@ -431,6 +431,7 @@ func codecSelectorHeader(
         }
         .disabled(isRefreshing)
         .help(refreshHelp)
+        .accessibilityLabel(Text(refreshHelp))
         Button("commonDone", action: onDone)
             .keyboardShortcut(.defaultAction)
     }
