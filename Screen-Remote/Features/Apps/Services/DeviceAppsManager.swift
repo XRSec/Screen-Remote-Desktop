@@ -59,6 +59,26 @@ final class DeviceAppsManager: ObservableObject {
         monitorTask = nil
     }
 
+    func clearCache() {
+        loadTask?.cancel()
+        loadTask = nil
+        DeviceAppCacheStore.clearAll()
+        icons.removeAll()
+        apps = apps.map { app in
+            ManagedAndroidApp(
+                packageName: app.packageName,
+                name: app.name,
+                isEnabled: app.isEnabled,
+                isSystem: app.isSystem,
+                versionCode: app.versionCode,
+                lastUpdateTime: app.lastUpdateTime,
+                iconFileName: nil
+            )
+        }
+        loadedDeviceID = nil
+        lastValidationDates.removeAll()
+    }
+
     func loadApps(for device: Device, appState: AppState, force: Bool = false) {
         loadTask?.cancel()
         activeDevice = device
@@ -101,12 +121,7 @@ final class DeviceAppsManager: ObservableObject {
                 )
                 appState.appendSDLLog("Installed apps loaded with DADB helper: \(device.name), count=\(loadedApps.count)")
 
-                let packagesNeedingIcons = loadedApps.compactMap { app -> String? in
-                    if force || app.iconFileName == nil || self.icons[app.packageName] == nil {
-                        return app.packageName
-                    }
-                    return nil
-                }
+                let packagesNeedingIcons = self.packagesNeedingIcons(in: loadedApps, force: force)
                 guard !packagesNeedingIcons.isEmpty else {
                     appState.appendSDLLog("Installed app icon cache validated: \(device.name), count=\(self.icons.count)")
                     return
@@ -169,6 +184,9 @@ final class DeviceAppsManager: ObservableObject {
         }
     }
 
+}
+
+extension DeviceAppsManager {
     func clearData(for app: ManagedAndroidApp, on device: Device, appState: AppState) {
         guard confirm(
             title: String(format: String.localizedKey("appsManageClearDataConfirmTitle"), app.name),
@@ -425,6 +443,13 @@ final class DeviceAppsManager: ObservableObject {
                 title: String.localizedKey("appsManageUninstallCompleteTitle"),
                 message: String(format: String.localizedKey("appsManageUninstallCompleteMessage"), app.name)
             )
+        }
+    }
+
+    private func packagesNeedingIcons(in apps: [ManagedAndroidApp], force: Bool) -> [String] {
+        apps.compactMap { app in
+            guard force || app.iconFileName == nil || icons[app.packageName] == nil else { return nil }
+            return app.packageName
         }
     }
 

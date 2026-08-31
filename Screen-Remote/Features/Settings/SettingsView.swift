@@ -199,7 +199,7 @@ struct SettingsView: View {
         alert.addButton(withTitle: String.localizedKey("commonCancel"))
         guard alert.runModal() == .alertFirstButtonReturn else { return }
 
-        DeviceAppCacheStore.clearAll()
+        appState.deviceApps.clearCache()
         ScrcpyCodecCapabilityCache.clearAll()
         refreshCacheUsage()
         appState.appendSDLLog("Application caches cleared", tag: .other)
