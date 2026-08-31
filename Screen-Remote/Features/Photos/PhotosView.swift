@@ -221,6 +221,10 @@ struct PhotosView: View {
                 confirmDelete(item)
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityAction { selectedPhotoID = item.id }
     }
 
     private func loadPhotos() {
