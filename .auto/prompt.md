@@ -1,14 +1,16 @@
 # Autoresearch: Screen Remote macOS 原生 UI 质量迭代
 
 ## Objective
-持续改进 `Screen-Remote-macOS` 的原生 SwiftUI 设计一致性、可访问性与诚实状态表达。每轮只选择一个有真实用户价值、边界明确的缺口；完成后可为下一目标重新调用 `init_experiment`。
+当前首要目标是降低 `Screen-Remote-macOS` 用户可感知的 UI 卡顿，并控制 autoresearch 产出的范围与质量。每轮只选择一个有真实用户价值、边界明确、能够用运行时证据验证的性能缺口；完成后可为下一目标重新调用 `init_experiment`。
 
-当前工作树从原 macOS 会话完整复制，已经包含此前保留的 UI/无障碍改进。不要重新实现已完成项。
+当前工作树已累计大量 UI/无障碍改进。除非监督会话明确批准，暂停继续添加单个 `accessibilityLabel`、`accessibilityValue`、header trait、单复数文案、静态 token 替换等微型实验；不要为了持续出提交而寻找新的字符串或正则缺口。
 
 ## Metrics
-- **Primary**: 每个有界实验自己的 `*_gaps`（count，lower is better）
-- 每次目标变化时重新调用 `init_experiment`，并同步更新 `.auto/measure.sh`
-- 测量器只能检查真实产品缺口，不得通过弱化规则或只迎合字符串计数使指标变好
+- **Primary**: 优先使用可重复的运行时指标，例如主线程耗时、列表/网格数据处理耗时、缩略图传输字节数、解码尺寸、刷新次数或明确的 UI 延迟代理；方向按指标定义。
+- 静态 `*_gaps` 字符串/正则计数不能作为性能优化的 keep 依据；最多只能充当结构守卫或次要指标。
+- 每次目标变化时重新调用 `init_experiment`，并同步更新 `.auto/measure.sh`。
+- 测量器必须同时验证行为正确性和性能改善，不得通过删除功能、减少数据、弱化规则或只迎合源码字符串使指标变好。
+- 没有可复现基线、候选数据和至少一次最窄运行时验证时，必须 discard，不得 keep。
 
 ## How to Run
 `./.auto/measure.sh`
@@ -32,6 +34,11 @@
 5. 保持 ADB、scrcpy、下载、删除、导航、选择和窗口生命周期行为不变，除非当轮目标明确要求。
 6. 每轮先运行最窄检查；需要编译时使用 `Screen-Remote` scheme / My Mac，不因普通小改动反复构建。
 7. 只在当前 `Screen-Remote-macOS` 子仓库工作；不得修改 Android 子仓库、聚合根或其它 worktree。
+8. 每轮开始先读取 `.auto/SUPERVISION.md`；其中的暂停项、优先级和验收门槛高于 ideas backlog。
+9. 禁止继续以“一处无障碍修饰符 + 正则计数归零”的模式产生提交；共享且高影响的无障碍缺陷也必须先由监督会话确认。
+10. 性能轮次只改与已测瓶颈直接相关的最少文件；不要顺手美化、改文案或扩大重构。
+11. 不要每轮都运行完整 Xcode build。候选通过性能测量后再做一次最窄编译验证；纯基线不构建。
+12. 当前未完成候选若没有运行时性能证据，应完成记录后 discard，不要仅凭静态文案指标 keep。
 
 ## What's Been Tried
 已保留的近期改进包括：
@@ -42,4 +49,4 @@
 - Photos 区分搜索无结果与真实空图库，并提供清除搜索操作与英中资源。
 - Management / Utilities 已完成多轮字体、间距、图标、字段标签、badge、sheet 标题和加载语义收敛。
 
-下一轮先从 `.auto/ideas.md` 选择未完成方向；若现有实现已覆盖，不重复修改，改选更有证据的缺口。
+下一轮先读取 `.auto/SUPERVISION.md`，再从 `.auto/ideas.md` 的性能优先队列选择方向；若无法建立运行时基线，先做有界测量基础设施实验，不得退回微型无障碍/文案扫尾。

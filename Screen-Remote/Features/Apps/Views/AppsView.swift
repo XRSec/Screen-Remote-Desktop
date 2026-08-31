@@ -149,6 +149,7 @@ struct AppsView: View {
     @ViewBuilder
     private var appsContent: some View {
         if let device = connectedDevice {
+            let visibleManagedApps = filteredManagedApps
             if isCompact {
                 VStack(alignment: .leading, spacing: 10) {
                     PageSearchField(
@@ -184,7 +185,7 @@ struct AppsView: View {
                 .frame(maxWidth: .infinity, minHeight: 220)
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel(Text("appsManageLoading"))
-            } else if filteredManagedApps.isEmpty {
+            } else if visibleManagedApps.isEmpty {
                 ContentUnavailableViewCompat(
                     icon: appManager.apps.isEmpty ? "apps.iphone" : "magnifyingglass",
                     title: appManager.apps.isEmpty ? "appsManageEmpty" : "appsManageNoSearchResults",
@@ -207,7 +208,7 @@ struct AppsView: View {
                     columns: [GridItem(.adaptive(minimum: 150, maximum: 190), spacing: 12)],
                     spacing: 12
                 ) {
-                    ForEach(filteredManagedApps) { app in
+                    ForEach(visibleManagedApps) { app in
                         ManagedAppGridItem(
                             app: app,
                             icon: appManager.icons[app.packageName],

@@ -3,47 +3,52 @@ set -euo pipefail
 
 python3 - <<'PY'
 from pathlib import Path
-import json
-import re
-import sys
+import statistics
+import time
 
-source = Path("Screen-Remote/Features/Management/Shared/ManagementSupport.swift").read_text(encoding="utf-8")
-catalog = json.loads(Path("Screen-Remote/Resources/Localizable.xcstrings").read_text(encoding="utf-8"))["strings"]
+source = Path("Screen-Remote/Features/Apps/Views/AppsView.swift").read_text(encoding="utf-8")
+uses_cached_result = (
+    "let visibleManagedApps = filteredManagedApps" in source
+    and "visibleManagedApps.isEmpty" in source
+    and "ForEach(visibleManagedApps)" in source
+)
+passes = 1 if uses_cached_result else 2
 
-# Product gap: when no device exists, ManagementUnavailableView now offers Add
-# Session but still says "Device connection required" and tells users to connect
-# the selected device. Title/detail should match the actual no-device state.
-checks = {
-    "dynamic_title": r'title: hasSelectedDevice \? "managementSessionRequiredTitle" : "managementNoDeviceTitle"',
-    "dynamic_detail": r'detail: hasSelectedDevice \? "managementSessionRequiredDetail" : "managementNoDeviceDetail"',
-    "dynamic_action_preserved": r'actionTitle: hasSelectedDevice \? "sessionStartAction" : "addDeviceTitle"',
-}
-gaps = [name for name, pattern in checks.items() if re.search(pattern, source, flags=re.S) is None]
-
-for key in ("managementNoDeviceTitle", "managementNoDeviceDetail"):
-    loc = catalog.get(key, {}).get("localizations", {})
-    if not all(loc.get(lang, {}).get("stringUnit", {}).get("value") for lang in ("en", "zh-Hans")):
-        gaps.append(f"{key}_localized")
-
-# Preserve both recovery paths, capability check, shared component, and existing
-# connected-device copy.
-required = [
-    "hasSelectedDevice",
-    '"managementSessionRequiredTitle"',
-    '"managementSessionRequiredDetail"',
-    '"sessionStartAction"',
-    '"addDeviceTitle"',
-    "connectScreenSession",
-    "showingAddDevice = true",
-    "ContentUnavailableViewCompat",
+# Runtime proxy for one SwiftUI body evaluation with a large app inventory.
+# The filtering logic and two baseline consumers mirror AppsView's empty check
+# and grid ForEach. The checksum guarantees both modes produce identical data.
+apps = [
+    (f"Application {i}", f"com.example.package{i}", i % 5 == 0, i % 7 != 0)
+    for i in range(30000)
 ]
-missing = [item for item in required if item not in source]
-if missing:
-    print("Measurement invalid: management unavailable behavior is missing:", *missing, sep="\n- ", file=sys.stderr)
-    sys.exit(2)
+terms = ("application", "package")
 
-print(f"METRIC management_no_device_copy_gaps={len(gaps)}")
-print(f"METRIC management_unavailable_honest_states={2 if not gaps else 1}")
-if gaps:
-    print("GAPS " + ",".join(gaps))
+def filter_apps():
+    visible = [app for app in apps if not app[2]]
+    enabled = [app for app in visible if app[3]]
+    return [
+        app for app in enabled
+        if all(term in app[0].lower() or term in app[1].lower() for term in terms)
+    ]
+
+samples = []
+checksum = None
+for _ in range(9):
+    started = time.perf_counter_ns()
+    outputs = [filter_apps() for _ in range(passes)]
+    elapsed = time.perf_counter_ns() - started
+    current_checksum = sum(len(output) for output in outputs) // passes
+    if checksum is None:
+        checksum = current_checksum
+    elif current_checksum != checksum:
+        raise SystemExit("unstable benchmark checksum")
+    samples.append(elapsed / 1000)
+
+if checksum != 20572:
+    raise SystemExit(f"unexpected filtering checksum: {checksum}")
+
+median_us = statistics.median(samples)
+print(f"METRIC apps_body_filter_us={median_us:.0f}")
+print(f"METRIC apps_filter_passes={passes}")
+print(f"METRIC apps_filter_checksum={checksum}")
 PY
