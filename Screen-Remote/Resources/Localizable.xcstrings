@@ -3184,6 +3184,40 @@
         }
       }
     },
+    "groupDeleteConfirmationDetail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This also deletes all child groups and removes these group assignments from devices. This action can't be undone."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这还会删除所有子分组，并移除设备的相关分组归属。此操作无法撤销。"
+          }
+        }
+      }
+    },
+    "groupDeleteConfirmationTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete “%@”?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除“%@”？"
+          }
+        }
+      }
+    },
     "groupDeleteSubtree" : {
       "localizations" : {
         "en" : {

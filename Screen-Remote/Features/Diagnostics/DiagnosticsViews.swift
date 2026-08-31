@@ -553,15 +553,31 @@ struct GroupManagerView: View {
             .buttonStyle(.plain)
             .help("groupAddChild")
             Button {
-                appState.removeGroup(id: group.id)
-                if parentID == group.id || !appState.groups.contains(where: { $0.id == parentID }) {
-                    parentID = DeviceGroup.allID
-                }
+                confirmRemoveGroup(group)
             } label: {
                 Image(systemName: "trash").foregroundColor(.red)
             }
             .buttonStyle(.plain)
             .help("groupDeleteSubtree")
+        }
+    }
+
+    private func confirmRemoveGroup(_ group: DeviceGroup) {
+        let alert = NSAlert()
+        alert.messageText = String(
+            format: String.localizedKey("groupDeleteConfirmationTitle"),
+            group.name
+        )
+        alert.informativeText = String.localizedKey("groupDeleteConfirmationDetail")
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: String.localizedKey("commonDelete"))
+        alert.addButton(withTitle: String.localizedKey("commonCancel"))
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+
+        appState.removeGroup(id: group.id)
+        if parentID == group.id || !appState.groups.contains(where: { $0.id == parentID }) {
+            parentID = DeviceGroup.allID
         }
     }
 }
