@@ -480,6 +480,7 @@ private struct DirectorySettingRow: View {
                     Image(systemName: status.icon)
                         .foregroundColor(status.color)
                         .help(status.title)
+                        .accessibilityLabel(Text(status.title))
                 }
                 Button("commonChooseEllipsis", action: browse)
                 if let download, status != .ready {
@@ -508,6 +509,7 @@ private struct ExecutableSettingRow: View {
                 Image(systemName: status.icon)
                     .foregroundColor(status.color)
                     .help(status.title)
+                    .accessibilityLabel(Text(status.title))
                 Button("commonChooseEllipsis", action: browse)
                 if let download, status != .ready {
                     Button("commonDownloadEllipsis", action: download)
@@ -529,6 +531,7 @@ private struct SettingsSectionHeader: View {
                 .font(AppTypography.subheadline.weight(.semibold))
                 .foregroundColor(.secondary)
                 .frame(width: 22, height: 22)
+                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 1) {
                 Text(title)
                     .font(AppTypography.subheadline.weight(.semibold))
