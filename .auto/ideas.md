@@ -25,6 +25,10 @@
 - [x] Processes 解析主线程审计(2026-09-01):parseProcesses 在 MainActor 同步执行,但现实 600 进程仅约 1.4ms;后台化后主线程仍等 ~1.4ms 才显示,感知收益≈0。3000 进程压力档 7ms 为极端情况。不值得优化。
 - [x] Processes/DeviceFiles 过滤复用审计(2026-09-01):单 body 2 次过滤(ForEach+count),现实规模 0.5-1.5ms/keystroke,收益边缘,不做。
 - [x] ScreenSessionSnapshot/FPS/码率审计(2026-09-01):snapshot 无 FPS/码率高频字段;battery 60s 刷新;唯一每帧发布是 ScrcpyVideoSurface(image,渲染必需)。无未处理的过宽 invalidation。
+- [x] SDLLog 高亮正则编译缓存(2026-09-01,keep eca105a):日志页每次更新全量重建 attributedLogText,highlightKeywords 对每条日志建 3 个 NSRegularExpression(4.2ms)→ 静态常量缓存(1.4ms,-67.5%)。日志窗口会话中持续追加,用户观看时消除周期性卡顿。
+- [x] 正则点扫描(2026-09-01):DeviceInformationParser(30+ 静态 pattern,低频)、VirtualDeviceService.parseSkin(低频)、ToolInstallerAndroidSDK progress(30μs/次,低频)、ScrcpySessionConfiguration(每次调用编译一次,正确)均非热点。
+- [x] SDLLog visibleLogs 多重过滤审计(2026-09-01):200 条 5 次过滤仅 17.8μs,非热点。
+- [x] ScrcpySessionParametersMenu/ScreensWorkspace 审计(2026-09-01):menu filter/sorted 仅在打开菜单时执行(低频);workspace 设备过滤规模小。均非热点。
 ## 暂停池：需监督明确批准
 
 - [ ] Apps 分类 Chip 的纯样式调整。
