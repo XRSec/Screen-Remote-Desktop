@@ -168,31 +168,5 @@ export const BottomStatusBar: React.FC<BottomStatusBarProps> = ({
         <span className="text-slate-400 dark:text-neutral-500 text-[11px] font-sans">Screen Remote</span>
       </div>
     </footer>
-            title="快捷打开 ADB Shell 终端控制台 (快捷键 Cmd+T)"
-          >
-            <Terminal size={11.5} className="text-[var(--cds-clay)] shrink-0" />
-            <span className="text-[11px]">终端控制台</span>
-          </button>
-        )}
-
-        {/* Diagnostics */}
-        {onOpenDiagnostics && (
-          <button
-            type="button"
-            onClick={onOpenDiagnostics}
-            className="flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-white/[0.06] active:bg-white/[0.1] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer border border-transparent hover:border-[var(--border-subtle)]"
-            title="查看系统调试与连接诊断"
-          >
-            <Activity size={11.5} className="text-emerald-400 shrink-0" />
-            <span className="text-[11px]">诊断</span>
-          </button>
-        )}
-
-        <span className="w-[1px] h-3 bg-[var(--border-subtle)]" />
-
-        {/* App Version Tag */}
-        <span className="text-[var(--text-tertiary)] text-[10.5px]">Screen Remote</span>
-      </div>
-    </footer>
   );
 };

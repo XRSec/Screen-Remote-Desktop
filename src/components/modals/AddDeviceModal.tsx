@@ -796,14 +796,14 @@ export const AddDeviceModal: React.FC<AddDeviceModalProps> = ({
                         setSelectedGroup(grp);
                         setShowingGroupSelector(false);
                       }}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                         isSel
-                          ? 'bg-[var(--cds-clay-subtle)] text-[var(--cds-clay)] font-semibold'
-                          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/[0.06]'
+                          ? 'bg-blue-50 dark:bg-blue-600/15 text-blue-900 dark:text-blue-100 font-bold border border-blue-200 dark:border-blue-500/30'
+                          : 'text-slate-800 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10'
                       }`}
                     >
                       <span>{grp}</span>
-                      {isSel && <Check size={14} className="text-[var(--cds-clay)]" />}
+                      {isSel && <Check size={15} className="text-blue-600 dark:text-blue-400" />}
                     </button>
                   );
                 })}
