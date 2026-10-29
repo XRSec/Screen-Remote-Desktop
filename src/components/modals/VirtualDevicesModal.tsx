@@ -248,7 +248,7 @@ export const VirtualDevicesModal: React.FC<VirtualDevicesModalProps> = ({
 
                     <div className="flex items-center gap-1.5">
                       <span>服务</span>
-                      <select className="bg-[#242424] border border-white/10 rounded px-2 py-0.5 text-[11px] text-white outline-none cursor-pointer">
+                      <select className="bg-white dark:bg-[#242424] border border-slate-300 dark:border-white/10 rounded px-2 py-0.5 text-xs text-slate-800 dark:text-white outline-none cursor-pointer">
                         <option>全部</option>
                         <option>AOSP</option>
                         <option>Google APIs</option>
@@ -257,7 +257,7 @@ export const VirtualDevicesModal: React.FC<VirtualDevicesModalProps> = ({
                     </div>
                   </div>
 
-                  <span className="text-[11px] text-neutral-500">
+                  <span className="text-xs text-slate-500 dark:text-neutral-500 font-mono">
                     {images.length} 个镜像
                   </span>
                 </div>
@@ -265,34 +265,34 @@ export const VirtualDevicesModal: React.FC<VirtualDevicesModalProps> = ({
 
               {/* Section: 已安装 */}
               <div className="flex flex-col gap-2 pt-2">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-neutral-300">
-                  <CheckCircle2 size={13} className="text-neutral-400" /> 已安装
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-neutral-300">
+                  <CheckCircle2 size={14} className="text-emerald-500" /> 已安装
                 </div>
 
                 <div className="flex flex-col gap-2">
                   {images.map((img) => (
                     <div
                       key={img.id}
-                      className="flex items-center justify-between p-3.5 bg-[#202020] border border-white/5 rounded-xl shadow-sm"
+                      className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-xl shadow-xs"
                     >
                       <div className="flex items-center gap-3.5">
-                        <div className="w-10 h-10 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-400">
+                        <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
                           <Smartphone size={22} />
                         </div>
                         <div>
-                          <div className="text-xs font-bold text-white">{img.display_name}</div>
-                          <div className="text-[11px] text-neutral-400">{img.path}</div>
+                          <div className="text-sm font-bold text-slate-900 dark:text-white">{img.display_name}</div>
+                          <div className="text-xs text-slate-500 dark:text-neutral-400 font-mono mt-0.5">{img.path}</div>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <span className="flex items-center gap-1 text-[11px] text-green-400 font-medium">
-                          <CheckCircle2 size={12} /> 已安装
+                        <span className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
+                          <CheckCircle2 size={13} /> 已安装
                         </span>
-                        <Lock size={12} className="text-neutral-500" />
+                        <Lock size={13} className="text-slate-400 dark:text-neutral-500" />
                         <button
                           disabled
-                          className="px-3 py-1 bg-neutral-800 text-neutral-500 text-xs rounded-md border border-white/5 cursor-not-allowed"
+                          className="px-3 py-1 bg-slate-200 dark:bg-neutral-800 text-slate-400 dark:text-neutral-500 text-xs rounded-md border border-slate-300 dark:border-white/5 cursor-not-allowed font-medium"
                         >
                           移除
                         </button>
@@ -304,27 +304,27 @@ export const VirtualDevicesModal: React.FC<VirtualDevicesModalProps> = ({
 
               {/* Section: 可供下载 */}
               <div className="flex flex-col gap-2 pt-4">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-neutral-300">
-                  <Download size={13} className="text-neutral-400" /> 可供下载
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-neutral-300">
+                  <Download size={14} className="text-blue-500" /> 可供下载
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between p-3.5 bg-[#202020] border border-white/5 rounded-xl shadow-sm">
+                  <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-xl shadow-xs">
                     <div className="flex items-center gap-3.5">
-                      <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                      <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
                         <Smartphone size={22} />
                       </div>
                       <div>
-                        <div className="text-xs font-bold text-white">
+                        <div className="text-sm font-bold text-slate-900 dark:text-white">
                           API canary-20260909 · google_apis_ps16k · arm64-v8a
                         </div>
-                        <div className="text-[11px] text-neutral-400">
+                        <div className="text-xs text-slate-500 dark:text-neutral-400 font-mono mt-0.5">
                           16 KB Page Size Google APIs ARM 64 v8a System Image
                         </div>
                       </div>
                     </div>
 
-                    <button className="px-3.5 py-1 bg-neutral-800 hover:bg-neutral-700 text-white text-xs font-medium rounded-md border border-white/10 transition-colors">
+                    <button className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-md shadow-xs transition-colors">
                       下载
                     </button>
                   </div>

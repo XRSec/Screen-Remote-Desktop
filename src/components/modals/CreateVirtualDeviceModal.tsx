@@ -81,12 +81,12 @@ export const CreateVirtualDeviceModal: React.FC<CreateVirtualDeviceModalProps> =
                 onClick={() => setDeviceType('phone')}
                 className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all cursor-pointer ${
                   deviceType === 'phone'
-                    ? 'bg-[var(--cds-clay-subtle)] border-[var(--cds-clay)] text-[var(--cds-clay)] shadow-sm'
-                    : 'bg-[var(--bg-card)] border-[var(--border-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                    ? 'bg-blue-50 dark:bg-blue-600/15 border-blue-500 text-blue-900 dark:text-blue-100 shadow-xs ring-1 ring-blue-400/30 font-bold'
+                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-slate-300'
                 }`}
               >
-                <Smartphone size={28} className="mb-2" />
-                <span className="text-xs font-semibold">手机</span>
+                <Smartphone size={30} className="mb-2 text-blue-600 dark:text-blue-400" />
+                <span className="text-sm font-bold">手机</span>
               </button>
 
               <button
@@ -94,12 +94,12 @@ export const CreateVirtualDeviceModal: React.FC<CreateVirtualDeviceModalProps> =
                 onClick={() => setDeviceType('tablet')}
                 className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all cursor-pointer ${
                   deviceType === 'tablet'
-                    ? 'bg-[var(--cds-clay-subtle)] border-[var(--cds-clay)] text-[var(--cds-clay)] shadow-sm'
-                    : 'bg-[var(--bg-card)] border-[var(--border-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                    ? 'bg-blue-50 dark:bg-blue-600/15 border-blue-500 text-blue-900 dark:text-blue-100 shadow-xs ring-1 ring-blue-400/30 font-bold'
+                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-slate-300'
                 }`}
               >
-                <Tablet size={28} className="mb-2" />
-                <span className="text-xs font-semibold">平板</span>
+                <Tablet size={30} className="mb-2 text-blue-600 dark:text-blue-400" />
+                <span className="text-sm font-bold">平板</span>
               </button>
 
               <button
@@ -107,12 +107,12 @@ export const CreateVirtualDeviceModal: React.FC<CreateVirtualDeviceModalProps> =
                 onClick={() => setDeviceType('tv')}
                 className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all cursor-pointer ${
                   deviceType === 'tv'
-                    ? 'bg-[var(--cds-clay-subtle)] border-[var(--cds-clay)] text-[var(--cds-clay)] shadow-sm'
-                    : 'bg-[var(--bg-card)] border-[var(--border-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                    ? 'bg-blue-50 dark:bg-blue-600/15 border-blue-500 text-blue-900 dark:text-blue-100 shadow-xs ring-1 ring-blue-400/30 font-bold'
+                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-slate-300'
                 }`}
               >
-                <Tv size={28} className="mb-2" />
-                <span className="text-xs font-semibold">电视</span>
+                <Tv size={30} className="mb-2 text-blue-600 dark:text-blue-400" />
+                <span className="text-sm font-bold">电视</span>
               </button>
             </div>
           </div>
@@ -120,15 +120,15 @@ export const CreateVirtualDeviceModal: React.FC<CreateVirtualDeviceModalProps> =
           {/* Step 2: 设备外观 */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs font-bold text-[var(--text-primary)]">
-                <span className="w-5 h-5 rounded-full bg-[var(--cds-clay)] text-white flex items-center justify-center text-[11px]">
+              <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
+                <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">
                   2
                 </span>
                 设备外观
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-[11px] text-[var(--text-secondary)]">{skins.length || 9} 个可用外观</span>
+                <span className="text-xs font-mono font-medium text-slate-500 dark:text-slate-400">{skins.length || 9} 个可用外观</span>
               </div>
             </div>
 
@@ -148,16 +148,16 @@ export const CreateVirtualDeviceModal: React.FC<CreateVirtualDeviceModalProps> =
                     onClick={() => setSelectedSkin(skin.name)}
                     className={`flex flex-col items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
                       isSelected
-                        ? 'bg-[var(--cds-clay-subtle)] border-[var(--cds-clay)] text-[var(--cds-clay)] shadow-sm'
-                        : 'bg-[var(--bg-card)] border-[var(--border-card)] hover:border-[var(--border-strong)]'
+                        ? 'bg-blue-50 dark:bg-blue-600/15 border-blue-500 text-blue-950 dark:text-white shadow-xs ring-1 ring-blue-400/30'
+                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-white/10 hover:border-slate-300 text-slate-800 dark:text-slate-200 shadow-xs'
                     }`}
                   >
-                    <div className="h-20 w-12 border border-[var(--border-card)] rounded-lg flex items-center justify-center my-2 bg-black/5 dark:bg-black/30 shadow-inner">
-                      <Smartphone size={20} className={isSelected ? 'text-[var(--cds-clay)]' : 'text-[var(--text-secondary)]'} />
+                    <div className="h-20 w-12 border border-slate-200 dark:border-white/10 rounded-lg flex items-center justify-center my-2 bg-slate-50 dark:bg-black/30 shadow-inner">
+                      <Smartphone size={22} className={isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-neutral-500'} />
                     </div>
                     <div className="text-center w-full">
-                      <div className="text-xs font-semibold text-[var(--text-primary)] truncate">{skin.name}</div>
-                      <div className="text-[10px] text-[var(--text-secondary)]">
+                      <div className="text-xs font-bold text-slate-900 dark:text-white truncate">{skin.name}</div>
+                      <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400 mt-0.5">
                         {skin.width} × {skin.height}
                       </div>
                     </div>

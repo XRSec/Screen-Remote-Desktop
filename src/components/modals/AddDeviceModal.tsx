@@ -641,7 +641,7 @@ export const AddDeviceModal: React.FC<AddDeviceModalProps> = ({
                   </div>
 
                   {/* Segmented Transport Selector */}
-                  <div className="bg-black/5 dark:bg-black/25 p-1 rounded-lg border border-[var(--border-card)] flex gap-1">
+                  <div className="bg-slate-100 dark:bg-black/30 p-1 rounded-lg border border-slate-200 dark:border-white/10 flex gap-1">
                     {(['TCP/IP', 'USB', 'mDNS'] as DeviceTransport[]).map((t) => {
                       const isSel = conn.transport === t;
                       return (
@@ -653,18 +653,18 @@ export const AddDeviceModal: React.FC<AddDeviceModalProps> = ({
                             next[idx].transport = t;
                             setConnections(next);
                           }}
-                          className={`flex-1 py-1 rounded-md text-[11px] font-medium transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                          className={`flex-1 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                             isSel
-                              ? 'bg-[var(--cds-clay)] text-white shadow-sm'
-                              : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                              ? 'bg-blue-600 text-white shadow-xs font-bold'
+                              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                           }`}
                         >
                           {t === 'USB' ? (
-                            <Usb size={12} />
+                            <Usb size={13} />
                           ) : t === 'mDNS' ? (
-                            <Radio size={12} />
+                            <Radio size={13} />
                           ) : (
-                            <Wifi size={12} />
+                            <Wifi size={13} />
                           )}
                           <span>{t}</span>
                         </button>
@@ -676,7 +676,7 @@ export const AddDeviceModal: React.FC<AddDeviceModalProps> = ({
                   {conn.transport === 'TCP/IP' ? (
                     <div className="flex items-center gap-2">
                       <div className="flex-1 flex flex-col gap-1">
-                        <label className="text-[10px] text-[var(--text-secondary)]">主机 / IP 地址</label>
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">主机 / IP 地址</label>
                         <input
                           type="text"
                           placeholder="192.168.1.100 或域名"
